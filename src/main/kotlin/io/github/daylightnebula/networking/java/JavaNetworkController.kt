@@ -20,7 +20,7 @@ class JavaNetworkController: INetworkController {
         while(true) {
             runBlocking {
                 val connected = serverSocket.accept()
-                javaConnections[connected.remoteAddress] = JavaConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel())
+                javaPreConnections[connected.remoteAddress] = JavaPreConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel())
                 println("New connection from ${connected.remoteAddress}")
             }
         }
@@ -31,7 +31,7 @@ class JavaNetworkController: INetworkController {
     val listener = thread(start = false) {
         while(true) {
             // for each connection, process incoming packets
-            javaConnections.forEach { addr, connection ->
+            javaPreConnections.forEach { addr, connection ->
                 val read = connection.read
                 // skip if nothing new
                 if (read.channel.availableForRead == 0) return@forEach
@@ -44,7 +44,7 @@ class JavaNetworkController: INetworkController {
                     println("Got packet $packetID with length $length")
 
                     when (connection.state) {
-                        JavaConnectionState.HANDSHAKE -> {
+                        JavaPreConnectionState.HANDSHAKE -> {
                             // handle handshake packet
                             val protocol = NetworkUtils.readVarInt(data)
                             val address = NetworkUtils.readVarString(data)
@@ -55,14 +55,14 @@ class JavaNetworkController: INetworkController {
 
                             // TODO only run this if the event passes
                             when(nextState) {
-                                1 -> connection.state = JavaConnectionState.STATUS
-                                2 -> connection.state = JavaConnectionState.LOGIN
+                                1 -> connection.state = JavaPreConnectionState.STATUS // TODO send status response packet here
+                                2 -> connection.state = JavaPreConnectionState.LOGIN
                                 else -> throw IllegalArgumentException("Unknown handshake next state $nextState")
                             }
                         }
-                        JavaConnectionState.STATUS -> TODO()
-                        JavaConnectionState.LOGIN -> TODO()
-                        JavaConnectionState.IN_GAME -> TODO()
+                        JavaPreConnectionState.STATUS -> TODO()
+                        JavaPreConnectionState.LOGIN -> TODO()
+                        JavaPreConnectionState.IN_GAME -> TODO()
                     }
                 }
             }
@@ -89,11 +89,11 @@ class JavaNetworkController: INetworkController {
     }
 
     // connections
-    private val javaConnections = hashMapOf<SocketAddress, JavaConnection>()
-    data class JavaConnection(val socket: ASocket, val read: ChannelReader, val write: ByteWriteChannel, var state: JavaConnectionState = JavaConnectionState.HANDSHAKE)
+    private val javaPreConnections = hashMapOf<SocketAddress, JavaPreConnection>()
+    data class JavaPreConnection(val socket: ASocket, val read: ChannelReader, val write: ByteWriteChannel, var state: JavaPreConnectionState = JavaPreConnectionState.HANDSHAKE)
 
     // connection state
-    enum class JavaConnectionState {
+    enum class JavaPreConnectionState {
         HANDSHAKE,
         STATUS,
         LOGIN,
