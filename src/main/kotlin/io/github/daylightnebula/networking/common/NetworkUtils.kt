@@ -1,8 +1,10 @@
 package io.github.daylightnebula.networking.common
 
+import java.nio.ByteBuffer
+
 object NetworkUtils {
-    private const val SEGMENT_BITS = 0x7F
-    private const val CONTINUE_BIT = 0x80
+    const val SEGMENT_BITS = 0x7F
+    const val CONTINUE_BIT = 0x80
 
     fun readVarInt(reader: IReader): Int {
         var value = 0
@@ -28,4 +30,6 @@ object NetworkUtils {
         return if (isBigEndian) (((bytes[0].toInt() and 255) shl 8) or (bytes[1].toInt() and 255)).toUShort()
         else (((bytes[1].toInt() and 255) shl 8) or (bytes[0].toInt() and 255)).toUShort()
     }
+
+    fun readLong(reader: IReader) = ByteBuffer.wrap(reader.readArray(8)).getLong(0)
 }

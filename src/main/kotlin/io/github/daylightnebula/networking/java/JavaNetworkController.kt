@@ -1,14 +1,14 @@
 package io.github.daylightnebula.networking.java
 
-import io.github.daylightnebula.javaPort
-import io.github.daylightnebula.networking.common.ByteArrayReader
-import io.github.daylightnebula.networking.common.ChannelReader
-import io.github.daylightnebula.networking.common.INetworkController
-import io.github.daylightnebula.networking.common.NetworkUtils
+import io.github.daylightnebula.Meld
+import io.github.daylightnebula.networking.common.*
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.*
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.*
 import kotlin.concurrent.thread
 
 class JavaNetworkController: INetworkController {
@@ -20,7 +20,7 @@ class JavaNetworkController: INetworkController {
         while(true) {
             runBlocking {
                 val connected = serverSocket.accept()
-                javaPreConnections[connected.remoteAddress] = JavaPreConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel())
+                javaPreConnections[connected.remoteAddress] = JavaPreConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel(autoFlush = true))
                 println("New connection from ${connected.remoteAddress}")
             }
         }
@@ -31,39 +31,19 @@ class JavaNetworkController: INetworkController {
     val listener = thread(start = false) {
         while(true) {
             // for each connection, process incoming packets
-            javaPreConnections.forEach { addr, connection ->
+            javaPreConnections.forEach { (addr, connection) ->
                 val read = connection.read
                 // skip if nothing new
                 if (read.channel.availableForRead == 0) return@forEach
 
                 // asynchronously read packet
-                GlobalScope.async {
+                runBlocking {
                     val length = NetworkUtils.readVarInt(read)
                     val packetID = NetworkUtils.readVarInt(read)
-                    val data = ByteArrayReader(read.readArray(length))
-                    println("Got packet $packetID with length $length")
+                    val data = ByteArrayReader(read.readArray(length - 1))
+                    println("Got packet $packetID with length $length on state ${connection.state}")
 
-                    when (connection.state) {
-                        JavaPreConnectionState.HANDSHAKE -> {
-                            // handle handshake packet
-                            val protocol = NetworkUtils.readVarInt(data)
-                            val address = NetworkUtils.readVarString(data)
-                            val port = NetworkUtils.readUShort(data, true)
-                            val nextState = NetworkUtils.readVarInt(data)
-
-                            // TODO broadcast event here
-
-                            // TODO only run this if the event passes
-                            when(nextState) {
-                                1 -> connection.state = JavaPreConnectionState.STATUS // TODO send status response packet here
-                                2 -> connection.state = JavaPreConnectionState.LOGIN
-                                else -> throw IllegalArgumentException("Unknown handshake next state $nextState")
-                            }
-                        }
-                        JavaPreConnectionState.STATUS -> TODO()
-                        JavaPreConnectionState.LOGIN -> TODO()
-                        JavaPreConnectionState.IN_GAME -> TODO()
-                    }
+                    readPreJoinPacket(addr, connection, data, packetID)
                 }
             }
 
@@ -72,10 +52,73 @@ class JavaNetworkController: INetworkController {
         }
     }
 
+    private fun pingJson(): JSONObject = JSONObject()
+        .put("version", JSONObject().put("name", Meld.version).put("protocol", Meld.protocol))
+        .put("players", JSONObject().put("max", Meld.maxPlayers).put("online", Meld.players).put("sample", JSONArray().put(JSONObject().put("name", "hello_world").put("id", UUID.randomUUID().toString()))))
+        .put("description", JSONObject().put("text", Meld.description))
+        .put("favicon", JSONObject().put("favicon", Meld.favicon))
+        .put("enforcesSecureChat", Meld.enforceSecureChat)
+        .put("previewsChat", Meld.previewsChat)
+
+    private suspend fun readPreJoinPacket(address: SocketAddress, connection: JavaPreConnection, reader: ByteArrayReader, packetID: Int) {
+        when (connection.state) {
+            JavaPreConnectionState.HANDSHAKE -> {
+                // handle handshake packet
+                val protocol = NetworkUtils.readVarInt(reader)
+                val address = NetworkUtils.readVarString(reader)
+                val port = NetworkUtils.readUShort(reader, true)
+                val nextState = NetworkUtils.readVarInt(reader)
+
+                // TODO broadcast event here
+
+                // TODO only run this if the event passes
+                when (nextState) {
+                    1 -> connection.state = JavaPreConnectionState.STATUS
+                    2 -> connection.state = JavaPreConnectionState.LOGIN
+                    else -> throw IllegalArgumentException("Unknown handshake next state $nextState")
+                }
+            }
+
+            JavaPreConnectionState.STATUS -> {
+                when (packetID) {
+                    0 -> {
+                        // assemble status response packet
+                        val packet = DataPacket(0)
+                        packet.writeJSON(pingJson())
+
+                        // write packet to connection
+                        val bytes = packet.getData()
+                        connection.write.writeFully(bytes, 0, bytes.size)
+                    }
+
+                    1 -> {
+                        // read number and build a packet to report it back
+                        val number = NetworkUtils.readLong(reader)
+                        val packet = DataPacket(1)
+                        packet.writeLong(number)
+
+                        // write packet to connection
+                        val bytes = packet.getData()
+                        connection.write.writeFully(bytes, 0, bytes.size)
+
+                        // remove pre join connection as it is not needed anymore
+                        javaPreConnections.remove(address)
+                            ?: throw RuntimeException("Java Pre Connection status removal failed")
+                    }
+
+                    else -> println("Unknown status packet ID $packetID")
+                }
+            }
+
+            JavaPreConnectionState.LOGIN -> TODO()
+            JavaPreConnectionState.IN_GAME -> TODO()
+        }
+    }
+
     override fun start() {
         // start socket
         val selectorManager = ActorSelectorManager(Dispatchers.IO)
-        serverSocket = aSocket(selectorManager).tcp().bind(port = javaPort)
+        serverSocket = aSocket(selectorManager).tcp().bind(port = Meld.javaPort)
 
         // start threads
         acceptor.start()

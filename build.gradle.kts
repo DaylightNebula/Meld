@@ -21,6 +21,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.json:json:20230227")
     implementation("io.ktor:ktor-network-tls-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-cio-jvm:$ktor_version")

@@ -2,9 +2,20 @@ package io.github.daylightnebula
 
 import io.github.daylightnebula.networking.java.JavaNetworkController
 
-// config TODO move to config file
-val javaPort = 25565
-val bedrockPort = 19132
+object Meld {
+    // config TODO move to config file
+    val javaPort = 25565
+    val bedrockPort = 19132
+    val version = "1.20.1"
+    val protocol = 763
+    val maxPlayers = 100
+    val players = 0
+    val description = "Hello World!"
+    val favicon = "data:image/png;base64,<data>"
+    val enforceSecureChat = false
+    val previewsChat = false
+
+}
 
 // network controllers
 val javaController = JavaNetworkController()
