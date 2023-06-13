@@ -31,7 +31,8 @@ class JavaNetworkController: INetworkController {
     val listener = thread(start = false) {
         while(true) {
             // for each connection, process incoming packets
-            javaConnections.forEach { addr, (socket, read, _, state) ->
+            javaConnections.forEach { addr, connection ->
+                val read = connection.read
                 // skip if nothing new
                 if (read.channel.availableForRead == 0) return@forEach
 
@@ -42,10 +43,22 @@ class JavaNetworkController: INetworkController {
                     val data = ByteArrayReader(read.readArray(length))
                     println("Got packet $packetID with length $length")
 
-                    when (state) {
+                    when (connection.state) {
                         JavaConnectionState.HANDSHAKE -> {
+                            // handle handshake packet
                             val protocol = NetworkUtils.readVarInt(data)
-                            println("Found protocol: $protocol")
+                            val address = NetworkUtils.readVarString(data)
+                            val port = NetworkUtils.readUShort(data, true)
+                            val nextState = NetworkUtils.readVarInt(data)
+
+                            // TODO broadcast event here
+
+                            // TODO only run this if the event passes
+                            when(nextState) {
+                                1 -> connection.state = JavaConnectionState.STATUS
+                                2 -> connection.state = JavaConnectionState.LOGIN
+                                else -> throw IllegalArgumentException("Unknown handshake next state $nextState")
+                            }
                         }
                         JavaConnectionState.STATUS -> TODO()
                         JavaConnectionState.LOGIN -> TODO()
@@ -77,7 +90,7 @@ class JavaNetworkController: INetworkController {
 
     // connections
     private val javaConnections = hashMapOf<SocketAddress, JavaConnection>()
-    data class JavaConnection(val socket: ASocket, val read: ChannelReader, val write: ByteWriteChannel, val state: JavaConnectionState = JavaConnectionState.HANDSHAKE)
+    data class JavaConnection(val socket: ASocket, val read: ChannelReader, val write: ByteWriteChannel, var state: JavaConnectionState = JavaConnectionState.HANDSHAKE)
 
     // connection state
     enum class JavaConnectionState {

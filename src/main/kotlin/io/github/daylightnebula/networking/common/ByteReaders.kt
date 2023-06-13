@@ -31,6 +31,7 @@ class ByteArrayReader(val array: ByteArray): IReader {
 
     override fun readArray(count: Int): ByteArray {
         val startIndex = currentByte++
+        currentByte += count - 1
         return array.sliceArray(startIndex until startIndex + count)
     }
 }

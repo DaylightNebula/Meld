@@ -17,4 +17,15 @@ object NetworkUtils {
         }
         return value
     }
+
+    fun readVarString(reader: IReader): String {
+        val length = readVarInt(reader)
+        return String(reader.readArray(length))
+    }
+
+    fun readUShort(reader: IReader, isBigEndian: Boolean): UShort {
+        val bytes = reader.readArray(2) //.map { (it + 128).toUByte() }
+        return if (isBigEndian) (((bytes[0].toInt() and 255) shl 8) or (bytes[1].toInt() and 255)).toUShort()
+        else (((bytes[1].toInt() and 255) shl 8) or (bytes[0].toInt() and 255)).toUShort()
+    }
 }
