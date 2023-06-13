@@ -1,5 +1,7 @@
 package io.github.daylightnebula.networking.common
 
+import io.github.daylightnebula.networking.common.AbstractReader.Companion.CONTINUE_BIT
+import io.github.daylightnebula.networking.common.AbstractReader.Companion.SEGMENT_BITS
 import org.json.JSONObject
 import java.nio.ByteBuffer
 
@@ -24,11 +26,11 @@ class DataPacket(val id: Int) {
         val output = mutableListOf<Byte>()
         var value = v
         while (true) {
-            if (value and NetworkUtils.SEGMENT_BITS.inv() == 0) {
+            if (value and SEGMENT_BITS.inv() == 0) {
                 output.add(value.toByte())
                 return output.toByteArray()
             }
-            output.add((value and NetworkUtils.SEGMENT_BITS or NetworkUtils.CONTINUE_BIT).toByte())
+            output.add((value and SEGMENT_BITS or CONTINUE_BIT).toByte())
 
             // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
             value = value ushr 7

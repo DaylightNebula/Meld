@@ -38,8 +38,8 @@ class JavaNetworkController: INetworkController {
 
                 // asynchronously read packet
                 runBlocking {
-                    val length = NetworkUtils.readVarInt(read)
-                    val packetID = NetworkUtils.readVarInt(read)
+                    val length = read.readVarInt()
+                    val packetID = read.readVarInt()
                     val data = ByteArrayReader(read.readArray(length - 1))
                     println("Got packet $packetID with length $length on state ${connection.state}")
 
@@ -64,10 +64,10 @@ class JavaNetworkController: INetworkController {
         when (connection.state) {
             JavaPreConnectionState.HANDSHAKE -> {
                 // handle handshake packet
-                val protocol = NetworkUtils.readVarInt(reader)
-                val address = NetworkUtils.readVarString(reader)
-                val port = NetworkUtils.readUShort(reader, true)
-                val nextState = NetworkUtils.readVarInt(reader)
+                val protocol = reader.readVarInt()
+                val address = reader.readVarString()
+                val port = reader.readUShort() // big endian
+                val nextState = reader.readVarInt()
 
                 // TODO broadcast event here
 
@@ -93,7 +93,7 @@ class JavaNetworkController: INetworkController {
 
                     1 -> {
                         // read number and build a packet to report it back
-                        val number = NetworkUtils.readLong(reader)
+                        val number = reader.readLong()
                         val packet = DataPacket(1)
                         packet.writeLong(number)
 
@@ -110,7 +110,30 @@ class JavaNetworkController: INetworkController {
                 }
             }
 
-            JavaPreConnectionState.LOGIN -> TODO()
+            JavaPreConnectionState.LOGIN -> {
+                // TODO Encryption
+                when (packetID) {
+                    0 -> {
+                        // unpack packet
+                        val name = reader.readVarString()
+                        val hasUUID = reader.readBoolean()
+                        val uuid: UUID = if (hasUUID) reader.readUUID() else UUID.randomUUID()
+
+                        // build response packet
+                        val packet = DataPacket(2)
+                        packet.writeLong(uuid.mostSignificantBits)
+                        packet.writeLong(uuid.leastSignificantBits)
+                        packet.writeString(name)
+                        packet.writeVarInt(0)
+
+                        // write packet to connection
+                        val bytes = packet.getData()
+                        connection.write.writeFully(bytes, 0, bytes.size)
+                    }
+                    else -> println("Unknown login packet ID $packetID")
+                }
+            }
+
             JavaPreConnectionState.IN_GAME -> TODO()
         }
     }
