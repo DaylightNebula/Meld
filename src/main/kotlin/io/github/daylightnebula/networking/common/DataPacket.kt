@@ -2,6 +2,11 @@ package io.github.daylightnebula.networking.common
 
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.SEGMENT_BITS
+import kotlinx.serialization.encodeToByteArray
+import net.benwoodworth.knbt.Nbt
+import net.benwoodworth.knbt.NbtCompound
+import net.benwoodworth.knbt.NbtCompression
+import net.benwoodworth.knbt.NbtVariant
 import org.json.JSONObject
 import java.nio.ByteBuffer
 
@@ -10,15 +15,6 @@ class DataPacket(val id: Int) {
 
     // add just a byte array
     fun writeByteArray(array: ByteArray) = data.add(array)
-
-    // add a string
-    fun writeString(string: String) {
-        writeVarInt(string.length)
-        data.add(string.toByteArray())
-    }
-
-    // add a json object
-    fun writeJSON(json: JSONObject) = writeString(json.toString(0))
 
     // write varint
     fun writeVarInt(v: Int) = writeByteArray(convertVarInt(v))
@@ -37,12 +33,25 @@ class DataPacket(val id: Int) {
         }
     }
 
-    // write long to output
-    fun writeLong(long: Long) {
-        val buffer = ByteBuffer.allocate(Long.SIZE_BYTES)
-        buffer.putLong(long)
-        data.add(buffer.array())
+    // write primitives
+    fun writeByte(byte: Byte) { data.add(ByteArray(1) { byte }) }
+    fun writeBoolean(bool: Boolean) { data.add(ByteBuffer.allocate(1).put(if (bool) 0x01 else 0x00).array()) }
+    fun writeInt(int: Int) { data.add(ByteBuffer.allocate(4).putInt(int).array()) }
+    fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
+
+    // NBT TODO Make bedrock compatible
+    fun writeNBTCompound(compound: NbtCompound) {
+        val nbt = Nbt {
+            variant = NbtVariant.Java
+            compression = NbtCompression.None
+        }
+        val bytes = nbt.encodeToByteArray(compound)
+        data.add(bytes)
     }
+
+    // write complex objects
+    fun writeString(string: String) { writeVarInt(string.length); data.add(string.toByteArray()) }
+    fun writeJSON(json: JSONObject) = writeString(json.toString(0))
 
     // compile result
     fun getData(): ByteArray {
