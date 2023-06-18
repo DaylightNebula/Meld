@@ -10,7 +10,7 @@ import net.benwoodworth.knbt.NbtVariant
 import org.json.JSONObject
 import java.nio.ByteBuffer
 
-class DataPacket(val id: Int) {
+class DataPacket(val id: Int, val mode: DataPacketMode) {
     private val data = mutableListOf<ByteArray>()
 
     // add just a byte array
@@ -39,10 +39,13 @@ class DataPacket(val id: Int) {
     fun writeInt(int: Int) { data.add(ByteBuffer.allocate(4).putInt(int).array()) }
     fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
 
-    // NBT TODO Make bedrock compatible
+    // NBT
     fun writeNBTCompound(compound: NbtCompound) {
         val nbt = Nbt {
-            variant = NbtVariant.Java
+            variant = when(mode) {
+                DataPacketMode.BEDROCK -> NbtVariant.Bedrock
+                DataPacketMode.JAVA -> NbtVariant.Java
+            }
             compression = NbtCompression.None
         }
         val bytes = nbt.encodeToByteArray(compound)
@@ -77,3 +80,5 @@ class DataPacket(val id: Int) {
         return output
     }
 }
+
+enum class DataPacketMode { JAVA, BEDROCK }
