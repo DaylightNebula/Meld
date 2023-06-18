@@ -26,11 +26,12 @@ class BedrockNetworkController: INetworkController {
                 val reader = ByteReadPacketReader(received.packet)
                 val packetID = reader.nextByte()
 
-                println("Got bedrock packet $packetID")
+                // unpack unconnected ping
+                val time = reader.readLong()
+                val magic = reader.readArray(BedrockMagic.size)
+                val clientUID = reader.readLong()
+                println("Got bedrock packet $packetID with $time $clientUID ${BedrockMagic.verify(magic)}")
             }
-
-            // slow everything down
-//            Thread.sleep(10)
         }
     }
 
