@@ -18,6 +18,7 @@ application {
 
 repositories {
     mavenCentral()
+    maven("https://repo.codemc.org/repository/maven-public/")
 }
 
 dependencies {
@@ -27,6 +28,7 @@ dependencies {
     implementation("io.ktor:ktor-server-cio-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("net.benwoodworth.knbt:knbt:0.11.3")
+    implementation("com.whirvis:jraknet:2.12.4-SNAPSHOT")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation(kotlin("stdlib-jdk8"))

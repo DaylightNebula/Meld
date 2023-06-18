@@ -150,12 +150,18 @@ class JavaNetworkController: INetworkController {
         // start threads
         acceptor.start()
         listener.start()
+
+        println("Started java network controller")
     }
 
     override fun stop() {
         // stop threads
         acceptor.join(100)
         listener.join(100)
+
+        // stop sockets
+        javaPreConnections.forEach { it.value.socket.dispose() }
+        serverSocket.dispose()
     }
 
     // connections

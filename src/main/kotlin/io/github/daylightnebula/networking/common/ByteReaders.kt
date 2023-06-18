@@ -1,9 +1,11 @@
 package io.github.daylightnebula.networking.common
 
 import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.text.String
 
 abstract class AbstractReader() {
     // important abstract functions
@@ -67,4 +69,9 @@ class ByteArrayReader(val array: ByteArray): AbstractReader() {
         currentByte += count - 1
         return array.sliceArray(startIndex until startIndex + count)
     }
+}
+
+class ByteReadPacketReader(val packet: ByteReadPacket): AbstractReader() {
+    override fun nextByte(): Byte = packet.readByte()
+    override fun readArray(count: Int): ByteArray = packet.readBytes(count)
 }

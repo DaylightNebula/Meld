@@ -1,5 +1,6 @@
 package io.github.daylightnebula
 
+import io.github.daylightnebula.networking.bedrock.BedrockNetworkController
 import io.github.daylightnebula.networking.java.JavaNetworkController
 
 object Meld {
@@ -19,11 +20,13 @@ object Meld {
 
 // network controllers
 val javaController = JavaNetworkController()
+val bedrockController = BedrockNetworkController()
 
 fun main() {
     println("Starting...")
 
     javaController.start()
+    bedrockController.start()
 
     println("Started")
 }
