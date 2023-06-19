@@ -38,12 +38,13 @@ class BedrockNetworkController: INetworkController {
 
     suspend fun handleConnected(received: Datagram) {
         val reader = ByteReadPacketReader(received.packet)
-        println("Reading: ${reader.packet.remaining}")
+//        println("Read: ${reader.readArray(reader.packet.remaining.toInt()).map { it.toUInt().toString(16).padStart(2, '0') }.joinToString(" ")}")
+        println("Reading: ${reader.packet.remaining}") // HOLY SHIT THAT WORKED
+        reader.readArray(1)                     // TURNS OUT THIS IS A PACKET ID AND KOTLIN IS JUST DUMB
         val sequenceID = reader.read3Int()
         val flags = reader.nextByte()
         val length = reader.readUShort()
         val index = reader.read3Int()
-        reader.readArray(10)
         val packetID = reader.nextByte()
         println("Sequence ID $sequenceID $flags $length $index ${packetID.toUInt().toString(16)}")
     }
