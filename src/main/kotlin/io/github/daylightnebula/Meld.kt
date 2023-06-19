@@ -5,10 +5,19 @@ import io.github.daylightnebula.networking.java.JavaNetworkController
 
 object Meld {
     // config TODO move to config file
+    // java specific
     val javaPort = 25565
+    val javaProtocol = 763
+    val javaVersion = "1.20.1"
+
+    // bedrock specific
     val bedrockPort = 19132
-    val version = "1.20.1"
-    val protocol = 763
+    val bedrockPortv6 = 19133
+    val reknetProtcol = 11
+    val bedrockProtocol = 593
+    val bedrockVersion = "1.20.10"
+
+    // other stuffs
     val maxPlayers = 100
     val players = 0
     val description = "Hello World!"

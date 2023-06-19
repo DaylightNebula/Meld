@@ -53,7 +53,7 @@ class JavaNetworkController: INetworkController {
     }
 
     private fun pingJson(): JSONObject = JSONObject()
-        .put("version", JSONObject().put("name", Meld.version).put("protocol", Meld.protocol))
+        .put("version", JSONObject().put("name", Meld.javaVersion).put("protocol", Meld.javaProtocol))
         .put("players", JSONObject().put("max", Meld.maxPlayers).put("online", Meld.players).put("sample", JSONArray().put(JSONObject().put("name", "hello_world").put("id", UUID.randomUUID().toString()))))
         .put("description", JSONObject().put("text", Meld.description))
         .put("favicon", JSONObject().put("favicon", Meld.favicon))

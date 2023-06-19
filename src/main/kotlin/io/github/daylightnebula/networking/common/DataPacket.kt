@@ -37,6 +37,8 @@ class DataPacket(val id: Int, val mode: DataPacketMode) {
     fun writeByte(byte: Byte) { data.add(ByteArray(1) { byte }) }
     fun writeBoolean(bool: Boolean) { data.add(ByteBuffer.allocate(1).put(if (bool) 0x01 else 0x00).array()) }
     fun writeInt(int: Int) { data.add(ByteBuffer.allocate(4).putInt(int).array()) }
+    fun writeShort(short: Short) { data.add(ByteBuffer.allocate(2).putShort(short).array()) }
+    fun writeUShort(short: UShort) { data.add(ByteBuffer.allocate(2).putShort(short.toShort()).array()) }
     fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
 
     // NBT
@@ -53,7 +55,7 @@ class DataPacket(val id: Int, val mode: DataPacketMode) {
     }
 
     // write complex objects
-    fun writeString(string: String) { writeVarInt(string.length); data.add(string.toByteArray()) }
+    fun writeString(string: String) { if (mode == DataPacketMode.BEDROCK) writeShort(string.length.toShort()) else writeVarInt(string.length); data.add(string.toByteArray()) }
     fun writeJSON(json: JSONObject) = writeString(json.toString(0))
 
     // compile result
@@ -63,7 +65,7 @@ class DataPacket(val id: Int, val mode: DataPacketMode) {
 
         // get id and length arrays
         val idLength = convertVarInt(id)
-        val lengthLength = convertVarInt(length + idLength.size)
+        val lengthLength = if (mode == DataPacketMode.BEDROCK) byteArrayOf() else convertVarInt(length + idLength.size)
 
         // write initial output
         val output = ByteArray(length + idLength.size + lengthLength.size)

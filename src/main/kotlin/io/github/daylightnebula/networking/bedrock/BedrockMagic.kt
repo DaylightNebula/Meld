@@ -1,8 +1,7 @@
 package io.github.daylightnebula.networking.bedrock
 
 object BedrockMagic {
-
-    private val bytes = byteArrayOf(
+    val bytes = byteArrayOf(
         0x00.toByte(),
         0xff.toByte(),
         0xff.toByte(),

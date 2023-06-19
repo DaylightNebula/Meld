@@ -35,11 +35,15 @@ abstract class AbstractReader() {
 
     // simple primitive reads
     fun readBoolean(): Boolean = nextByte() > 0
-    fun readUShort(): UShort = ByteBuffer.wrap(readArray(2)).getShort().toUShort()
+    fun readShort(): Short = ByteBuffer.wrap(readArray(2)).getShort()
+    fun readUShort(): UShort = readShort().toUShort()
+    fun readInt(): Int = ByteBuffer.wrap(readArray(4)).getInt()
+    fun read3Int(): Int = nextByte() + (nextByte().toInt() shl 8) + (nextByte().toInt() shl 16) // reknet sends 3 byte integers sometimes
     fun readLong() = ByteBuffer.wrap(readArray(8)).getLong(0)
 
     // complex object reads
     fun readVarString(): String = String(readArray(readVarInt()))
+    fun readShortString(): String = String(readArray(readUShort().toInt()))
     fun readUUID(): UUID = UUID(readLong(), readLong())
 }
 
@@ -57,8 +61,8 @@ class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
     }
 }
 
-class ByteArrayReader(val array: ByteArray): AbstractReader() {
-    var currentByte = 0
+class ByteArrayReader(private val array: ByteArray): AbstractReader() {
+    private var currentByte = 0
 
     override fun nextByte(): Byte {
         return array[currentByte++]
