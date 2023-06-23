@@ -61,19 +61,20 @@ repositories {
 }
 
 dependencies {
+    // kotlin
+    implementation(kotlin("stdlib-jdk8"))
     implementation("org.json:json:20230227")
+
+    // networking
     implementation("io.ktor:ktor-network-tls-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-cio-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("net.benwoodworth.knbt:knbt:0.11.3")
+
     implementation(libs.bundles.fastutil)
-//    implementation("it.unimi.dsi:fastutil:8.5.12")
-    api(libs.bundles.protocol) {
-//        substitute
-    }
-//    compileOnly("org.cloudburstmc.protocol:bedrock-connection:3.0.0.Beta1-SNAPSHOT")
+    api(libs.bundles.protocol)
+
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    implementation(kotlin("stdlib-jdk8"))
 }
