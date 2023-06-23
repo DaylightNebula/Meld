@@ -1,9 +1,9 @@
 package io.github.daylightnebula.networking.bedrock
 
-enum class Reliability {
-   UNRELIABLE, UNRELIABLE_SEQUENCED,
-   RELIABLE, RELIABLE_ORDERED, RELIABLE_SEQUENCED,
-   UNRELIABLE_WITH_ACK_RECEIPT, RELIABLE_WITH_ACK_RECEIPT, RELIABLE_ORDERED_WITH_ACK_RECEIPT;
+enum class Reliability(val sendAck: Boolean) {
+   UNRELIABLE(false), UNRELIABLE_SEQUENCED(false),
+   RELIABLE(true), RELIABLE_ORDERED(true), RELIABLE_SEQUENCED(true),
+   UNRELIABLE_WITH_ACK_RECEIPT(false), RELIABLE_WITH_ACK_RECEIPT(true), RELIABLE_ORDERED_WITH_ACK_RECEIPT(true);
 
    fun toRaw() = ordinal shl RAW_SHIFT_SIZE
    fun toByte() = ordinal.toByte()

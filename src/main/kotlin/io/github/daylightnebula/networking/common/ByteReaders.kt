@@ -14,6 +14,7 @@ abstract class AbstractReader() {
     abstract fun readArray(count: Int): ByteArray
     abstract fun reset()
     abstract fun hasNext(): Boolean
+    abstract fun remaining(): Int
 
     // constants
     companion object {
@@ -70,6 +71,9 @@ class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
     override fun hasNext(): Boolean {
         return channel.availableForRead > 0
     }
+
+    override fun remaining(): Int
+        = channel.availableForRead
 }
 
 class ByteArrayReader(private val array: ByteArray): AbstractReader() {
@@ -80,8 +84,8 @@ class ByteArrayReader(private val array: ByteArray): AbstractReader() {
     }
 
     override fun readArray(count: Int): ByteArray {
-        val startIndex = currentByte++
-        currentByte += count - 1
+        val startIndex = currentByte
+        currentByte += count
         return array.sliceArray(startIndex until startIndex + count)
     }
 
@@ -92,6 +96,8 @@ class ByteArrayReader(private val array: ByteArray): AbstractReader() {
     override fun hasNext(): Boolean {
         return currentByte < array.size - 1
     }
+
+    override fun remaining(): Int = array.size - currentByte
 }
 
 class ByteReadPacketReader(val packet: ByteReadPacket): AbstractReader() {
@@ -101,4 +107,5 @@ class ByteReadPacketReader(val packet: ByteReadPacket): AbstractReader() {
     override fun hasNext(): Boolean {
         return !packet.endOfInput
     }
+    override fun remaining(): Int = packet.remaining.toInt()
 }

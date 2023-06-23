@@ -5,10 +5,8 @@ import io.github.daylightnebula.networking.common.*
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.core.*
-import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import java.lang.IndexOutOfBoundsException
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -109,33 +107,42 @@ class BedrockNetworkController: INetworkController {
                in 0x80 .. 0x8d -> {
                   // make sure a connection is found
                   if (connection == null) {
-                     println("Frame set packet received from connection with registered connection!")
+                     println("Frame set packet received from connection without registered connection!")
                      return@runBlocking
                   }
 
-                  // call handler
-                  handleFrameSetPacket(connection, received, reader)
+                  // unpack
+                  val sequenceID = reader.read3Int()
+
+                  // read frames
+                  var sendAck = false
+                  while(reader.remaining() > 0) {
+                     sendAck = handleFrame(connection, received, reader) || sendAck
+                  }
+
+                  // acknowledge the packet
+                  if (sendAck) {
+                     val packet = RawPacket(0xC0, DataPacketMode.BEDROCK)
+                     packet.writeShort(1)
+                     packet.writeBoolean(true)
+                     packet.write3Int(sequenceID)
+                     serverSocket.send(Datagram(ByteReadPacket(packet.getData()), received.address))
+                  }
                }
 
                // otherwise, unknown packet
-               else -> println("WARN Unknown Reknet unconnected packet of ID ${packetID.toInt().toString(16).padStart(2, '0')} with length ${received.packet.remaining}")
+               else -> println("WARN Unknown Reknet packet of ID ${packetID.toInt().toString(16).padStart(2, '0')} with length ${received.packet.remaining}")
             }
          }
       }
    }
 
-   private suspend fun handleFrameSetPacket(connection: BedrockPreConnection, datagram: Datagram, reader: AbstractReader) {
+   private suspend fun handleFrame(connection: BedrockPreConnection, datagram: Datagram, reader: AbstractReader): Boolean {
       // read header
-      val sequenceID = reader.read3Int()
       val flags = reader.nextByte().toInt()
       val reliability = Reliability.fromRaw(flags)
       val hasFragment = flags and Flags.PACKET_PAIR.id() != 0
       val length = reader.readUShort() / 8u // in bits for some ready
-
-//      println("Read: ${reader.readArray(reader..toInt()).map { it.toUInt().toString(16).padStart(2, '0') }.joinToString(" ")}")
-
-
-      println("Frame packet: $sequenceID, $flags, $length, $reliability, $hasFragment")
 
       // handle each type of packet
       when(reliability) {
@@ -161,11 +168,13 @@ class BedrockNetworkController: INetworkController {
 
          else -> println("WARN $reliability handler not implemented")
       }
+
+      // return sequence id for acknowledgement
+      return reliability.sendAck
    }
 
    private suspend fun handleProcessedPacket(connection: BedrockPreConnection, datagram: Datagram, reader: AbstractReader) {
       var packetID = reader.nextByte().toInt()
-      println("Received packet with id ${packetID.toString(16).padStart(2, '0')}")
 
       // make sure packet id is positive
       if (packetID < 0)
@@ -231,10 +240,40 @@ class BedrockNetworkController: INetworkController {
 
          // game packet handler
          0xFE -> {
-            TODO("Game packet handler implementation")
+            handleGamePacket(connection, reader)
+//            // unpack
+//            val extra = reader.readShort()
+//            val packetID = reader.nextByte()
+//            val protocol = reader.readInt()
+//
+//            // read extra bytes
+//            print("Game Packet $extra $packetID $protocol: ")
+//            while(reader.remaining() > 0) {
+//               var str = reader.nextByte().toUInt().toString(16).padStart(2, '0').uppercase()
+//               if (str.length > 2) str = str.substring(str.length - 2, str.length)
+//               print("$str ")
+//            }
+//            println()
+
+
          }
 
          else -> println("WARN Processed handler for packet with ID ${packetID.toString(16).padStart(2, '0')} is not implemented")
+      }
+   }
+
+   suspend fun handleGamePacket(connection: BedrockPreConnection, reader: AbstractReader) {
+      val extra = reader.readShort()
+      val packetID = reader.nextByte().toInt()
+      println("PacketID: $packetID")
+
+      when(packetID) {
+         0x01 -> {
+            val packet = FrameSetPacket(connection, Reliability.UNRELIABLE, 0x03)
+            serverSocket.send(Datagram(ByteReadPacket(packet.encode()), connection.address))
+         }
+
+          else -> println("Unknown game packet $packetID")
       }
    }
 
