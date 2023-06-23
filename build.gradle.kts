@@ -73,7 +73,8 @@ dependencies {
     implementation("net.benwoodworth.knbt:knbt:0.11.3")
 
     implementation(libs.bundles.fastutil)
-    api(libs.bundles.protocol)
+    api(libs.bundles.bedrockprotocol)
+    api(libs.bundles.javaprotocol)
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

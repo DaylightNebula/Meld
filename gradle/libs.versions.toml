@@ -1,7 +1,8 @@
 [versions]
 fastutil = "8.5.3"
-protocol = "3.0.0.Beta1-20230613.104224-93"
-protocol-connection = "3.0.0.Beta1-20230613.104224-92"
+bedrock-protocol = "3.0.0.Beta1-20230613.104224-93"
+bedrock-protocol-connection = "3.0.0.Beta1-20230613.104224-92"
+java-protocol = "1.20-1"
 
 [libraries]
 fastutil-int-int-maps = { group = "com.nukkitx.fastutil", name = "fastutil-int-int-maps", version = "8.5.3" }
@@ -11,10 +12,13 @@ fastutil-int-boolean-maps = { group = "com.nukkitx.fastutil", name = "fastutil-i
 fastutil-object-int-maps = { group = "com.nukkitx.fastutil", name = "fastutil-object-int-maps", version.ref = "fastutil" }
 fastutil-object-object-maps = { group = "com.nukkitx.fastutil", name = "fastutil-object-object-maps", version.ref = "fastutil" }
 
-protocol-common = { group = "org.cloudburstmc.protocol", name = "common", version.ref = "protocol-connection" }
-protocol-codec = { group = "org.cloudburstmc.protocol", name = "bedrock-codec", version.ref = "protocol" }
-protocol-connection = { group = "org.cloudburstmc.protocol", name = "bedrock-connection", version.ref = "protocol-connection" }
+bedrock-protocol-common = { group = "org.cloudburstmc.protocol", name = "common", version.ref = "bedrock-protocol-connection" }
+bedrock-protocol-codec = { group = "org.cloudburstmc.protocol", name = "bedrock-codec", version.ref = "bedrock-protocol" }
+bedrock-protocol-connection = { group = "org.cloudburstmc.protocol", name = "bedrock-connection", version.ref = "bedrock-protocol-connection" }
+
+java-protocol = { group = "com.github.steveice10", name = "mcprotocollib", version.ref = "java-protocol" }
 
 [bundles]
 fastutil = [ "fastutil-int-int-maps", "fastutil-int-long-maps", "fastutil-int-byte-maps", "fastutil-int-boolean-maps", "fastutil-object-int-maps", "fastutil-object-object-maps" ]
-protocol = [ "protocol-common", "protocol-codec", "protocol-connection" ]
+bedrockprotocol = [ "bedrock-protocol-common", "bedrock-protocol-codec", "bedrock-protocol-connection" ]
+javaprotocol = [ "java-protocol" ]
