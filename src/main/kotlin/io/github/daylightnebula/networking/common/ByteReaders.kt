@@ -2,6 +2,7 @@ package io.github.daylightnebula.networking.common
 
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
+import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import kotlinx.coroutines.runBlocking
 import java.nio.ByteBuffer
 import java.util.*
@@ -11,6 +12,8 @@ abstract class AbstractReader() {
     // important abstract functions
     abstract fun nextByte(): Byte
     abstract fun readArray(count: Int): ByteArray
+    abstract fun reset()
+    abstract fun hasNext(): Boolean
 
     // constants
     companion object {
@@ -59,6 +62,14 @@ class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
             array
         }
     }
+
+    override fun reset() {
+        throw NotImplementedException("")
+    }
+
+    override fun hasNext(): Boolean {
+        return channel.availableForRead > 0
+    }
 }
 
 class ByteArrayReader(private val array: ByteArray): AbstractReader() {
@@ -73,9 +84,21 @@ class ByteArrayReader(private val array: ByteArray): AbstractReader() {
         currentByte += count - 1
         return array.sliceArray(startIndex until startIndex + count)
     }
+
+    override fun reset() {
+        currentByte = 0
+    }
+
+    override fun hasNext(): Boolean {
+        return currentByte < array.size - 1
+    }
 }
 
 class ByteReadPacketReader(val packet: ByteReadPacket): AbstractReader() {
     override fun nextByte(): Byte = packet.readByte()
     override fun readArray(count: Int): ByteArray = packet.readBytes(count)
+    override fun reset() { throw NotImplementedException("") }
+    override fun hasNext(): Boolean {
+        return !packet.endOfInput
+    }
 }

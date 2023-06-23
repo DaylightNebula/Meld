@@ -83,7 +83,7 @@ class JavaNetworkController: INetworkController {
                 when (packetID) {
                     0 -> {
                         // assemble status response packet
-                        val packet = DataPacket(0, DataPacketMode.JAVA)
+                        val packet = RawPacket(0, DataPacketMode.JAVA)
                         packet.writeJSON(pingJson())
 
                         // write packet to connection
@@ -94,7 +94,7 @@ class JavaNetworkController: INetworkController {
                     1 -> {
                         // read number and build a packet to report it back
                         val number = reader.readLong()
-                        val packet = DataPacket(1, DataPacketMode.JAVA)
+                        val packet = RawPacket(1, DataPacketMode.JAVA)
                         packet.writeLong(number)
 
                         // write packet to connection
@@ -120,7 +120,7 @@ class JavaNetworkController: INetworkController {
                         val uuid: UUID = if (hasUUID) reader.readUUID() else UUID.randomUUID()
 
                         // build response packet
-                        val packet = DataPacket(2, DataPacketMode.JAVA)
+                        val packet = RawPacket(2, DataPacketMode.JAVA)
                         packet.writeLong(uuid.mostSignificantBits)
                         packet.writeLong(uuid.leastSignificantBits)
                         packet.writeString(name)

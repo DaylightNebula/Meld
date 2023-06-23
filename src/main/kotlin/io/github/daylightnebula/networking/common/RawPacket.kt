@@ -10,7 +10,7 @@ import net.benwoodworth.knbt.NbtVariant
 import org.json.JSONObject
 import java.nio.ByteBuffer
 
-class DataPacket(val id: Int, val mode: DataPacketMode) {
+open class RawPacket(val id: Int, val mode: DataPacketMode) {
     private val data = mutableListOf<ByteArray>()
 
     // add just a byte array
@@ -36,9 +36,10 @@ class DataPacket(val id: Int, val mode: DataPacketMode) {
     // write primitives
     fun writeByte(byte: Byte) { data.add(ByteArray(1) { byte }) }
     fun writeBoolean(bool: Boolean) { data.add(ByteBuffer.allocate(1).put(if (bool) 0x01 else 0x00).array()) }
-    fun writeInt(int: Int) { data.add(ByteBuffer.allocate(4).putInt(int).array()) }
     fun writeShort(short: Short) { data.add(ByteBuffer.allocate(2).putShort(short).array()) }
     fun writeUShort(short: UShort) { data.add(ByteBuffer.allocate(2).putShort(short.toShort()).array()) }
+    fun write3Int(int: Int) { data.add(ByteBuffer.allocate(4).putInt(int).array().slice(0 until 3).toByteArray()) }
+    fun writeInt(int: Int) { data.add(ByteBuffer.allocate(4).putInt(int).array()) }
     fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
 
     // NBT
@@ -58,28 +59,33 @@ class DataPacket(val id: Int, val mode: DataPacketMode) {
     fun writeString(string: String) { if (mode == DataPacketMode.BEDROCK) writeShort(string.length.toShort()) else writeVarInt(string.length); data.add(string.toByteArray()) }
     fun writeJSON(json: JSONObject) = writeString(json.toString(0))
 
-    // compile result
-    fun getData(): ByteArray {
-        // get original length of the data
-        val length = data.sumOf { it.size }
-
-        // get id and length arrays
-        val idLength = convertVarInt(id)
-        val lengthLength = if (mode == DataPacketMode.BEDROCK) byteArrayOf() else convertVarInt(length + idLength.size)
-
-        // write initial output
-        val output = ByteArray(length + idLength.size + lengthLength.size)
-        lengthLength.copyInto(output, 0)
-        idLength.copyInto(output, lengthLength.size)
-
-        // write sub data's to the output
-        var offset = idLength.size + lengthLength.size
+    fun getRawData(): ByteArray {
+        var offset = 0
+        val output = ByteArray(data.sumOf { it.size })
         for (subdata in data) {
             subdata.copyInto(output, offset)
             offset += subdata.size
         }
-
         return output
+    }
+
+    // compile result
+    fun getData(): ByteArray {
+        // get original length of the data
+        val length = data.sumOf { it.size }
+        var offset = 0
+
+        // build header
+        val idLength = if (mode == DataPacketMode.BEDROCK) byteArrayOf(id.toByte()) else convertVarInt(id)
+        val lengthLength =
+            if (mode == DataPacketMode.BEDROCK) byteArrayOf() else convertVarInt(length + idLength.size)
+
+        // return final output
+        return byteArrayOf(
+            *lengthLength,
+            *idLength,
+            *getRawData()
+        )
     }
 }
 
