@@ -29,13 +29,12 @@ object Meld {
 
 // network controllers
 val javaController = JavaNetworkController()
-val bedrockController = BedrockNetworkController()
 
 fun main() {
     println("Starting...")
 
     javaController.start()
-    bedrockController.start()
+    BedrockNetworkController.start()
 
     println("Started")
 }

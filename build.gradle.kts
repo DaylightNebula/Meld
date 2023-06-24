@@ -20,8 +20,12 @@ application {
 }
 
 repositories {
+    maven("https://jitpack.io")
+
     // Floodgate, Cumulus etc.
     maven("https://repo.opencollab.dev/main")
+    maven("https://repo.opencollab.dev/maven-releases/")
+    maven("https://repo.opencollab.dev/maven-snapshots/")
 
     // Paper, Velocity
     maven("https://repo.papermc.io/repository/maven-public")
@@ -75,6 +79,10 @@ dependencies {
     implementation(libs.bundles.fastutil)
     api(libs.bundles.bedrockprotocol)
     api(libs.bundles.javaprotocol)
+
+    implementation("io.netty:netty-all:4.1.66.Final")
+    implementation("io.netty:netty-codec-haproxy:4.1.66.Final")
+//    implementation("io.netty:netty-incubator-transport-native-io_uring:4.1.66.Final")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

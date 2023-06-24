@@ -20,7 +20,7 @@ class JavaNetworkController: INetworkController {
         while(true) {
             runBlocking {
                 val connected = serverSocket.accept()
-                javaPreConnections[connected.remoteAddress] = JavaPreConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel(autoFlush = true))
+                javaConnections[connected.remoteAddress] = JavaConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel(autoFlush = true))
                 println("New connection from ${connected.remoteAddress}")
             }
         }
@@ -31,7 +31,7 @@ class JavaNetworkController: INetworkController {
     val listener = thread(start = false) {
         while(true) {
             // for each connection, process incoming packets
-            javaPreConnections.forEach { (addr, connection) ->
+            javaConnections.forEach { (addr, connection) ->
                 val read = connection.read
                 // skip if nothing new
                 if (read.channel.availableForRead == 0) return@forEach
@@ -60,9 +60,9 @@ class JavaNetworkController: INetworkController {
         .put("enforcesSecureChat", Meld.enforceSecureChat)
         .put("previewsChat", Meld.previewsChat)
 
-    private suspend fun readPreJoinPacket(address: SocketAddress, connection: JavaPreConnection, reader: ByteArrayReader, packetID: Int) {
+    private suspend fun readPreJoinPacket(address: SocketAddress, connection: JavaConnection, reader: ByteArrayReader, packetID: Int) {
         when (connection.state) {
-            JavaPreConnectionState.HANDSHAKE -> {
+            JavaConnectionState.HANDSHAKE -> {
                 // handle handshake packet
                 val protocol = reader.readVarInt()
                 val address = reader.readVarString()
@@ -73,17 +73,17 @@ class JavaNetworkController: INetworkController {
 
                 // TODO only run this if the event passes
                 when (nextState) {
-                    1 -> connection.state = JavaPreConnectionState.STATUS
-                    2 -> connection.state = JavaPreConnectionState.LOGIN
+                    1 -> connection.state = JavaConnectionState.STATUS
+                    2 -> connection.state = JavaConnectionState.LOGIN
                     else -> throw IllegalArgumentException("Unknown handshake next state $nextState")
                 }
             }
 
-            JavaPreConnectionState.STATUS -> {
+            JavaConnectionState.STATUS -> {
                 when (packetID) {
                     0 -> {
                         // assemble status response packet
-                        val packet = RawPacket(0, DataPacketMode.JAVA)
+                        val packet = ByteWriter(0, DataPacketMode.JAVA)
                         packet.writeJSON(pingJson())
 
                         // write packet to connection
@@ -94,7 +94,7 @@ class JavaNetworkController: INetworkController {
                     1 -> {
                         // read number and build a packet to report it back
                         val number = reader.readLong()
-                        val packet = RawPacket(1, DataPacketMode.JAVA)
+                        val packet = ByteWriter(1, DataPacketMode.JAVA)
                         packet.writeLong(number)
 
                         // write packet to connection
@@ -102,7 +102,7 @@ class JavaNetworkController: INetworkController {
                         connection.write.writeFully(bytes, 0, bytes.size)
 
                         // remove pre join connection as it is not needed anymore
-                        javaPreConnections.remove(address)
+                        javaConnections.remove(address)
                             ?: throw RuntimeException("Java Pre Connection status removal failed")
                     }
 
@@ -110,7 +110,7 @@ class JavaNetworkController: INetworkController {
                 }
             }
 
-            JavaPreConnectionState.LOGIN -> {
+            JavaConnectionState.LOGIN -> {
                 // TODO Encryption
                 when (packetID) {
                     0 -> {
@@ -120,7 +120,7 @@ class JavaNetworkController: INetworkController {
                         val uuid: UUID = if (hasUUID) reader.readUUID() else UUID.randomUUID()
 
                         // build response packet
-                        val packet = RawPacket(2, DataPacketMode.JAVA)
+                        val packet = ByteWriter(2, DataPacketMode.JAVA)
                         packet.writeLong(uuid.mostSignificantBits)
                         packet.writeLong(uuid.leastSignificantBits)
                         packet.writeString(name)
@@ -130,15 +130,16 @@ class JavaNetworkController: INetworkController {
                         val bytes = packet.getData()
                         connection.write.writeFully(bytes, 0, bytes.size)
 
-                        // remove pre join connection
-                        javaPreConnections.remove(address)
-                            ?: throw RuntimeException("Java Pre Connection status removal failed in login state")
+                        // TODO add "logged in" connection reference here
+                        // TODO broadcast pre login complete event here
+                        // https://wiki.vg/Protocol#Login_.28play.29
+                        println("TODO java logged in")
                     }
                     else -> println("Unknown login packet ID $packetID")
                 }
             }
 
-            JavaPreConnectionState.IN_GAME -> TODO()
+            JavaConnectionState.IN_GAME -> TODO()
         }
     }
 
@@ -160,19 +161,10 @@ class JavaNetworkController: INetworkController {
         listener.join(100)
 
         // stop sockets
-        javaPreConnections.forEach { it.value.socket.dispose() }
+        javaConnections.forEach { it.value.socket.dispose() }
         serverSocket.dispose()
     }
 
     // connections
-    private val javaPreConnections = hashMapOf<SocketAddress, JavaPreConnection>()
-    data class JavaPreConnection(val socket: ASocket, val read: ChannelReader, val write: ByteWriteChannel, var state: JavaPreConnectionState = JavaPreConnectionState.HANDSHAKE)
-
-    // connection state
-    enum class JavaPreConnectionState {
-        HANDSHAKE,
-        STATUS,
-        LOGIN,
-        IN_GAME
-    }
+    private val javaConnections = hashMapOf<SocketAddress, JavaConnection>()
 }

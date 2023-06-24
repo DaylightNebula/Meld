@@ -10,7 +10,7 @@ import net.benwoodworth.knbt.NbtVariant
 import org.json.JSONObject
 import java.nio.ByteBuffer
 
-open class RawPacket(val id: Int, val mode: DataPacketMode) {
+open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     private val data = mutableListOf<ByteArray>()
 
     // add just a byte array
