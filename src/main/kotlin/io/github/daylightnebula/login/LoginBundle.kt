@@ -5,6 +5,7 @@ import io.github.daylightnebula.networking.java.JavaConnectionState
 import io.github.daylightnebula.networking.java.JavaNetworkController
 import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
 import org.cloudburstmc.protocol.bedrock.packet.*
+import java.util.*
 
 class LoginBundle: PacketBundle(
     bedrock(
@@ -73,14 +74,22 @@ class LoginBundle: PacketBundle(
             })
         },
 
+        // on ping, send back pong
         JavaStatusPingPacket::class.java.name to { connection, packet ->
             connection.sendPacket(packet)
+        },
+
+        // on initiate login, send back success
+        JavaInitiateLoginPacket::class.java.name to { connection, packet ->
+            packet as JavaInitiateLoginPacket
+            connection.sendPacket(JavaLoginSuccessPacket(uuid = packet.uuid ?: UUID.randomUUID(), username = packet.username))
         }
     )
 ) {
     override fun registerJavaPackets() = javaPackets(
         javaPacketID(JavaHandshakePacket.ID, JavaHandshakePacket.TYPE) to { JavaHandshakePacket() },
         javaPacketID(JavaStatusStatusPacket.ID, JavaStatusStatusPacket.TYPE) to { JavaStatusStatusPacket() },
-        javaPacketID(JavaStatusPingPacket.ID, JavaStatusPingPacket.TYPE) to { JavaStatusPingPacket() }
+        javaPacketID(JavaStatusPingPacket.ID, JavaStatusPingPacket.TYPE) to { JavaStatusPingPacket() },
+        javaPacketID(JavaInitiateLoginPacket.ID, JavaInitiateLoginPacket.TYPE) to { JavaInitiateLoginPacket() }
     )
 }
