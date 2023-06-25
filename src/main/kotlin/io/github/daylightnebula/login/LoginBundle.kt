@@ -83,6 +83,7 @@ class LoginBundle: PacketBundle(
         JavaInitiateLoginPacket::class.java.name to { connection, packet ->
             packet as JavaInitiateLoginPacket
             connection.sendPacket(JavaLoginSuccessPacket(uuid = packet.uuid ?: UUID.randomUUID(), username = packet.username))
+            connection.state = JavaConnectionState.IN_GAME
         }
     )
 ) {
