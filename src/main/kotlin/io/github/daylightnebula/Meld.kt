@@ -1,7 +1,11 @@
 package io.github.daylightnebula
 
+import io.github.daylightnebula.login.LoginBundle
 import io.github.daylightnebula.networking.bedrock.BedrockNetworkController
+import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaNetworkController
+import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
+import org.cloudburstmc.protocol.bedrock.packet.*
 
 object Meld {
     // config TODO move to config file
@@ -25,15 +29,18 @@ object Meld {
     val enforceSecureChat = false
     val previewsChat = false
 
+    // connections
+    val connections = mutableListOf<IConnection<*>>()
 }
 
-// network controllers
-val javaController = JavaNetworkController()
-
 fun main() {
+    println("Registering packet bundles...")
+    PacketHandler.registerBundle(LoginBundle())
+
     println("Starting...")
 
-    javaController.start()
+    // start the network controllers
+    JavaNetworkController.start()
     BedrockNetworkController.start()
 
     println("Started")

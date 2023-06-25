@@ -1,7 +1,7 @@
 package io.github.daylightnebula.networking.bedrock
 
 import io.github.daylightnebula.Meld
-import io.github.daylightnebula.TestPacketHandler
+import io.github.daylightnebula.PacketHandler
 import io.github.daylightnebula.networking.common.*
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
@@ -39,7 +39,6 @@ import kotlin.concurrent.thread
 
 object BedrockNetworkController: INetworkController {
     private val address = InetSocketAddress("localhost", Meld.bedrockPort)
-    val connections = mutableListOf<BedrockConnection>()
 
     private val motdResponse = BedrockPong()
         .edition("MCPE")
@@ -57,13 +56,13 @@ object BedrockNetworkController: INetworkController {
             override fun initSession(session: BedrockServerSession) {
                 // create and store new connection
                 val handler = BedrockNetworkPacketHandler()
-                connections.add(BedrockConnection(handler, session))
+                Meld.connections.add(BedrockConnection(handler, session))
 
                 // update session
                 session.codec = Bedrock_v589.CODEC
                 session.packetHandler = handler
 
-                println("Init session")
+                // TODO broadcast connection created event
             }
 
             override fun userEventTriggered(ctx: ChannelHandlerContext?, evt: Any?) {
@@ -84,71 +83,13 @@ class BedrockNetworkPacketHandler(): BedrockPacketHandler {
 
     // handle incoming packets
     override fun handlePacket(packet: BedrockPacket): PacketSignal {
-        // if the connection is not logged in yet, handle the packets accordingly
-        if (!connection.loggedIn) {
-            when(packet) {
-                // handle network request
-                is RequestNetworkSettingsPacket -> {
-                    // send back network settings
-                    val output = NetworkSettingsPacket()
-                    output.compressionAlgorithm = PacketCompressionAlgorithm.ZLIB
-                    output.compressionThreshold = 512
-                    connection.sendPacket(output)
-
-                    // update compression settings
-                    connection.session.setCompression(PacketCompressionAlgorithm.ZLIB)
-                    connection.session.setCompressionLevel(9)
-                    connection.compressionEnabled = true
-                }
-
-                // handle login request
-                is LoginPacket -> {
-                    connection.sendPacket(PlayStatusPacket().apply { status = PlayStatusPacket.Status.LOGIN_SUCCESS })
-                    connection.sendPacket(ResourcePacksInfoPacket().apply {})
-                }
-
-                is ClientCacheStatusPacket -> println("WARN client cache blobs not implemented")
-
-                // handle client resource pack response
-                is ResourcePackClientResponsePacket -> handleRPResponse(connection, packet)
-
-                else -> TODO("Unknown pre login packet $packet")
-            }
-        }
-
+        PacketHandler.handlePacket(connection, packet)
         return PacketSignal.HANDLED
-    }
-
-    private fun handleRPResponse(connection: BedrockConnection, packet: ResourcePackClientResponsePacket) {
-        // unpack
-        val status = packet.status
-
-        when(status) {
-            ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS -> {
-                connection.sendPacket(ResourcePackStackPacket().apply {
-                    isForcedToAccept = false
-                    isExperimentsPreviouslyToggled = false
-                    gameVersion = "1.20"
-                })
-            }
-
-            ResourcePackClientResponsePacket.Status.COMPLETED -> {
-                // TODO add "logged in" connection reference here
-                // TODO broadcast pre login complete event here
-                // https://wiki.vg/Bedrock_Protocol#Start_Game
-                println("TODO bedrock logged in")
-            }
-
-
-            ResourcePackClientResponsePacket.Status.NONE -> TODO("$status not implemented")
-            ResourcePackClientResponsePacket.Status.REFUSED -> TODO("$status not implemented")
-            ResourcePackClientResponsePacket.Status.SEND_PACKS -> TODO("$status not implemented")
-        }
     }
 
     // handle disconnections
     override fun onDisconnect(reason: String?) {
         println("Disconnect $reason")
-        BedrockNetworkController.connections.removeIf { it.packetHandler == this }
+        Meld.connections.removeIf { it is BedrockConnection && it.packetHandler == this }
     }
 }

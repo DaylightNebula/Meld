@@ -14,7 +14,7 @@ class JavaConnection(
 ): IConnection<JavaPacket> {
     override fun sendPacket(packet: JavaPacket) {
         // create writer
-        val writer = ByteWriter(packet.id, DataPacketMode.BEDROCK)
+        val writer = ByteWriter(packet.id, DataPacketMode.JAVA)
 
         // encode packet
         packet.encode(writer)
@@ -31,7 +31,6 @@ enum class JavaConnectionState { HANDSHAKE, STATUS, LOGIN, IN_GAME }
 
 interface JavaPacket {
     val id: Int
-    val type: JavaPacket
     fun decode(reader: AbstractReader)
     fun encode(writer: ByteWriter)
 }

@@ -1,6 +1,8 @@
 package io.github.daylightnebula.networking.java
 
 import io.github.daylightnebula.Meld
+import io.github.daylightnebula.Meld.connections
+import io.github.daylightnebula.PacketHandler
 import io.github.daylightnebula.networking.common.*
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
@@ -11,7 +13,7 @@ import org.json.JSONObject
 import java.util.*
 import kotlin.concurrent.thread
 
-class JavaNetworkController: INetworkController {
+object JavaNetworkController: INetworkController {
     // setup socket
     lateinit var serverSocket: ServerSocket
 
@@ -20,7 +22,7 @@ class JavaNetworkController: INetworkController {
         while(true) {
             runBlocking {
                 val connected = serverSocket.accept()
-                javaConnections[connected.remoteAddress] = JavaConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel(autoFlush = true))
+                connections.add(JavaConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel(autoFlush = true)))
                 println("New connection from ${connected.remoteAddress}")
             }
         }
@@ -31,7 +33,8 @@ class JavaNetworkController: INetworkController {
     val listener = thread(start = false) {
         while(true) {
             // for each connection, process incoming packets
-            javaConnections.forEach { (addr, connection) ->
+            connections.filter { it is JavaConnection }.forEach { connection ->
+                connection as JavaConnection
                 val read = connection.read
                 // skip if nothing new
                 if (read.channel.availableForRead == 0) return@forEach
@@ -40,10 +43,13 @@ class JavaNetworkController: INetworkController {
                 runBlocking {
                     val length = read.readVarInt()
                     val packetID = read.readVarInt()
-                    val data = ByteArrayReader(read.readArray(length - 1))
-                    println("Got packet $packetID with length $length on state ${connection.state}")
+//                    println("Got packet $packetID with length $length on state ${connection.state}")
 
-                    readPreJoinPacket(addr, connection, data, packetID)
+                    // try catch due to packet 122 in status state
+                    val data = try { ByteArrayReader(read.readArray(length - 1)) } catch (ex: Exception) { return@runBlocking }
+
+                    PacketHandler.handleJavaPacket(connection, packetID, data)
+//                    readPreJoinPacket(addr, connection, data, packetID)
                 }
             }
 
@@ -52,7 +58,7 @@ class JavaNetworkController: INetworkController {
         }
     }
 
-    private fun pingJson(): JSONObject = JSONObject()
+    fun pingJson(): JSONObject = JSONObject()
         .put("version", JSONObject().put("name", Meld.javaVersion).put("protocol", Meld.javaProtocol))
         .put("players", JSONObject().put("max", Meld.maxPlayers).put("online", Meld.players).put("sample", JSONArray().put(JSONObject().put("name", "hello_world").put("id", UUID.randomUUID().toString()))))
         .put("description", JSONObject().put("text", Meld.description))
@@ -102,7 +108,7 @@ class JavaNetworkController: INetworkController {
                         connection.write.writeFully(bytes, 0, bytes.size)
 
                         // remove pre join connection as it is not needed anymore
-                        javaConnections.remove(address)
+                        connections.remove(connection)
                             ?: throw RuntimeException("Java Pre Connection status removal failed")
                     }
 
@@ -161,10 +167,7 @@ class JavaNetworkController: INetworkController {
         listener.join(100)
 
         // stop sockets
-        javaConnections.forEach { it.value.socket.dispose() }
+        connections.filter { it is JavaConnection }.forEach { (it as JavaConnection).socket.dispose() }
         serverSocket.dispose()
     }
-
-    // connections
-    private val javaConnections = hashMapOf<SocketAddress, JavaConnection>()
 }
