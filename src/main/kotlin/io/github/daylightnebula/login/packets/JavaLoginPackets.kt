@@ -1,4 +1,4 @@
-package io.github.daylightnebula.login
+package io.github.daylightnebula.login.packets
 
 import io.github.daylightnebula.networking.common.AbstractReader
 import io.github.daylightnebula.networking.common.ByteWriter

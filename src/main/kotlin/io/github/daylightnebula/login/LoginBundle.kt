@@ -1,6 +1,10 @@
 package io.github.daylightnebula.login
 
 import io.github.daylightnebula.*
+import io.github.daylightnebula.events.Event
+import io.github.daylightnebula.events.EventBus
+import io.github.daylightnebula.login.packets.*
+import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaConnectionState
 import io.github.daylightnebula.networking.java.JavaNetworkController
 import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
@@ -44,10 +48,9 @@ class LoginBundle: PacketBundle(
                 }
 
                 ResourcePackClientResponsePacket.Status.COMPLETED -> {
-                    // TODO add "logged in" connection reference here
-                    // TODO broadcast pre login complete event here
+                    // call login event
+                    EventBus.callEvent(LoginEvent(connection))
                     // https://wiki.vg/Bedrock_Protocol#Start_Game
-                    println("TODO bedrock logged in")
                 }
 
 
@@ -82,8 +85,13 @@ class LoginBundle: PacketBundle(
         // on initiate login, send back success
         JavaInitiateLoginPacket::class.java.name to { connection, packet ->
             packet as JavaInitiateLoginPacket
+
+            // respond
             connection.sendPacket(JavaLoginSuccessPacket(uuid = packet.uuid ?: UUID.randomUUID(), username = packet.username))
             connection.state = JavaConnectionState.IN_GAME
+
+            // call login event
+            EventBus.callEvent(LoginEvent(connection))
         }
     )
 ) {
@@ -94,3 +102,7 @@ class LoginBundle: PacketBundle(
         javaPacketID(JavaInitiateLoginPacket.ID, JavaInitiateLoginPacket.TYPE) to { JavaInitiateLoginPacket() }
     )
 }
+
+class LoginEvent(
+    connection: IConnection<*>
+): Event
