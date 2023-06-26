@@ -44,13 +44,15 @@ object PacketHandler {
     }
 
     // add the given bundle to the list of handlers
-    fun registerBundle(bundle: PacketBundle) {
+    fun register(bundle: PacketBundle) {
         // save packet handlers
         bedrockHandlers.putAll(bundle.bedrock)
         javaHandlers.putAll(bundle.java)
 
         // register java packets
         JavaPacketRegistry.putAll(bundle.registerJavaPackets())
+
+        println("Registered packet bundle: $bundle")
     }
 }
 

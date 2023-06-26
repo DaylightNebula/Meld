@@ -6,7 +6,7 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 
 class JavaConnection(
-    val socket: ASocket,
+    val socket: Socket,
     val read: ChannelReader,
     val write: ByteWriteChannel,
     var state: JavaConnectionState =
@@ -24,6 +24,10 @@ class JavaConnection(
         runBlocking {
             write.writeFully(bytes, 0, bytes.size)
         }
+    }
+
+    override fun toString(): String {
+        return "JavaConnection(address=${socket.remoteAddress},state=$state)"
     }
 }
 

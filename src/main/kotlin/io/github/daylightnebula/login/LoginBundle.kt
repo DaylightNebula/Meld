@@ -104,5 +104,5 @@ class LoginBundle: PacketBundle(
 }
 
 class LoginEvent(
-    connection: IConnection<*>
+    val connection: IConnection<*>
 ): Event

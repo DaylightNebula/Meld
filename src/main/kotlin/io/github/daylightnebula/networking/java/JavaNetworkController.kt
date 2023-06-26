@@ -15,7 +15,7 @@ import kotlin.concurrent.thread
 
 object JavaNetworkController: INetworkController {
     // setup socket
-    lateinit var serverSocket: ServerSocket
+    private lateinit var serverSocket: ServerSocket
 
     // acceptor that accepts incoming connections
     private val acceptor = thread(start = false) {

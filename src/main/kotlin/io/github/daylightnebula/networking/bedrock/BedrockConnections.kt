@@ -14,4 +14,8 @@ class BedrockConnection(
     override fun sendPacket(packet: BedrockPacket) {
         session.sendPacketImmediately(packet)
     }
+
+    override fun toString(): String {
+        return "BedrockConnection(address=${session.socketAddress},compressionEnabled=$compressionEnabled,loggedIn=$loggedIn)"
+    }
 }
