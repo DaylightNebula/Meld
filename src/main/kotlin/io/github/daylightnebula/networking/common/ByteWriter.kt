@@ -2,12 +2,11 @@ package io.github.daylightnebula.networking.common
 
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.SEGMENT_BITS
-import kotlinx.serialization.encodeToByteArray
-import net.benwoodworth.knbt.Nbt
-import net.benwoodworth.knbt.NbtCompound
-import net.benwoodworth.knbt.NbtCompression
-import net.benwoodworth.knbt.NbtVariant
+import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import org.jglrxavpok.hephaistos.nbt.NBTWriter
 import org.json.JSONObject
+import java.io.OutputStream
 import java.nio.ByteBuffer
 
 open class ByteWriter(val id: Int, val mode: DataPacketMode) {
@@ -34,6 +33,7 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     }
 
     // write primitives
+    fun writeUByte(byte: UByte) { data.add(byteArrayOf(byte.toByte())) }
     fun writeByte(byte: Byte) { data.add(ByteArray(1) { byte }) }
     fun writeBoolean(bool: Boolean) { data.add(ByteBuffer.allocate(1).put(if (bool) 0x01 else 0x00).array()) }
     fun writeShort(short: Short) { data.add(ByteBuffer.allocate(2).putShort(short).array()) }
@@ -43,16 +43,14 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
 
     // NBT
-    fun writeNBTCompound(compound: NbtCompound) {
-        val nbt = Nbt {
-            variant = when(mode) {
-                DataPacketMode.BEDROCK -> NbtVariant.Bedrock
-                DataPacketMode.JAVA -> NbtVariant.Java
+    fun writeNBT(compound: NBTCompound) {
+        val buffer = ByteWriter(id, mode)
+        val writer = NBTWriter(object : OutputStream() {
+            override fun write(b: Int) {
+                buffer.writeByte(b.toByte())
             }
-            compression = NbtCompression.None
-        }
-        val bytes = nbt.encodeToByteArray(compound)
-        data.add(bytes)
+        }, CompressedProcesser.GZIP)
+        data.add(buffer.getRawData())
     }
 
     // write complex objects

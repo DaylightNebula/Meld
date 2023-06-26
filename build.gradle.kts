@@ -74,15 +74,19 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-cio-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("net.benwoodworth.knbt:knbt:0.11.3")
 
+    // nbt
+    implementation("io.github.jglrxavpok.hephaistos:common:2.5.3")
+    implementation("io.github.jglrxavpok.hephaistos:gson:2.5.3")
+
+    // protocols
     implementation(libs.bundles.fastutil)
     api(libs.bundles.bedrockprotocol)
     api(libs.bundles.javaprotocol)
 
+    // netty
     implementation("io.netty:netty-all:4.1.66.Final")
     implementation("io.netty:netty-codec-haproxy:4.1.66.Final")
-//    implementation("io.netty:netty-incubator-transport-native-io_uring:4.1.66.Final")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

@@ -1,5 +1,6 @@
 package io.github.daylightnebula
 
+import com.google.gson.Gson
 import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.join.JoinEventListener
 import io.github.daylightnebula.login.LoginBundle
@@ -28,6 +29,10 @@ object Meld {
     val favicon = "data:image/png;base64,<data>"
     val enforceSecureChat = false
     val previewsChat = false
+    val viewDistance = 8
+    val simDistance = 4
+    val isFlatWorld = false
+    val portalCooldown = 20
 
     // connections
     val connections = mutableListOf<IConnection<*>>()

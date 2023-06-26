@@ -6,6 +6,7 @@ import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.networking.java.JavaConnectionState
 import io.github.daylightnebula.networking.java.JavaPacket
+import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket
 
 val JavaPacketRegistry = hashMapOf<Pair<Int, JavaConnectionState>, () -> JavaPacket>()
@@ -62,6 +63,15 @@ abstract class PacketBundle(
     val java: HashMap<String, (connection: JavaConnection, packet: JavaPacket) -> Unit> = hashMapOf()
 ) {
     abstract fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, ()  -> JavaPacket>
+}
+
+// helper functions to make some packets as no encode or decode
+fun noEncode() {
+    throw NotImplementedException("Function marked no encode!")
+}
+
+fun noDecode() {
+    throw NotImplementedException("Function marked no decode!")
 }
 
 // functions to make making bundles easier
