@@ -14,8 +14,8 @@ interface Event
 object EventBus {
     private val listenerMap = hashMapOf<KType, MutableList<Pair<EventListener, KFunction<*>>>>()
 
-    // function to register event listeners functions
-    fun register(listener: EventListener) {
+    // function to register event listeners event handler functions
+    fun register(listener: EventListener) =
         // load all event handler functions from the given listener
         listener::class.declaredMemberFunctions
             .filter { it.findAnnotation<EventHandler>() != null }
@@ -37,7 +37,6 @@ object EventBus {
                 // save event
                 list.add(listener to func)
             }
-    }
 
     // function to execute all events handlers for an event
     fun callEvent(event: Event) =
