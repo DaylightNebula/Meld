@@ -9,6 +9,7 @@ import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.noDecode
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
+
 // https://wiki.vg/Protocol#Login_.28play.29
 class JavaJoinPacket(
     val playerID: Int = EntityController.nextID(),
@@ -17,7 +18,7 @@ class JavaJoinPacket(
     val previousGameMode: Byte = -1,
     val dimensionCount: Int = 1,
     val dimensionNames: List<String> = listOf("minecraft:overworld"),
-    val registryCodec: NBTCompound = emptyRegistryCodec,
+    val registryCodec: NBTCompound = RegistryCodec.nbt,
     val dimensionType: String = "minecraft:overworld",
     val dimensionName: String = "minecraft:overworld",
     val seed: Long = 0L,
@@ -58,3 +59,4 @@ class JavaJoinPacket(
         writer.writeVarInt(portalCooldown)
     }
 }
+

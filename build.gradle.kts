@@ -77,6 +77,7 @@ dependencies {
 
     // nbt
     implementation("io.github.jglrxavpok.hephaistos:common:2.5.3")
+    implementation("io.github.jglrxavpok.hephaistos:antlr:2.5.3")
     implementation("io.github.jglrxavpok.hephaistos:gson:2.5.3")
 
     // protocols

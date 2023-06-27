@@ -49,7 +49,8 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
             override fun write(b: Int) {
                 buffer.writeByte(b.toByte())
             }
-        }, CompressedProcesser.GZIP)
+        }, CompressedProcesser.NONE)
+        writer.writeRaw(compound)
         data.add(buffer.getRawData())
     }
 

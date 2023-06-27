@@ -12,9 +12,6 @@ import java.io.File
 import java.io.FileReader
 import java.io.InputStreamReader
 
-val emptyRegistryCodecFile = File("empty_registry_codec.json")
-val emptyRegistryCodec = NBTGsonReader(FileReader(emptyRegistryCodecFile)).read(NBTCompound::class.java)
-
 class JoinEventListener: EventListener {
     @EventHandler
     fun onLoginEvent(event: LoginEvent) {
