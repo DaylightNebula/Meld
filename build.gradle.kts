@@ -84,6 +84,8 @@ dependencies {
     implementation(libs.bundles.fastutil)
     api(libs.bundles.bedrockprotocol)
     api(libs.bundles.javaprotocol)
+    implementation("org.jctools:jctools-core:4.0.1")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.2")
 
     // netty
     implementation("io.netty:netty-all:4.1.66.Final")

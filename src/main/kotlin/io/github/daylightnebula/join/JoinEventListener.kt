@@ -5,12 +5,7 @@ import io.github.daylightnebula.events.EventListener
 import io.github.daylightnebula.login.LoginEvent
 import io.github.daylightnebula.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.networking.java.JavaConnection
-import io.ktor.server.plugins.*
-import org.jglrxavpok.hephaistos.json.NBTGsonReader
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import java.io.File
-import java.io.FileReader
-import java.io.InputStreamReader
+import net.minestom.server.network.packet.server.play.JoinGamePacket
 
 class JoinEventListener: EventListener {
     @EventHandler
@@ -18,7 +13,7 @@ class JoinEventListener: EventListener {
         println("Login from ${event.connection}")
         when (event.connection) {
             is JavaConnection -> {
-                event.connection.sendPacket(JavaJoinPacket())
+                event.connection.sendPacket(JoinGamePacket())
             }
             is BedrockConnection -> {
                 TODO()
