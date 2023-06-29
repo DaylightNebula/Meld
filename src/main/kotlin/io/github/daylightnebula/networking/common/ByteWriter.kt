@@ -1,8 +1,10 @@
 package io.github.daylightnebula.networking.common
 
-import io.github.daylightnebula.nbt.NBT
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.SEGMENT_BITS
+import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import org.jglrxavpok.hephaistos.nbt.NBTWriter
 import org.json.JSONObject
 import java.io.OutputStream
 import java.nio.ByteBuffer
@@ -41,8 +43,15 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
 
     // NBT
-    fun writeNBT(compound: NBT<*>) {
-        data.add(compound.encode())
+    fun writeNBT(compound: NBTCompound) {
+        val buffer = ByteWriter(id, mode)
+        val writer = NBTWriter(object : OutputStream() {
+            override fun write(b: Int) {
+                buffer.writeByte(b.toByte())
+            }
+        }, CompressedProcesser.NONE)
+        writer.writeRaw(compound)
+        data.add(buffer.getRawData())
     }
 
     // write complex objects

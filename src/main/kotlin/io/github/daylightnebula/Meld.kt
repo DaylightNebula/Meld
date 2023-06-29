@@ -1,5 +1,6 @@
 package io.github.daylightnebula
 
+import com.google.gson.Gson
 import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.join.JoinEventListener
 import io.github.daylightnebula.login.LoginBundle
@@ -32,7 +33,6 @@ object Meld {
     val simDistance = 4
     val isFlatWorld = false
     val portalCooldown = 20
-    val compressionThreshold = 256
 
     // connections
     val connections = mutableListOf<IConnection<*>>()

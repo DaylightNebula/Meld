@@ -32,3 +32,9 @@ class JavaConnection(
 }
 
 enum class JavaConnectionState { HANDSHAKE, STATUS, LOGIN, IN_GAME }
+
+interface JavaPacket {
+    val id: Int
+    fun decode(reader: AbstractReader)
+    fun encode(writer: ByteWriter)
+}
