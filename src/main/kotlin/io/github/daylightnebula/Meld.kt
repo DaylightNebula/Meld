@@ -6,11 +6,6 @@ import io.github.daylightnebula.login.LoginBundle
 import io.github.daylightnebula.networking.bedrock.BedrockNetworkController
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaNetworkController
-import io.github.daylightnebula.world.biomes.BiomeManager
-import io.github.daylightnebula.world.dimensions.DimensionTypeManager
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.parser.SNBTParser
-import java.io.StringReader
 
 object Meld {
     // config TODO move to config file
@@ -38,36 +33,6 @@ object Meld {
     val isFlatWorld = false
     val portalCooldown = 20
     val compressionThreshold = 256
-
-    val dimensionTypeManager = DimensionTypeManager()
-    val biomeManager = BiomeManager()
-    val chatRegistry: NBTCompound = SNBTParser(StringReader(
-    """
-        {
-            "type": "minecraft:chat_type",
-            "value": [
-                 {
-                    "name":"minecraft:chat",
-                    "id":1,
-                    "element":{
-                       "chat":{
-                          "translation_key":"chat.type.text",
-                          "parameters":[
-                             "sender",
-                             "content"
-                          ]
-                       },
-                       "narration":{
-                          "translation_key":"chat.type.text.narrate",
-                          "parameters":[
-                             "sender",
-                             "content"
-                          ]
-                       }
-                    }
-                 }    ]
-        }
-    """.trimIndent())).parse() as NBTCompound
 
     // connections
     val connections = mutableListOf<IConnection<*>>()

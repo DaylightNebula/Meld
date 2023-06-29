@@ -1,5 +1,6 @@
 package io.github.daylightnebula.networking.common
 
+import io.github.daylightnebula.nbt.NBT
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.SEGMENT_BITS
 import org.json.JSONObject
@@ -40,9 +41,9 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
 
     // NBT
-//    fun writeNBT(compound: NBT<*>) {
-//        data.add(compound.encode())
-//    }
+    fun writeNBT(compound: NBT<*>) {
+        data.add(compound.encode())
+    }
 
     // write complex objects
     fun writeString(string: String) { if (mode == DataPacketMode.BEDROCK) writeShort(string.length.toShort()) else writeVarInt(string.length); data.add(string.toByteArray()) }

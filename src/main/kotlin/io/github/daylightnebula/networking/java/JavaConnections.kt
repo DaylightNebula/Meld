@@ -4,11 +4,6 @@ import io.github.daylightnebula.networking.common.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
-import net.minestom.server.network.NetworkBuffer
-import net.minestom.server.network.PacketUtils
-import net.minestom.server.network.packet.client.JavaClientPacket
-import net.minestom.server.network.packet.server.JavaServerPacket
-import java.nio.ByteBuffer
 
 class JavaConnection(
     val socket: Socket,
@@ -16,13 +11,13 @@ class JavaConnection(
     val write: ByteWriteChannel,
     var state: JavaConnectionState =
         JavaConnectionState.HANDSHAKE
-): IConnection<JavaServerPacket> {
-    override fun sendPacket(packet: JavaServerPacket) {
+): IConnection<JavaPacket> {
+    override fun sendPacket(packet: JavaPacket) {
         // create writer
-        val writer = ByteWriter((0), DataPacketMode.JAVA)
+        val writer = ByteWriter(packet.id, DataPacketMode.JAVA)
 
         // encode packet
-//        packet.encode(writer)
+        packet.encode(writer)
 
         // send byte array to client
         val bytes = writer.getData()

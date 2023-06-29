@@ -1,8 +1,8 @@
 package net.minestom.server.network;
 
-import io.github.daylightnebula.utils.DeathLocation;
-import io.github.daylightnebula.utils.Point;
-import io.github.daylightnebula.utils.Vec;
+import io.github.daylightnebula.math.DeathLocation;
+import io.github.daylightnebula.math.Point;
+import io.github.daylightnebula.math.Vec;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;

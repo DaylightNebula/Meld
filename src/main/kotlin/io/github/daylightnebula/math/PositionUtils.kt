@@ -1,4 +1,4 @@
-package io.github.daylightnebula.utils
+package io.github.daylightnebula.math
 
 object PositionUtils {
     fun lookAlong(position: Pos, dx: Double, dy: Double, dz: Double): Pos {

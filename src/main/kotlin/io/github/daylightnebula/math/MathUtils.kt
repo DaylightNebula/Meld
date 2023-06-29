@@ -1,4 +1,4 @@
-package io.github.daylightnebula.utils
+package io.github.daylightnebula.math
 
 
 object MathUtils {

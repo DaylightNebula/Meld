@@ -1,7 +1,7 @@
 package net.minestom.server.network.packet.server.play
 
-import io.github.daylightnebula.utils.DeathLocation
-import io.github.daylightnebula.utils.GameMode
+import io.github.daylightnebula.math.DeathLocation
+import io.github.daylightnebula.math.GameMode
 import net.minestom.server.network.NetworkBuffer
 import net.minestom.server.network.packet.server.JavaServerPacket
 import net.minestom.server.network.packet.server.ServerPacketIdentifier
@@ -78,7 +78,8 @@ class JoinGamePacket(
         return ServerPacketIdentifier.JOIN_GAME
     }
 
-    val ID: Int = ServerPacketIdentifier.JOIN_GAME
+    val id: Int
+        get() = ServerPacketIdentifier.JOIN_GAME
     val entityId: Int
     val isHardcore: Boolean
     val gameMode: GameMode

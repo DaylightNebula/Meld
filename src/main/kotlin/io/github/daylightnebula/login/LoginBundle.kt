@@ -3,16 +3,10 @@ package io.github.daylightnebula.login
 import io.github.daylightnebula.*
 import io.github.daylightnebula.events.Event
 import io.github.daylightnebula.events.EventBus
+import io.github.daylightnebula.login.packets.*
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaConnectionState
 import io.github.daylightnebula.networking.java.JavaNetworkController
-import net.minestom.server.network.packet.client.handshake.HandshakePacket
-import net.minestom.server.network.packet.client.login.LoginStartPacket
-import net.minestom.server.network.packet.client.status.PingPacket
-import net.minestom.server.network.packet.client.status.StatusRequestPacket
-import net.minestom.server.network.packet.server.handshake.ResponsePacketJava
-import net.minestom.server.network.packet.server.login.LoginSuccessPacketJava
-import net.minestom.server.network.packet.server.status.PongPacket
 import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
 import org.cloudburstmc.protocol.bedrock.packet.*
 import java.util.*
@@ -68,8 +62,8 @@ class LoginBundle: PacketBundle(
     ),
 
     java(
-        HandshakePacket::class.java.name to { connection, packet ->
-            packet as HandshakePacket
+        JavaHandshakePacket::class.java.name to { connection, packet ->
+            packet as JavaHandshakePacket
             when (packet.nextState) {
                 1 -> connection.state = JavaConnectionState.STATUS
                 2 -> connection.state = JavaConnectionState.LOGIN
@@ -77,22 +71,23 @@ class LoginBundle: PacketBundle(
             }
         },
 
-        StatusRequestPacket::class.java.name to { connection, packet ->
-//            connection.sendPacket(ResponsePacketJava(JavaNetworkController.pingJson().toString()))
+        JavaStatusStatusPacket::class.java.name to { connection, packet ->
+            connection.sendPacket(JavaStatusStatusPacket().apply {
+                json = JavaNetworkController.pingJson()
+            })
         },
 
         // on ping, send back pong
-        PingPacket::class.java.name to { connection, packet ->
-            packet as PingPacket
-//            connection.sendPacket(PongPacket(packet.number))
+        JavaStatusPingPacket::class.java.name to { connection, packet ->
+            connection.sendPacket(packet)
         },
 
         // on initiate login, send back success
-        LoginStartPacket::class.java.name to { connection, packet ->
-            packet as LoginStartPacket
+        JavaInitiateLoginPacket::class.java.name to { connection, packet ->
+            packet as JavaInitiateLoginPacket
 
             // respond
-            connection.sendPacket(LoginSuccessPacketJava(packet.profileId ?: UUID.randomUUID(), packet.username, 0))
+            connection.sendPacket(JavaLoginSuccessPacket(uuid = packet.uuid ?: UUID.randomUUID(), username = packet.username))
             connection.state = JavaConnectionState.IN_GAME
 
             // call login event
@@ -100,12 +95,12 @@ class LoginBundle: PacketBundle(
         }
     )
 ) {
-//    override fun registerJavaPackets() = javaPackets(
-//        javaPacketID(JavaHandshakePacket.ID, JavaHandshakePacket.TYPE) to { JavaHandshakePacket() },
-//        javaPacketID(JavaStatusStatusPacket.ID, JavaStatusStatusPacket.TYPE) to { JavaStatusStatusPacket() },
-//        javaPacketID(JavaStatusPingPacket.ID, JavaStatusPingPacket.TYPE) to { JavaStatusPingPacket() },
-//        javaPacketID(JavaInitiateLoginPacket.ID, JavaInitiateLoginPacket.TYPE) to { JavaInitiateLoginPacket() }
-//    )
+    override fun registerJavaPackets() = javaPackets(
+        javaPacketID(JavaHandshakePacket.ID, JavaHandshakePacket.TYPE) to { JavaHandshakePacket() },
+        javaPacketID(JavaStatusStatusPacket.ID, JavaStatusStatusPacket.TYPE) to { JavaStatusStatusPacket() },
+        javaPacketID(JavaStatusPingPacket.ID, JavaStatusPingPacket.TYPE) to { JavaStatusPingPacket() },
+        javaPacketID(JavaInitiateLoginPacket.ID, JavaInitiateLoginPacket.TYPE) to { JavaInitiateLoginPacket() }
+    )
 }
 
 class LoginEvent(
