@@ -1,4 +1,4 @@
-package io.github.daylightnebula.math
+package io.github.daylightnebula.utils
 
 
 enum class GameMode(private val id: Byte, private val canTakeDamage: Boolean) {

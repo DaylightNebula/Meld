@@ -83,7 +83,7 @@ class BedrockNetworkPacketHandler(): BedrockPacketHandler {
 
     // handle incoming packets
     override fun handlePacket(packet: BedrockPacket): PacketSignal {
-        PacketHandler.handlePacket(connection, packet)
+        PacketHandler.handleBedrockPacket(connection, packet)
         return PacketSignal.HANDLED
     }
 

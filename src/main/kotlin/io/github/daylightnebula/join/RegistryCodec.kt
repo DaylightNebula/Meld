@@ -1,7 +1,5 @@
 package io.github.daylightnebula.join
 
-import io.github.daylightnebula.nbt.NBT
-
 object RegistryCodec {
 
 //    val registry = SNBTParser(StringReader(
@@ -93,13 +91,13 @@ object RegistryCodec {
 //    """.trimIndent()
 //    )).parse() as NBTCompound
 
-    var nbt: NBT.Map<NBT<*>> = NBT.Map(
-        mapOf(
-            "minecraft:chat_type" to NBT.Map<NBT<*>>(mapOf()),
-            "minecraft:dimension_type" to NBT.Map(mapOf()),
-            "minecraft:worldgen/biome" to NBT.Map(mapOf())
-        )
-    )
+//    var nbt: NBT.Map<NBT<*>> = NBT.Map(
+//        mapOf(
+//            "minecraft:chat_type" to NBT.Map<NBT<*>>(mapOf()),
+//            "minecraft:dimension_type" to NBT.Map(mapOf()),
+//            "minecraft:worldgen/biome" to NBT.Map(mapOf())
+//        )
+//    )
 //        Map.of(
 //            "minecraft:chat_type", chatRegistry,
 //            "minecraft:dimension_type", dimensionType,

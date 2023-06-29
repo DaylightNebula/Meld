@@ -1,7 +1,7 @@
 package net.minestom.server.network;
 
-import io.github.daylightnebula.math.DeathLocation;
-import io.github.daylightnebula.math.Point;
+import io.github.daylightnebula.utils.DeathLocation;
+import io.github.daylightnebula.utils.Point;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;

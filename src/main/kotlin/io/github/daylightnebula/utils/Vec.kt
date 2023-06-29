@@ -1,7 +1,7 @@
-package io.github.daylightnebula.math
+package io.github.daylightnebula.utils
 
-import io.github.daylightnebula.math.Vec.Interpolation
-import io.github.daylightnebula.math.Vec.Operator
+import io.github.daylightnebula.utils.Vec.Interpolation
+import io.github.daylightnebula.utils.Vec.Operator
 import org.jetbrains.annotations.Contract
 import java.util.function.DoubleUnaryOperator
 
