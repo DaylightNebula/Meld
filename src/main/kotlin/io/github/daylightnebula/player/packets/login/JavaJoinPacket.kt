@@ -8,6 +8,7 @@ import io.github.daylightnebula.networking.common.AbstractReader
 import io.github.daylightnebula.networking.common.ByteWriter
 import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.noDecode
+import io.github.daylightnebula.player.Player
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 
@@ -15,7 +16,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 class JavaJoinPacket(
     val playerID: Int = EntityController.nextID(),
     val isHardcore: Boolean = false,
-    val gameMode: UByte = GameMode.SURVIVAL.ordinal.toUByte(),
+    val gameMode: GameMode = GameMode.SURVIVAL,
     val previousGameMode: Byte = -1,
     val dimensionCount: Int = 1,
     val dimensionNames: List<String> = listOf("minecraft:overworld"),
@@ -27,21 +28,25 @@ class JavaJoinPacket(
     val viewDistance: Int = Meld.viewDistance,
     val simDistance: Int = Meld.simDistance,
     val reducedDebugInfo: Boolean = false,
-    val enableRespawnScreen: Boolean = false,
+    val enableRespawnScreen: Boolean = true,
     val isDebug: Boolean = false,
     val isFlat: Boolean = Meld.isFlatWorld,
     val portalCooldown: Int = Meld.portalCooldown
 ): JavaPacket {
-    companion object {
-        val ID = 0x28
-    }
 
+    constructor(player: Player): this(
+        playerID = player.id,
+        isHardcore = false,
+        gameMode = player.gameMode
+    )
+
+    companion object { val ID = 0x28 }
     override val id: Int = ID
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeInt(playerID)
         writer.writeBoolean(isHardcore)
-        writer.writeUByte(gameMode)
+        writer.writeUByte(gameMode.ordinal.toUByte())
         writer.writeByte(previousGameMode)
         writer.writeVarInt(dimensionCount)
         dimensionNames.forEach { writer.writeString(it) }
