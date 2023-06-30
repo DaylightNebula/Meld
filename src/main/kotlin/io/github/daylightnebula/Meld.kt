@@ -11,12 +11,12 @@ import io.github.daylightnebula.networking.java.JavaNetworkController
 object Meld {
     // config TODO move to config file
     // java specific
-    val javaPort = 25565
+    val javaPort = 25577
     val javaProtocol = 763
     val javaVersion = "1.20.1"
 
     // bedrock specific
-    val bedrockPort = 19132
+    val bedrockPort = 19133
     val bedrockPortv6 = 19133
     val reknetProtcol = 11
     val bedrockProtocol = 593

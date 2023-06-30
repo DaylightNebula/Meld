@@ -50,7 +50,7 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
                 buffer.writeByte(b.toByte())
             }
         }, CompressedProcesser.NONE)
-        writer.writeRaw(compound)
+        writer.writeNamed("", compound)
         data.add(buffer.getRawData())
     }
 
