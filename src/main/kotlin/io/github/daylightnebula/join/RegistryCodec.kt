@@ -1,12 +1,17 @@
 package io.github.daylightnebula.join
 
+import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import org.jglrxavpok.hephaistos.nbt.*
 import org.jglrxavpok.hephaistos.parser.SNBTParser
+import org.json.JSONObject
+import java.io.File
 import java.io.StringReader
+import java.math.BigDecimal
 import java.util.Map
 
 
 object RegistryCodec {
+    val codec = JSONObject(File("codec.json").readText())
 
     val chatRegistry = SNBTParser(StringReader("""
         {
@@ -129,11 +134,85 @@ object RegistryCodec {
         )
     ))
 
+    val damageTypeJson = codec.getJSONObject("value").getJSONObject("minecraft:damage_type").getJSONObject("value").getJSONObject("value").getJSONObject("value").getJSONArray("value")
+    var damageTypes = nbtTypedList(
+        "minecraft:damage_type",
+        *(damageTypeJson.mapIndexed { index, json ->
+            json as JSONObject
+
+            // unpack json
+            val id = json.getJSONObject("id").getInt("value")
+            val name = json.getJSONObject("name").getString("value")
+            val elements = json.getJSONObject("element").getJSONObject("value")
+            val map = mutableMapOf<String, NBT>()
+
+            // for each key in object
+            elements.keys().forEach { key ->
+                val nbt = elements.getJSONObject(key).toNBT()
+                map[key] = nbt
+            }
+
+            // pass back elements
+            nbtListElement(id, name, NBTCompound(map))
+        }.toTypedArray())
+    )
+
     var nbt: NBTCompound = NBTCompound(
         Map.of(
             "minecraft:chat_type", chatRegistry,
             "minecraft:dimension_type", dimensionType,
-            "minecraft:worldgen/biome", defaultBiome
+            "minecraft:worldgen/biome", defaultBiome,
+            "minecraft:damage_type", damageTypes
         )
     )
+
+    fun nbtTypedList(type: String, vararg elements: NBT): NBTCompound {
+        return NBTCompound(mapOf(
+            "type" to NBTString(type),
+            "value" to NBTList(NBTType.TAG_Compound, elements.toList())
+        ))
+    }
+
+    fun nbtListElement(index: Int, name: String, element: NBTCompound): NBTCompound {
+        return NBTCompound(mapOf(
+            "id" to NBTInt(index),
+            "name" to NBTString(name),
+            "element" to element
+        ))
+    }
+
+    fun nbtCompound(vararg elements: Pair<String, NBT>): NBTCompound {
+        return NBTCompound(mapOf(*elements))
+    }
+
+    fun nbtCompoundSafe(vararg elements: Pair<String, NBT?>): NBTCompound {
+        return nbtCompound(*((elements.filter { it.second != null } as List<Pair<String, NBT>>).toTypedArray()))
+    }
+
+    fun nbtDamageType(
+        index: Int,
+        name: String,
+        scaling: String,
+        messageID: String,
+        exhaustion: Float
+    ) = nbtListElement(index, name, nbtCompoundSafe(
+        "scaling" to NBTString(scaling),
+        "messageID" to NBTString(messageID),
+        "exhaustion" to NBTFloat(exhaustion)
+    ))
+}
+
+fun JSONObject.toNBT(): NBT {
+    val type = getString("type")
+    val value = get("value")
+    return when(type) {
+        "string" -> NBTString(value as String)
+        "float" -> NBTFloat(when (value) {
+            is Float -> value
+            is BigDecimal -> value.toFloat()
+            is Int -> value.toFloat()
+            else -> throw NotImplementedException("No float converter for $value")
+        })
+        else -> throw NotImplementedException("TODO damage type converter for type $type")
+    }
 }

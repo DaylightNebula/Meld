@@ -3,10 +3,14 @@ package io.github.daylightnebula
 import com.google.gson.Gson
 import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.join.JoinEventListener
+import io.github.daylightnebula.join.RegistryCodec
 import io.github.daylightnebula.login.LoginBundle
 import io.github.daylightnebula.networking.bedrock.BedrockNetworkController
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaNetworkController
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
 
 object Meld {
     // config TODO move to config file
@@ -39,6 +43,7 @@ object Meld {
 }
 
 fun main() {
+    println("NBT ${RegistryCodec.nbt}")
     println("Registering event listeners")
     EventBus.register(JoinEventListener())
 
