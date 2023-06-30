@@ -1,7 +1,8 @@
-package io.github.daylightnebula.join
+package io.github.daylightnebula.player
 
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
 import io.github.daylightnebula.Meld
+import io.github.daylightnebula.RegistryCodec
 import io.github.daylightnebula.entities.EntityController
 import io.github.daylightnebula.networking.common.AbstractReader
 import io.github.daylightnebula.networking.common.ByteWriter

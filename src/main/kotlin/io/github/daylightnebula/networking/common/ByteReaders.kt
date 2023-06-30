@@ -10,7 +10,7 @@ import kotlin.text.String
 
 abstract class AbstractReader() {
     // important abstract functions
-    abstract fun nextByte(): Byte
+    abstract fun readByte(): Byte
     abstract fun readArray(count: Int): ByteArray
     abstract fun reset()
     abstract fun hasNext(): Boolean
@@ -28,7 +28,7 @@ abstract class AbstractReader() {
         var position = 0
         var currentByte: Byte
         while (true) {
-            currentByte = nextByte()
+            currentByte = readByte()
             value = value or (currentByte.toInt() and SEGMENT_BITS shl position)
             if (currentByte.toInt() and CONTINUE_BIT == 0) break
             position += 7
@@ -38,11 +38,17 @@ abstract class AbstractReader() {
     }
 
     // simple primitive reads
-    fun readBoolean(): Boolean = nextByte() > 0
+    fun readBoolean(): Boolean = readByte() > 0
+
     fun readShort(): Short = ByteBuffer.wrap(readArray(2)).getShort()
     fun readUShort(): UShort = readShort().toUShort()
+
+    fun read3Int(): Int = readByte() + (readByte().toInt() shl 8) + (readByte().toInt() shl 16) // reknet sends 3 byte integers sometimes
     fun readInt(): Int = ByteBuffer.wrap(readArray(4)).getInt()
-    fun read3Int(): Int = nextByte() + (nextByte().toInt() shl 8) + (nextByte().toInt() shl 16) // reknet sends 3 byte integers sometimes
+
+    fun readFloat(): Float = ByteBuffer.wrap(readArray(4)).getFloat()
+    fun readDouble(): Double = ByteBuffer.wrap(readArray(8)).getDouble()
+
     fun readLong() = ByteBuffer.wrap(readArray(8)).getLong(0)
 
     // complex object reads
@@ -52,7 +58,7 @@ abstract class AbstractReader() {
 }
 
 class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
-    override fun nextByte(): Byte {
+    override fun readByte(): Byte {
         return runBlocking { channel.readByte() }
     }
 
@@ -79,7 +85,7 @@ class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
 class ByteArrayReader(private val array: ByteArray): AbstractReader() {
     private var currentByte = 0
 
-    override fun nextByte(): Byte {
+    override fun readByte(): Byte {
         return array[currentByte++]
     }
 
@@ -101,7 +107,7 @@ class ByteArrayReader(private val array: ByteArray): AbstractReader() {
 }
 
 class ByteReadPacketReader(val packet: ByteReadPacket): AbstractReader() {
-    override fun nextByte(): Byte = packet.readByte()
+    override fun readByte(): Byte = packet.readByte()
     override fun readArray(count: Int): ByteArray = packet.readBytes(count)
     override fun reset() { throw NotImplementedException("") }
     override fun hasNext(): Boolean {

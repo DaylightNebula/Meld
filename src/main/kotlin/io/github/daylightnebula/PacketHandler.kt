@@ -91,3 +91,7 @@ fun javaPacketID(
     id: Int,
     state: JavaConnectionState
 ) = id to state
+
+fun javaGamePacket(
+    id: Int
+) = id to JavaConnectionState.IN_GAME

@@ -1,4 +1,4 @@
-package io.github.daylightnebula.join
+package io.github.daylightnebula
 
 import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import org.jglrxavpok.hephaistos.nbt.*
@@ -199,7 +199,8 @@ object RegistryCodec {
         "scaling" to NBTString(scaling),
         "messageID" to NBTString(messageID),
         "exhaustion" to NBTFloat(exhaustion)
-    ))
+    )
+    )
 }
 
 fun JSONObject.toNBT(): NBT {
