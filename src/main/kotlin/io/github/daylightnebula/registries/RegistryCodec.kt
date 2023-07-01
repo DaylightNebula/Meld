@@ -1,4 +1,4 @@
-package io.github.daylightnebula
+package io.github.daylightnebula.registries
 
 import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import org.jglrxavpok.hephaistos.nbt.*

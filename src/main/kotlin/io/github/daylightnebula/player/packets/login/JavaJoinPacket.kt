@@ -2,7 +2,7 @@ package io.github.daylightnebula.player.packets.login
 
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
 import io.github.daylightnebula.Meld
-import io.github.daylightnebula.RegistryCodec
+import io.github.daylightnebula.registries.RegistryCodec
 import io.github.daylightnebula.entities.EntityController
 import io.github.daylightnebula.networking.common.AbstractReader
 import io.github.daylightnebula.networking.common.ByteWriter
@@ -14,24 +14,24 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 // https://wiki.vg/Protocol#Login_.28play.29
 class JavaJoinPacket(
-    val playerID: Int = EntityController.nextID(),
-    val isHardcore: Boolean = false,
-    val gameMode: GameMode = GameMode.SURVIVAL,
-    val previousGameMode: Byte = -1,
-    val dimensionCount: Int = 1,
-    val dimensionNames: List<String> = listOf("minecraft:overworld"),
-    val registryCodec: NBTCompound = RegistryCodec.nbt,
-    val dimensionType: String = "minecraft:overworld",
-    val dimensionName: String = "minecraft:overworld",
-    val seed: Long = 0L,
-    val maxPlayers: Int = Meld.maxPlayers,
-    val viewDistance: Int = Meld.viewDistance,
-    val simDistance: Int = Meld.simDistance,
-    val reducedDebugInfo: Boolean = false,
-    val enableRespawnScreen: Boolean = true,
-    val isDebug: Boolean = false,
-    val isFlat: Boolean = Meld.isFlatWorld,
-    val portalCooldown: Int = Meld.portalCooldown
+        val playerID: Int = EntityController.nextID(),
+        val isHardcore: Boolean = false,
+        val gameMode: GameMode = GameMode.SURVIVAL,
+        val previousGameMode: Byte = -1,
+        val dimensionCount: Int = 1,
+        val dimensionNames: List<String> = listOf("minecraft:overworld"),
+        val registryCodec: NBTCompound = RegistryCodec.nbt,
+        val dimensionType: String = "minecraft:overworld",
+        val dimensionName: String = "minecraft:overworld",
+        val seed: Long = 0L,
+        val maxPlayers: Int = Meld.maxPlayers,
+        val viewDistance: Int = Meld.viewDistance,
+        val simDistance: Int = Meld.simDistance,
+        val reducedDebugInfo: Boolean = false,
+        val enableRespawnScreen: Boolean = true,
+        val isDebug: Boolean = false,
+        val isFlat: Boolean = Meld.isFlatWorld,
+        val portalCooldown: Int = Meld.portalCooldown
 ): JavaPacket {
 
     constructor(player: Player): this(

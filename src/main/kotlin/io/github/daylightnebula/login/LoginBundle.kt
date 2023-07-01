@@ -40,6 +40,7 @@ class LoginBundle: PacketBundle(
             // process depending on the status given in the input packet
             when(status) {
                 ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS -> {
+                    println("Resource pack have all packs")
                     connection.sendPacket(ResourcePackStackPacket().apply {
                         isForcedToAccept = false
                         isExperimentsPreviouslyToggled = false
@@ -49,14 +50,15 @@ class LoginBundle: PacketBundle(
 
                 ResourcePackClientResponsePacket.Status.COMPLETED -> {
                     // call login event
+                    println("Resource pack completed")
                     EventBus.callEvent(LoginEvent(connection))
                     // https://wiki.vg/Bedrock_Protocol#Start_Game
                 }
 
 
-                ResourcePackClientResponsePacket.Status.NONE -> TODO("$status not implemented")
-                ResourcePackClientResponsePacket.Status.REFUSED -> TODO("$status not implemented")
-                ResourcePackClientResponsePacket.Status.SEND_PACKS -> TODO("$status not implemented")
+                ResourcePackClientResponsePacket.Status.NONE -> TODO("Bedrock resourcepack $status not implemented")
+                ResourcePackClientResponsePacket.Status.REFUSED -> TODO("Bedrock resourcepack $status not implemented")
+                ResourcePackClientResponsePacket.Status.SEND_PACKS -> TODO("Bedrock resourcepack $status not implemented")
             }
         }
     ),

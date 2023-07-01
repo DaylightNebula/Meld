@@ -6,6 +6,7 @@ import io.github.daylightnebula.entities.Health
 import io.github.daylightnebula.entities.LivingEntity
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.utils.Vector3
+import org.cloudburstmc.protocol.bedrock.data.GameType
 
 // TODO declare recipes packet + crafting data packet
 // TODO tags packet (may need more integration)
@@ -28,4 +29,11 @@ class Player(
         private set
 
     // TODO teleport functions
+}
+
+fun GameMode.bedrockGameMode() = when(this) {
+    GameMode.SURVIVAL -> GameType.SURVIVAL
+    GameMode.CREATIVE -> GameType.CREATIVE
+    GameMode.ADVENTURE -> GameType.ADVENTURE
+    GameMode.SPECTATOR -> GameType.SPECTATOR
 }

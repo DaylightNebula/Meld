@@ -7,16 +7,17 @@ import io.github.daylightnebula.networking.bedrock.BedrockNetworkController
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaNetworkController
 import io.github.daylightnebula.player.PlayerBundle
+import io.github.daylightnebula.registries.RegistryCodec
 
 object Meld {
     // config TODO move to config file
     // java specific
-    val javaPort = 25577
+    val javaPort = 25565
     val javaProtocol = 763
     val javaVersion = "1.20.1"
 
     // bedrock specific
-    val bedrockPort = 19133
+    val bedrockPort = 19132
     val bedrockPortv6 = 19133
     val reknetProtcol = 11
     val bedrockProtocol = 593
@@ -25,6 +26,7 @@ object Meld {
     // other stuffs
     val maxPlayers = 100
     val players = 0
+    val serverName = "Meld test server!"
     val description = "Hello World!"
     val favicon = "data:image/png;base64,<data>"
     val enforceSecureChat = false
