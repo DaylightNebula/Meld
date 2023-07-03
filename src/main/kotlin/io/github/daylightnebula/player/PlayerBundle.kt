@@ -57,7 +57,7 @@ class PlayerBundle: PacketBundle(
     java(
         JavaReceivePlayerPositionPacket::class.java.name to { connection, packet ->
             packet as JavaReceivePlayerPositionPacket
-            println("Position: ${packet.x} ${packet.y} ${packet.z} ${packet.onGround}")
+            //println("Position: ${packet.x} ${packet.y} ${packet.z} ${packet.onGround}")
         }
     )
 ) {

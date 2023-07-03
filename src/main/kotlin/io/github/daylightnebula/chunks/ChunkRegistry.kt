@@ -1,0 +1,40 @@
+package io.github.daylightnebula.chunks
+
+import io.github.daylightnebula.networking.common.ByteWriter
+import io.github.daylightnebula.networking.common.DataPacketMode
+import org.jglrxavpok.hephaistos.nbt.NBT
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import org.jglrxavpok.hephaistos.nbt.NBTLongArray
+
+object ChunkRegistry {
+    val defaultHeightmap: NBTCompound = NBT.Compound(
+        mapOf<String, NBTLongArray>(
+            "MOTION_BLOCKING" to NBT.LongArray(*LongArray(37) { 0x100804020100804 }),
+//                "WORLD_SURFACE" to NBT.LongArray(*net.minestom.server.instance.DynamicChunk.encodeBlocks(worldSurface, bitsForHeight))
+        )
+    )
+
+    val emptyChunk: ByteArray
+
+    init {
+        val writer = ByteWriter(0, DataPacketMode.JAVA)
+
+        // for all 24 sections
+        repeat(24) {
+            // number of non-air blocks in the section
+            writer.writeShort(0)
+
+            // empty block palette
+            writer.writeUByte(0u)
+            writer.writeVarInt(0)
+            writer.writeVarInt(0)
+
+            // empty biomes palette
+            writer.writeUByte(0u)
+            writer.writeVarInt(0)
+            writer.writeVarInt(0)
+        }
+
+        emptyChunk = writer.getRawData()
+    }
+}

@@ -1,6 +1,7 @@
 package io.github.daylightnebula.player
 
 import io.github.daylightnebula.Meld
+import io.github.daylightnebula.chunks.JavaChunkPacket
 import io.github.daylightnebula.entities.JavaEntityStatusPacket
 import io.github.daylightnebula.events.Event
 import io.github.daylightnebula.events.EventBus
@@ -49,7 +50,10 @@ class PlayerListener: EventListener {
                 event.connection.sendPacket(JavaFeatureFlagsPacket())
                 event.connection.sendPacket(JavaAbilitiesPacket())
                 event.connection.sendPacket(JavaEntityStatusPacket(player))
+                event.connection.sendPacket(JavaChunkPacket())
                 // TODO player info packet https://wiki.vg/Protocol#Player_Info_Update
+                // TODO send spawn position packet
+                // TODO send player position and look packet
             }
 
             // bedrock connections
