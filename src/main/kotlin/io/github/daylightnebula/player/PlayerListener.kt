@@ -11,9 +11,10 @@ import io.github.daylightnebula.login.LoginEvent
 import io.github.daylightnebula.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.packets.JavaSetPlayerPositionPacket
+import io.github.daylightnebula.player.packets.JavaSetSpawnPositionPacket
 import io.github.daylightnebula.player.packets.login.JavaAbilitiesPacket
 import io.github.daylightnebula.player.packets.login.JavaFeatureFlagsPacket
-import io.github.daylightnebula.player.packets.login.JavaJoinPacket
+import io.github.daylightnebula.player.packets.join.JavaJoinPacket
 import io.github.daylightnebula.registries.BedrockRegistries
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
@@ -22,11 +23,9 @@ import org.cloudburstmc.nbt.NbtMap
 import org.cloudburstmc.protocol.bedrock.data.*
 import org.cloudburstmc.protocol.bedrock.packet.BiomeDefinitionListPacket
 import org.cloudburstmc.protocol.bedrock.packet.CreativeContentPacket
-import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
 import org.cloudburstmc.protocol.bedrock.packet.PlayStatusPacket
 import org.cloudburstmc.protocol.bedrock.packet.StartGamePacket
 import org.cloudburstmc.protocol.common.util.OptionalBoolean
-import org.jglrxavpok.hephaistos.mcdata.Biome
 import java.util.*
 
 class PlayerListener: EventListener {
@@ -52,8 +51,9 @@ class PlayerListener: EventListener {
                 event.connection.sendPacket(JavaEntityStatusPacket(player))
                 event.connection.sendPacket(JavaChunkPacket())
                 // TODO player info packet https://wiki.vg/Protocol#Player_Info_Update
-                // TODO send spawn position packet
-                // TODO send player position and look packet
+
+                event.connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))
+                event.connection.sendPacket(JavaSetPlayerPositionPacket(0.0, 60.0, 0.0, 0f, 0f))
             }
 
             // bedrock connections

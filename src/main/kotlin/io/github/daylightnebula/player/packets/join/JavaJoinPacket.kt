@@ -1,4 +1,4 @@
-package io.github.daylightnebula.player.packets.login
+package io.github.daylightnebula.player.packets.join
 
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
 import io.github.daylightnebula.Meld

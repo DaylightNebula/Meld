@@ -4,6 +4,7 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import kotlinx.coroutines.runBlocking
+import org.cloudburstmc.math.vector.Vector3i
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.text.String
@@ -50,6 +51,14 @@ abstract class AbstractReader() {
     fun readDouble(): Double = ByteBuffer.wrap(readArray(8)).getDouble()
 
     fun readLong() = ByteBuffer.wrap(readArray(8)).getLong(0)
+
+    fun readBlockPosition(): Vector3i {
+        val value: Long = readLong()
+        val x = (value shr 38).toInt()
+        val y = (value shl 52 shr 52).toInt()
+        val z = (value shl 26 shr 38).toInt()
+        return Vector3i.from(x, y, z)
+    }
 
     // complex object reads
     fun readVarString(): String = String(readArray(readVarInt()))

@@ -2,6 +2,7 @@ package io.github.daylightnebula.networking.common
 
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.networking.common.AbstractReader.Companion.SEGMENT_BITS
+import org.cloudburstmc.math.vector.Vector3i
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTWriter
@@ -46,6 +47,11 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     fun writeDouble(double: Double) { data.add(ByteBuffer.allocate(8).putDouble(double).array()) }
 
     fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
+
+    fun writeBlockPosition(position: Vector3i) =
+        writeLong(position.x.toLong() and 0x3FFFFFFL shl 38 or
+                (position.z.toLong() and 0x3FFFFFFL shl 12) or
+                (position.y.toLong() and 0xFFFL))
 
     // NBT
     fun writeNBT(compound: NBTCompound) {

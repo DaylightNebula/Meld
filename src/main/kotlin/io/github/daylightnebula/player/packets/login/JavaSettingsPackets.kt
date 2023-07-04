@@ -17,7 +17,7 @@ class JavaFeatureFlagsPacket(var features: Array<String> = arrayOf("minecraft:va
 class JavaAbilitiesPacket(
     var moveSpeed: Float = 0.1f,
     var flySpeed: Float = 0.05f,
-    var flags: Byte = 0x00
+    var flags: Byte = 0x04
 ): JavaPacket {
     override val id: Int = 0x34
     override fun decode(reader: AbstractReader) = noDecode()

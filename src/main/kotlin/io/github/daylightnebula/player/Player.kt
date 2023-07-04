@@ -25,7 +25,7 @@ class Player(
         internal set
 
     // TODO on set, broadcast packet
-    var gameMode: GameMode = GameMode.SURVIVAL
+    var gameMode: GameMode = GameMode.CREATIVE
         private set
 
     // TODO teleport functions
@@ -37,3 +37,9 @@ fun GameMode.bedrockGameMode() = when(this) {
     GameMode.ADVENTURE -> GameType.ADVENTURE
     GameMode.SPECTATOR -> GameType.SPECTATOR
 }
+
+enum class PlayerChatMode { ENABLED, COMMANDS_ONLY, HIDDEN }
+enum class PlayerMainHand { LEFT, RIGHT }
+enum class PlayerHand { MAIN, OFF }
+enum class PlayerCommandAction { START_SNEAKING, STOP_SNEAKING, LEAVE_BED, START_SPRINTING, STOP_SPRINTING, START_JUMP_HORSE, STOP_JUMP_HORSE, OPEN_HORSE_INVENTORY, START_FLYING_ELYTRA }
+enum class PlayerAction { START_DIGGING, CANCELLED_DIGGING, FINISHED_DIGGING, DROP_ITEM_STACK, DROP_ITEM, SHOOT_ARROW_FINISH_EATING, SWAP_ITEM_IN_HAND }

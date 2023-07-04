@@ -21,13 +21,13 @@ object ChunkRegistry {
 
         // for all 24 sections
         repeat(24) {
-            // number of non-air blocks in the section
-            writer.writeShort(0)
+            // number of non-air block palettes in the section
+            writer.writeShort(1)
 
             // empty block palette
-            writer.writeUByte(0u)
-            writer.writeVarInt(0)
-            writer.writeVarInt(0)
+            writer.writeUByte(0u)     // bits per entry
+            writer.writeVarInt(1)       // single value of id 0 (air)
+            writer.writeVarInt(0)       //
 
             // empty biomes palette
             writer.writeUByte(0u)
