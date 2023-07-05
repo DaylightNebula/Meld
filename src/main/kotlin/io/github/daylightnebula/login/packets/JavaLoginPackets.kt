@@ -46,11 +46,6 @@ class JavaLoginSuccessPacket(
         writer.writeLong(uuid.leastSignificantBits)
         writer.writeString(username)
         writer.writeVarInt(0)
-
-        // TODO add "logged in" connection reference here
-        // TODO broadcast pre login complete event here
-        // https://wiki.vg/Protocol#Login_.28play.29
-        println("TODO java logged in")
     }
 
     override fun decode(reader: AbstractReader) {

@@ -69,7 +69,7 @@ class PlayerBundle: PacketBundle(
 
         JavaReceivePlayerRotationPacket::class.java.name to { connection, packet ->
             packet as JavaReceivePlayerRotationPacket
-            println("Rotation: ${packet.yaw} ${packet.pitch} ${packet.onGround}")
+//            println("Rotation: ${packet.yaw} ${packet.pitch} ${packet.onGround}")
         },
 
         JavaClientInfoPacket::class.java.name to { connection, packet ->
@@ -79,6 +79,12 @@ class PlayerBundle: PacketBundle(
 
         JavaPluginMessagePacket::class.java.name to { connection, packet ->
             packet as JavaPluginMessagePacket
+            when (packet.channel) {
+                "minecraft:brand" -> {
+                    connection.sendPacket(JavaPluginMessagePacket("minecraft:brand", packet.data))
+                }
+                else -> println("Unknown plugin message channel ${packet.channel}")
+            }
         },
 
         JavaConfirmTeleportPacket::class.java.name to { connection, packet ->

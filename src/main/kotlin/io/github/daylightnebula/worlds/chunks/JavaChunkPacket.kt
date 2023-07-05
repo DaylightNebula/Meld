@@ -1,24 +1,29 @@
-package io.github.daylightnebula.chunks
+package io.github.daylightnebula.worlds.chunks
 
 import io.github.daylightnebula.networking.common.AbstractReader
 import io.github.daylightnebula.networking.common.ByteWriter
+import io.github.daylightnebula.networking.common.DataPacketMode
 import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.noDecode
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class JavaChunkPacket(
-    var chunkX: Int = 0,
-    var chunkY: Int = 0,
-    var heightmaps: NBTCompound = ChunkRegistry.defaultHeightmap,
-    var data: ByteArray = ChunkRegistry.emptyChunk
+    var chunk: Chunk = Chunk(),
+    var heightmaps: NBTCompound = ChunkRegistry.defaultHeightmap
 ): JavaPacket {
 
     override val id: Int = 0x24
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
-        writer.writeInt(chunkX)
-        writer.writeInt(chunkY)
+        // serialize chunk
+        val dataWriter = ByteWriter(0, DataPacketMode.JAVA)
+        chunk.write(dataWriter)
+        val data = dataWriter.getRawData()
+
+        // write chunk header and raw data
+        writer.writeInt(chunk.chunkX)
+        writer.writeInt(chunk.chunkY)
         writer.writeNBT(heightmaps)
         writer.writeVarInt(data.size)
         writer.writeByteArray(data)

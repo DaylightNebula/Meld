@@ -39,44 +39,6 @@ object RegistryCodec {
                  }
             ]
         }""")).parse() as NBTCompound
-
-    val chatRegistry2 = NBTCompound(mapOf(
-        "type" to NBTString("minecraft:chat_type"),
-        "value" to NBTList(
-            NBTType.TAG_Compound,
-            listOf(
-                    NBTCompound(mapOf(
-                    "name" to NBTString("minecraft:chat"),
-                    "id" to NBTInt(0),
-                    "element" to NBTCompound(mapOf(
-                        "chat" to NBTCompound(mapOf(
-                            "translation_key" to NBTString("chat.type.text"),
-                            "style" to NBTCompound(),
-                            "parameters" to NBTList(
-                                NBTType.TAG_String,
-                                listOf(
-                                    NBTString("sender"),
-                                    NBTString("content")
-                                )
-                            )
-                        )),
-                        "narration" to NBTCompound(mapOf(
-                            "translation_key" to NBTString("chat.type.text.narrate"),
-                            "style" to NBTCompound(),
-                            "parameters" to NBTList(
-                                NBTType.TAG_String,
-                                listOf(
-                                    NBTString("sender"),
-                                    NBTString("content")
-                                )
-                            )
-                        ))
-                    ))
-                ))
-            )
-        )
-    ))
-
     val dimensionType = NBTCompound(mapOf(
         "type" to NBTString("minecraft:dimension_type"),
         "value" to NBTList(
@@ -109,7 +71,6 @@ object RegistryCodec {
             )
         )
     ))
-
     val defaultBiome = NBTCompound(mapOf(
         "type" to NBTString("minecraft:worldgen/biome"),
         "value" to NBTList(
@@ -133,7 +94,6 @@ object RegistryCodec {
             )
         )
     ))
-
     val damageTypeJson = codec.getJSONObject("value").getJSONObject("minecraft:damage_type").getJSONObject("value").getJSONObject("value").getJSONObject("value").getJSONArray("value")
     var damageTypes = nbtTypedList(
         "minecraft:damage_type",

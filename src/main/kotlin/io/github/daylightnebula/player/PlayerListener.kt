@@ -1,13 +1,13 @@
 package io.github.daylightnebula.player
 
 import io.github.daylightnebula.Meld
-import io.github.daylightnebula.chunks.JavaChunkPacket
 import io.github.daylightnebula.entities.JavaEntityStatusPacket
 import io.github.daylightnebula.events.Event
 import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.events.EventHandler
 import io.github.daylightnebula.events.EventListener
 import io.github.daylightnebula.login.LoginEvent
+import io.github.daylightnebula.login.packets.JavaDifficultyPacket
 import io.github.daylightnebula.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.packets.JavaSetPlayerPositionPacket
@@ -16,6 +16,7 @@ import io.github.daylightnebula.player.packets.login.JavaAbilitiesPacket
 import io.github.daylightnebula.player.packets.login.JavaFeatureFlagsPacket
 import io.github.daylightnebula.player.packets.join.JavaJoinPacket
 import io.github.daylightnebula.registries.BedrockRegistries
+import io.github.daylightnebula.worlds.chunks.*
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
@@ -49,9 +50,20 @@ class PlayerListener: EventListener {
                 event.connection.sendPacket(JavaFeatureFlagsPacket())
                 event.connection.sendPacket(JavaAbilitiesPacket())
                 event.connection.sendPacket(JavaEntityStatusPacket(player))
-                event.connection.sendPacket(JavaChunkPacket())
+                event.connection.sendPacket(JavaDifficultyPacket())
+                event.connection.sendPacket(JavaSetCenterChunkPacket())
+//                event.connection.sendPacket(JavaSendPluginMessagePacket("minecraft:register", byteArrayOf(0x00)))
+//                event.connection.sendPacket(JavaSendPluginMessagePacket("minecraft:brand", "Meld".toByteArray()))
+
+                // send chunks
+                event.connection.sendPacket(JavaChunkPacket(Chunk(0, 0, sections = Array(24) { Section(FilledPalette(1)) })))
+                event.connection.sendPacket(JavaChunkPacket(Chunk(0, 1)))
+                event.connection.sendPacket(JavaChunkPacket(Chunk(0, -1)))
+                event.connection.sendPacket(JavaChunkPacket(Chunk(1, 0)))
+                event.connection.sendPacket(JavaChunkPacket(Chunk(-1, 0)))
                 // TODO player info packet https://wiki.vg/Protocol#Player_Info_Update
 
+                // send positions
                 event.connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))
                 event.connection.sendPacket(JavaSetPlayerPositionPacket(0.0, 60.0, 0.0, 0f, 0f))
             }

@@ -46,10 +46,9 @@ object JavaNetworkController: INetworkController {
 //                    println("Got packet $packetID with length $length on state ${connection.state}")
 
                     // try catch due to packet 122 in status state
-                    val data = try { ByteArrayReader(read.readArray(length - 1)) } catch (ex: Exception) { return@runBlocking }
+                    val data = ByteArrayReader(read.readArray(length - 1))
 
                     PacketHandler.handleJavaPacket(connection, packetID, data)
-//                    readPreJoinPacket(addr, connection, data, packetID)
                 }
             }
 

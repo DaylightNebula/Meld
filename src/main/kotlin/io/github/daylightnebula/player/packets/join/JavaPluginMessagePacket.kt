@@ -9,8 +9,11 @@ class JavaPluginMessagePacket(
     var channel: String = "",
     var data: ByteArray = byteArrayOf()
 ): JavaPacket {
-    override val id: Int = 0x0D
-    override fun encode(writer: ByteWriter) = noEncode()
+    override val id: Int = 0x17 // id used to send to client
+    override fun encode(writer: ByteWriter) {
+        writer.writeString(channel)
+        writer.writeByteArray(data)
+    }
     override fun decode(reader: AbstractReader) {
         channel = reader.readVarString()
         data = reader.readArray(reader.remaining())
