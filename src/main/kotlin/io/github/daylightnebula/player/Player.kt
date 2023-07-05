@@ -5,8 +5,12 @@ import io.github.daylightnebula.entities.EntityController
 import io.github.daylightnebula.entities.Health
 import io.github.daylightnebula.entities.LivingEntity
 import io.github.daylightnebula.networking.common.IConnection
+import io.github.daylightnebula.networking.java.JavaConnection
+import io.github.daylightnebula.player.packets.JavaKeepAlivePacket
 import io.github.daylightnebula.utils.Vector3
 import org.cloudburstmc.protocol.bedrock.data.GameType
+import java.lang.Thread.sleep
+import kotlin.concurrent.thread
 
 // TODO declare recipes packet + crafting data packet
 // TODO tags packet (may need more integration)
@@ -20,6 +24,14 @@ class Player(
 ): LivingEntity(
     id, position, health
 ) {
+    // TODO replace
+    val keepAliveThread = thread {
+        while (true) {
+            sleep(1000)
+            if (connection is JavaConnection) connection.sendPacket(JavaKeepAlivePacket())
+        }
+    }
+
     // marks if the player has been sent their join packets
     var joinSent = false
         internal set

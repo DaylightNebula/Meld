@@ -57,6 +57,8 @@ class PlayerBundle: PacketBundle(
         }
     ),
     java(
+        JavaKeepAlivePacket::class.java.name to { connection, packet -> },
+
         JavaReceivePlayerPositionPacket::class.java.name to { connection, packet ->
             packet as JavaReceivePlayerPositionPacket
 //            println("Position: ${packet.x} ${packet.y} ${packet.z} ${packet.onGround}")
@@ -114,6 +116,7 @@ class PlayerBundle: PacketBundle(
     )
 ) {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> = javaPackets(
+        javaGamePacket(0x12) to { JavaKeepAlivePacket() },
         javaGamePacket(0x14) to { JavaReceivePlayerPositionPacket() },
         javaGamePacket(0x16) to { JavaReceivePlayerRotationPacket() },
         javaGamePacket(0x15) to { JavaReceivePlayerPositionAndRotationPacket() },
