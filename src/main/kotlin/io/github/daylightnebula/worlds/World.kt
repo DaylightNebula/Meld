@@ -6,22 +6,22 @@ import io.github.daylightnebula.worlds.chunks.Section
 import io.github.daylightnebula.worlds.chunks.chunk
 
 object World {
-    val overworld = Dimension(
-        "overworld",
-        hashMapOf(
-            chunk(0, 0, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(1) else FlexiblePalette.filled()) }),
-            chunk(1, 0, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(2) else FlexiblePalette.filled()) }),
-            chunk(0, 1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(3) else FlexiblePalette.filled()) }),
-            chunk(0, -1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(4) else FlexiblePalette.filled()) }),
-            chunk(-1, 0, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(5) else FlexiblePalette.filled()) }),
-            chunk(-1, 1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(6) else FlexiblePalette.filled()) }),
-            chunk(-1, -1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(7) else FlexiblePalette.filled()) }),
-            chunk(1, 1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(8) else FlexiblePalette.filled()) }),
-            chunk(1, -1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(9) else FlexiblePalette.filled()) }),
+    val dimensions = hashMapOf(
+        dimension(
+            "overworld",
+            chunk(0, 0, Array(24) { idx -> Section(if (idx < 1) FlexiblePalette.filled(10) else FlexiblePalette.filled()) }),
+//            chunk(1, 0, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(11) else FlexiblePalette.filled()) }),
+//            chunk(0, 1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(12) else FlexiblePalette.filled()) }),
+//            chunk(0, -1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(13) else FlexiblePalette.filled()) }),
+//            chunk(-1, 0, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(14) else FlexiblePalette.filled()) }),
+//            chunk(-1, 1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(15) else FlexiblePalette.filled()) }),
+//            chunk(-1, -1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(16) else FlexiblePalette.filled()) }),
+//            chunk(1, 1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(17) else FlexiblePalette.filled()) }),
+//            chunk(1, -1, Array(24) { idx -> Section(if (idx < 3) FlexiblePalette.filled(18) else FlexiblePalette.filled()) }),
         )
     )
 
     fun init() {
-        EventBus.register(overworld)
+        dimensions.values.forEach { EventBus.register(it) }
     }
 }

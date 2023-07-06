@@ -7,10 +7,13 @@ import io.github.daylightnebula.entities.LivingEntity
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.packets.JavaKeepAlivePacket
+import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3f
+import org.cloudburstmc.math.vector.Vector3i
 import org.cloudburstmc.protocol.bedrock.data.GameType
 import java.lang.Thread.sleep
 import kotlin.concurrent.thread
+import kotlin.math.floor
 
 // TODO declare recipes packet + crafting data packet
 // TODO tags packet (may need more integration)
@@ -54,4 +57,4 @@ enum class PlayerChatMode { ENABLED, COMMANDS_ONLY, HIDDEN }
 enum class PlayerMainHand { LEFT, RIGHT }
 enum class PlayerHand { MAIN, OFF }
 enum class PlayerCommandAction { START_SNEAKING, STOP_SNEAKING, LEAVE_BED, START_SPRINTING, STOP_SPRINTING, START_JUMP_HORSE, STOP_JUMP_HORSE, OPEN_HORSE_INVENTORY, START_FLYING_ELYTRA }
-enum class PlayerAction { START_DIGGING, CANCELLED_DIGGING, FINISHED_DIGGING, DROP_ITEM_STACK, DROP_ITEM, SHOOT_ARROW_FINISH_EATING, SWAP_ITEM_IN_HAND }
+enum class PlayerBlockAction { START_DIGGING, CANCELLED_DIGGING, FINISHED_DIGGING, DROP_ITEM_STACK, DROP_ITEM, SHOOT_ARROW_FINISH_EATING, SWAP_ITEM_IN_HAND }

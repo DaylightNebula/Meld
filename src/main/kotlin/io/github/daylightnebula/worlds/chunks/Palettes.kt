@@ -1,6 +1,7 @@
 package io.github.daylightnebula.worlds.chunks
 
 import io.github.daylightnebula.networking.common.ByteWriter
+import org.cloudburstmc.math.vector.Vector3i
 
 
 interface Palette {
@@ -43,5 +44,32 @@ class FlexiblePalette(
         if (blockReferences.size % 8 != 0) throw IllegalArgumentException("Block references was not divisible by 8.  Recommended size is 4096.")
         writer.writeVarInt(blockReferences.size / 8)
         writer.writeByteArray(blockReferences)
+    }
+
+    fun set(position: Vector3i, newID: Int) {
+        // range check
+        if (position.x !in 0..15 || position.y !in 0 .. 15 || position.z !in 0 .. 15)
+            throw IllegalArgumentException("Section set call out of range $position")
+
+        // get ref index
+        val refIndex = (position.y * 256) + (position.z * 16) + position.x
+
+        // get index of new id in block ids
+        var index = blockIDs.indexOf(newID)
+
+        // if old ref index and new ref index are equal, cancel
+        if (blockReferences[refIndex].toInt() == index) return
+
+        // update index if necessary
+        if (index == -1) {
+            blockIDs = intArrayOf(*blockIDs, newID)
+            index = blockIDs.size
+        }
+
+        // update block count
+        if (newID == 0) internalCount-- else internalCount++
+
+        // set block
+        blockReferences[refIndex] = index.toByte()
     }
 }

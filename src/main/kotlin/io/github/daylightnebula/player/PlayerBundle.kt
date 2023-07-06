@@ -3,6 +3,7 @@ package io.github.daylightnebula.player
 import io.github.daylightnebula.*
 import io.github.daylightnebula.networking.java.JavaConnectionState
 import io.github.daylightnebula.networking.java.JavaPacket
+import io.github.daylightnebula.player.extensions.handleBlockAction
 import io.github.daylightnebula.player.packets.*
 import io.github.daylightnebula.player.packets.join.JavaClientInfoPacket
 import io.github.daylightnebula.player.packets.join.JavaPluginMessagePacket
@@ -104,9 +105,9 @@ class PlayerBundle: PacketBundle(
             println("TODO handle player command action ${packet.action}")
         },
 
-        JavaActionPacket::class.java.name to { connection, packet ->
-            packet as JavaActionPacket
-            println("TODO handle player action ${packet.action}")
+        JavaBlockActionPacket::class.java.name to { connection, packet ->
+            packet as JavaBlockActionPacket
+            connection.player!!.handleBlockAction(packet.action, packet.blockPosition, packet.face)
         },
 
         JavaSwingArmPacket::class.java.name to { connection, packet ->
@@ -126,6 +127,6 @@ class PlayerBundle: PacketBundle(
         javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },
         javaGamePacket(0x1E) to { JavaPlayerCommandPacket() },
         javaGamePacket(0x2F) to { JavaSwingArmPacket() },
-        javaGamePacket(0x1D) to { JavaActionPacket() }
+        javaGamePacket(0x1D) to { JavaBlockActionPacket() }
     )
 }

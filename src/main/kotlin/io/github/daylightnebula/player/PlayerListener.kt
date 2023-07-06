@@ -39,6 +39,7 @@ class PlayerListener: EventListener {
 
         // create player and broadcast pre join
         val player = Player(event.connection)
+        event.connection.player = player
         EventBus.callEvent(PreJoinEvent(player))
 
         // match login handler based on connection type

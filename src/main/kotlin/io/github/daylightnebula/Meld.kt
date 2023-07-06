@@ -33,7 +33,7 @@ object Meld {
     val enforceSecureChat = false
     val previewsChat = false
     val viewDistance = 8
-    val simDistance = 4
+    val simDistance = 8
     val isFlatWorld = false
     val portalCooldown = 20
 

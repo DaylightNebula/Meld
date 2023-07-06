@@ -4,7 +4,7 @@ import io.github.daylightnebula.networking.common.AbstractReader
 import io.github.daylightnebula.networking.common.ByteWriter
 import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.noEncode
-import io.github.daylightnebula.player.PlayerAction
+import io.github.daylightnebula.player.PlayerBlockAction
 import io.github.daylightnebula.player.PlayerCommandAction
 import org.cloudburstmc.math.vector.Vector3i
 
@@ -22,8 +22,8 @@ class JavaPlayerCommandPacket(
     }
 }
 
-class JavaActionPacket(
-    var action: PlayerAction = PlayerAction.START_DIGGING,
+class JavaBlockActionPacket(
+    var action: PlayerBlockAction = PlayerBlockAction.START_DIGGING,
     var blockPosition: Vector3i = Vector3i.ZERO,
     var face: Byte = 0x00,
     var sequence: Int = 0
@@ -31,7 +31,7 @@ class JavaActionPacket(
     override val id: Int = 0x1D
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
-        action = PlayerAction.values()[reader.readVarInt()]
+        action = PlayerBlockAction.values()[reader.readVarInt()]
         blockPosition = reader.readBlockPosition()
         face = reader.readByte()
         sequence = reader.readVarInt()

@@ -10,10 +10,10 @@ import io.github.daylightnebula.player.Player
 import io.github.daylightnebula.worlds.chunks.Chunk
 import io.github.daylightnebula.worlds.chunks.JavaChunkPacket
 import io.github.daylightnebula.worlds.chunks.JavaSetCenterChunkPacket
+import io.github.daylightnebula.worlds.chunks.getChunkPosition
 import org.cloudburstmc.math.vector.Vector2i
 import kotlin.math.floor
 
-// TODO store somewhere
 // TODO when player moves, check if we need to load and unload chunks
 class Dimension(
     val id: String,
@@ -27,7 +27,7 @@ class Dimension(
         val player = event.player
 
         // send all loaded chunk events
-        val chunkPos = getPlayerChunkPosition(player)
+        val chunkPos = player.getChunkPosition()
         val radius = Meld.viewDistance / 2
         ((chunkPos.x - radius) .. (chunkPos.x + radius)).forEach { chunkX ->
             ((chunkPos.y - radius) .. (chunkPos.y + radius)).forEach { chunkZ ->
@@ -53,7 +53,7 @@ class Dimension(
 
     private fun centerPacket(player: Player) {
         // get center positions
-        val chunkPosition = getPlayerChunkPosition(player)
+        val chunkPosition = player.getChunkPosition()
 
         // send packet based on connection type
         when (player.connection) {
@@ -63,7 +63,9 @@ class Dimension(
             else -> throw IllegalArgumentException("No center packet for bedrock connections")
         }
     }
-
-    private fun getPlayerChunkPosition(player: Player): Vector2i =
-        Vector2i.from(floor(player.position.x / 16).toInt(), floor(player.position.z / 16).toInt())
 }
+
+fun dimension(
+    name: String,
+    vararg loadedChunks: Pair<Vector2i, Chunk>
+) = name to Dimension(name, hashMapOf(*loadedChunks))

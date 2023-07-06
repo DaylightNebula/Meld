@@ -1,6 +1,7 @@
 package io.github.daylightnebula.networking.java
 
 import io.github.daylightnebula.networking.common.*
+import io.github.daylightnebula.player.Player
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
@@ -12,6 +13,8 @@ class JavaConnection(
     var state: JavaConnectionState =
         JavaConnectionState.HANDSHAKE
 ): IConnection<JavaPacket> {
+    override var player: Player? = null
+
     override fun sendPacket(packet: JavaPacket) {
         // create writer
         val writer = ByteWriter(packet.id, DataPacketMode.JAVA)
