@@ -7,7 +7,7 @@ import io.github.daylightnebula.entities.LivingEntity
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.packets.JavaKeepAlivePacket
-import io.github.daylightnebula.utils.Vector3
+import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.protocol.bedrock.data.GameType
 import java.lang.Thread.sleep
 import kotlin.concurrent.thread
@@ -19,7 +19,7 @@ import kotlin.concurrent.thread
 class Player(
     val connection: IConnection<*>,
     id: Int = EntityController.nextID(),
-    position: Vector3 = Vector3(0.0, 0.0, 0.0),
+    position: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
     health: Health = Health(20.0)
 ): LivingEntity(
     id, position, health

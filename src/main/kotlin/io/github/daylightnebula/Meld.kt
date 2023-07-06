@@ -8,6 +8,7 @@ import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaNetworkController
 import io.github.daylightnebula.player.PlayerBundle
 import io.github.daylightnebula.registries.RegistryCodec
+import io.github.daylightnebula.worlds.World
 
 object Meld {
     // config TODO move to config file
@@ -48,6 +49,9 @@ fun main() {
     println("Registering packet bundles...")
     PacketHandler.register(LoginBundle())
     PacketHandler.register(PlayerBundle())
+
+    println("Loading world...")
+    World.init()
 
     println("Starting...")
 

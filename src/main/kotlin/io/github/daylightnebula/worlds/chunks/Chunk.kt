@@ -1,7 +1,13 @@
 package io.github.daylightnebula.worlds.chunks
 
 import io.github.daylightnebula.networking.common.ByteWriter
+import org.cloudburstmc.math.vector.Vector2i
 
+// TODO set block function
+// TODO get block function
+// TODO fill blocks function
+// TODO clear blocks function
+// TODO broadcast changes
 data class Chunk(
     var chunkX: Int = 0,
     var chunkY: Int = 0,
@@ -30,8 +36,13 @@ data class Chunk(
     }
 }
 
+fun chunk(
+    chunkX: Int = 0, chunkY: Int = 0,
+    sections: Array<Section> = Array(24) { Section() }
+) = Vector2i.from(chunkX, chunkY) to Chunk(chunkX, chunkY, sections)
+
 data class Section(
-    var blockPalette: Palette = FilledPalette()
+    var blockPalette: Palette = FlexiblePalette.filled()
 ) {
     fun write(writer: ByteWriter) {
         // write content
@@ -42,19 +53,5 @@ data class Section(
         writer.writeUByte(0u)
         writer.writeVarInt(0)
         writer.writeVarInt(0)
-    }
-}
-
-interface Palette {
-    val count: Short
-    fun write(writer: ByteWriter)
-}
-
-class FilledPalette(var id: Int = 0): Palette {
-    override val count: Short = if (id == 0) 0 else 1
-    override fun write(writer: ByteWriter) {
-        writer.writeUByte(0u)      // bits per entry
-        writer.writeVarInt(id)          // single value of id
-        writer.writeVarInt(0)        // length of data array (none)
     }
 }

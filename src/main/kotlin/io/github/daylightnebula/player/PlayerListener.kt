@@ -52,16 +52,6 @@ class PlayerListener: EventListener {
                 event.connection.sendPacket(JavaEntityStatusPacket(player))
                 event.connection.sendPacket(JavaDifficultyPacket())
                 event.connection.sendPacket(JavaSetCenterChunkPacket())
-//                event.connection.sendPacket(JavaSendPluginMessagePacket("minecraft:register", byteArrayOf(0x00)))
-//                event.connection.sendPacket(JavaSendPluginMessagePacket("minecraft:brand", "Meld".toByteArray()))
-
-                // send chunks
-                event.connection.sendPacket(JavaChunkPacket(Chunk(0, 0, sections = Array(24) { Section(FilledPalette(1)) })))
-                event.connection.sendPacket(JavaChunkPacket(Chunk(0, 1)))
-                event.connection.sendPacket(JavaChunkPacket(Chunk(0, -1)))
-                event.connection.sendPacket(JavaChunkPacket(Chunk(1, 0)))
-                event.connection.sendPacket(JavaChunkPacket(Chunk(-1, 0)))
-                // TODO player info packet https://wiki.vg/Protocol#Player_Info_Update
 
                 // send positions
                 event.connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))
