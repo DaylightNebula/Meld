@@ -19,7 +19,7 @@ class JavaChunkPacket(
     override fun encode(writer: ByteWriter) {
         // serialize chunk
         val dataWriter = ByteWriter(0, DataPacketMode.JAVA)
-        chunk.write(dataWriter)
+        chunk.writeJava(dataWriter)
         val data = dataWriter.getRawData()
 
         // write chunk header and raw data

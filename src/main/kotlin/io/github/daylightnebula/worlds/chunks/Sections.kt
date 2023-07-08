@@ -5,7 +5,7 @@ import io.github.daylightnebula.networking.common.ByteWriter
 data class Section(
     var blockPalette: FlexiblePalette = FlexiblePalette.filled()
 ) {
-    fun write(writer: ByteWriter) {
+    fun writeJava(writer: ByteWriter) {
         // write content
         writer.writeShort(blockPalette.count)
         blockPalette.write(writer)

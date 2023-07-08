@@ -6,8 +6,6 @@ import io.github.daylightnebula.networking.common.ByteWriter
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.Player
 import io.github.daylightnebula.worlds.chunks.packets.JavaChunkPacket
-import org.cloudburstmc.math.vector.Vector2i
-import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
 import kotlin.math.floor
 
@@ -19,11 +17,15 @@ data class Chunk(
     var chunkY: Int = 0,
     var sections: Array<Section> = Array(24) { Section() }
 ) {
-    fun write(writer: ByteWriter) {
+    fun writeJava(writer: ByteWriter) {
         // synchronously loop over the sections
         for (section in sections)
-            section.write(writer)
+            section.writeJava(writer)
     }
+
+    fun writeBedrock(writer: ByteWriter) {
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

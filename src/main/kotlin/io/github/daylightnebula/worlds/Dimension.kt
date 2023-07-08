@@ -4,6 +4,8 @@ import io.github.daylightnebula.Meld
 import io.github.daylightnebula.events.EventHandler
 import io.github.daylightnebula.events.EventListener
 import io.github.daylightnebula.networking.bedrock.BedrockConnection
+import io.github.daylightnebula.networking.common.ByteWriter
+import io.github.daylightnebula.networking.common.DataPacketMode
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.JoinEvent
 import io.github.daylightnebula.player.Player
@@ -11,7 +13,11 @@ import io.github.daylightnebula.worlds.chunks.Chunk
 import io.github.daylightnebula.worlds.chunks.packets.JavaChunkPacket
 import io.github.daylightnebula.worlds.chunks.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.worlds.chunks.getChunkPosition
+import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 import org.cloudburstmc.math.vector.Vector2i
+import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
+import java.nio.ByteBuffer
 
 // TODO when player moves, check if we need to load and unload chunks
 class Dimension(
@@ -43,10 +49,19 @@ class Dimension(
     private fun loadChunkForPlayer(player: Player, chunk: Chunk) {
         // send packet based on connection type
         when (player.connection) {
-            is JavaConnection -> {
-                player.connection.sendPacket(JavaChunkPacket(chunk))
-            }
-            is BedrockConnection -> TODO()
+            is JavaConnection -> player.connection.sendPacket(JavaChunkPacket(chunk))
+            is BedrockConnection -> player.connection.sendPacket(LevelChunkPacket().apply {
+                // update basic values of packet
+                subChunksLength = 24
+                isCachingEnabled = false
+                chunkX = chunk.chunkX
+                chunkZ = chunk.chunkY
+
+                // serialize data
+                val writer = ByteWriter(0x00, DataPacketMode.BEDROCK)
+                chunk.writeBedrock(writer)
+                data = Unpooled.wrappedBuffer(writer.getRawData())
+            })
         }
     }
 
@@ -59,7 +74,7 @@ class Dimension(
             is JavaConnection -> {
                 player.connection.sendPacket(JavaSetCenterChunkPacket(chunkPosition.x, chunkPosition.y))
             }
-            else -> throw IllegalArgumentException("No center packet for bedrock connections")
+            else -> {} // throw IllegalArgumentException("No center packet for bedrock connections")
         }
     }
 }

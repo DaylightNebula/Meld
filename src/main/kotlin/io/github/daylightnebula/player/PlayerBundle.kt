@@ -41,7 +41,7 @@ class PlayerBundle: PacketBundle(
 
         MovePlayerPacket::class.java.name to { connection, packet ->
             packet as MovePlayerPacket
-            println("Position: ${packet.position.x} ${packet.position.y} ${packet.position.z} ${packet.rotation.x} ${packet.rotation.y} ${packet.isOnGround}")
+//            println("Position: ${packet.position.x} ${packet.position.y} ${packet.position.z} ${packet.rotation.x} ${packet.rotation.y} ${packet.isOnGround}")
         },
 
         AnimatePacket::class.java.name to { connection, packet ->
