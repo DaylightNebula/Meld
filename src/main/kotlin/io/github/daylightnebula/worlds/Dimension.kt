@@ -8,11 +8,10 @@ import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.JoinEvent
 import io.github.daylightnebula.player.Player
 import io.github.daylightnebula.worlds.chunks.Chunk
-import io.github.daylightnebula.worlds.chunks.JavaChunkPacket
-import io.github.daylightnebula.worlds.chunks.JavaSetCenterChunkPacket
+import io.github.daylightnebula.worlds.chunks.packets.JavaChunkPacket
+import io.github.daylightnebula.worlds.chunks.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.worlds.chunks.getChunkPosition
 import org.cloudburstmc.math.vector.Vector2i
-import kotlin.math.floor
 
 // TODO when player moves, check if we need to load and unload chunks
 class Dimension(

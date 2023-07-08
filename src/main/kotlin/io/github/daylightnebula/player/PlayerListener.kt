@@ -16,7 +16,7 @@ import io.github.daylightnebula.player.packets.login.JavaAbilitiesPacket
 import io.github.daylightnebula.player.packets.login.JavaFeatureFlagsPacket
 import io.github.daylightnebula.player.packets.join.JavaJoinPacket
 import io.github.daylightnebula.registries.BedrockRegistries
-import io.github.daylightnebula.worlds.chunks.*
+import io.github.daylightnebula.worlds.chunks.packets.JavaSetCenterChunkPacket
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i

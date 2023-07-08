@@ -1,14 +1,16 @@
 package io.github.daylightnebula.worlds.chunks
 
+import io.github.daylightnebula.events.Event
+import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.networking.common.ByteWriter
+import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.Player
+import io.github.daylightnebula.worlds.chunks.packets.JavaChunkPacket
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
 import kotlin.math.floor
 
-// TODO set block function
-// TODO get block function
 // TODO fill blocks function
 // TODO clear blocks function
 // TODO broadcast changes
@@ -38,42 +40,54 @@ data class Chunk(
         result = 31 * result + sections.contentHashCode()
         return result
     }
-}
 
-fun chunk(
-    chunkX: Int = 0, chunkY: Int = 0,
-    sections: Array<Section> = Array(24) { Section() }
-) = Vector2i.from(chunkX, chunkY) to Chunk(chunkX, chunkY, sections)
+    fun setBlock(player: Player, position: Vector3i, blockID: Int) {
+        // get chunk location
+        val chunkLocation = Vector3i.from(
+            floor((position.x % 16).inc16IfNegative().toDouble()).toInt(),
+            floor((position.y % 16).inc16IfNegative().toDouble()).toInt(),
+            floor((position.z % 16).inc16IfNegative().toDouble()).toInt(),
+        )
 
-data class Section(
-    var blockPalette: FlexiblePalette = FlexiblePalette.filled()
-) {
-    fun write(writer: ByteWriter) {
-        // write content
-        writer.writeShort(blockPalette.count)
-        blockPalette.write(writer)
+        // call setting block event
+        val settingEvent = SettingBlockEvent(this, position, chunkLocation)
+        EventBus.callEvent(settingEvent)
 
-        // empty biomes palette
-        writer.writeUByte(0u)
-        writer.writeVarInt(0)
-        writer.writeVarInt(0)
+        // if the setting event was cancelled, stop here
+        if (settingEvent.isCancelled) return
+
+        // get section
+        val section = sections[position.y.toSectionID()]
+
+        // update palette
+        val palette = section.blockPalette
+        palette.set(chunkLocation, blockID)
+
+        // send update packets
+        when (player.connection) {
+            is JavaConnection -> player.connection.sendPacket(JavaChunkPacket(this))
+            else -> TODO()
+        }
+
+        // call set event
+        EventBus.callEvent(SetBlockEvent(this, position, chunkLocation))
+    }
+
+    fun getBlock(position: Vector3i): Int {
+        // get chunk location
+        val chunkLocation = Vector3i.from(
+            floor((position.x % 16).inc16IfNegative().toDouble()).toInt(),
+            floor((position.y % 16).inc16IfNegative().toDouble()).toInt(),
+            floor((position.z % 16).inc16IfNegative().toDouble()).toInt(),
+        )
+
+        // get section
+        val section = sections[position.y.toSectionID()]
+
+        // get block and return
+        return section.blockPalette.get(chunkLocation)
     }
 }
 
-fun Player.getChunkPosition(): Vector2i =
-    Vector2i.from(floor(position.x.dec16IfNegative() / 16).toInt(), floor(position.z.dec16IfNegative() / 16).toInt())
-
-fun Vector3i.toChunkPosition(): Vector2i =
-    Vector2i.from((x.dec16IfNegative() / 16), (z.dec16IfNegative() / 16))
-
-fun Vector3f.toChunkPosition(): Vector2i =
-    Vector2i.from(floor(x.dec16IfNegative() / 16).toInt(), floor(z.dec16IfNegative() / 16).toInt())
-
-fun Int.dec16IfNegative(): Int { return if (this < 0) this - 15 else this }
-fun Float.dec16IfNegative(): Float { return if (this < 0) this - 15f else this }
-
-fun Int.inc16IfNegative(): Int { return if (this < 0) this + 16 else this }
-fun Float.inc16IfNegative(): Float { return if (this < 0) this + 16f else this }
-
-fun Int.toSectionID(): Int = (this + 64) / 16
-fun Float.toSectionID(): Int = floor(this).toInt().toSectionID()
+data class SettingBlockEvent(val chunk: Chunk, val location: Vector3i, val chunkLocation: Vector3i, var isCancelled: Boolean = false): Event
+data class SetBlockEvent(val chunk: Chunk, val location: Vector3i, val chunkLocation: Vector3i): Event

@@ -1,11 +1,12 @@
-package io.github.daylightnebula.worlds.chunks
+package io.github.daylightnebula.worlds.chunks.packets
 
 import io.github.daylightnebula.networking.common.AbstractReader
 import io.github.daylightnebula.networking.common.ByteWriter
 import io.github.daylightnebula.networking.common.DataPacketMode
 import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.noDecode
-import org.jglrxavpok.hephaistos.nbt.NBT
+import io.github.daylightnebula.worlds.chunks.Chunk
+import io.github.daylightnebula.worlds.chunks.ChunkRegistry
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class JavaChunkPacket(

@@ -3,8 +3,6 @@ package io.github.daylightnebula.worlds.chunks
 import io.github.daylightnebula.networking.common.ByteWriter
 import org.cloudburstmc.math.vector.Vector3i
 
-
-
 class FlexiblePalette(
     var blockIDs: IntArray = intArrayOf(0),
     var blockReferences: ByteArray = ByteArray(16 * 16 * 16) { 0 },
@@ -52,7 +50,7 @@ class FlexiblePalette(
             throw IllegalArgumentException("Section set call out of range $position")
 
         // get ref index
-        val refIndex = (position.y * 256) + (position.z * 16) + modChunkRefIndexByX(position.x)
+        val refIndex = locationToRefIndex(position)
 
         // get index of new id in block ids
         var index = blockIDs.indexOf(newID)
@@ -84,6 +82,15 @@ class FlexiblePalette(
             }
         }
     }
+
+    fun get(position: Vector3i): Int {
+        val refIndex = locationToRefIndex(position)
+        val blockID = blockReferences[refIndex]
+        return blockIDs[blockID.toInt()]
+    }
+
+    private fun locationToRefIndex(position: Vector3i) =
+        (position.y * 256) + (position.z * 16) + modChunkRefIndexByX(position.x)
 
     // why is this necessary for java edition clients?  IDK
     private fun modChunkRefIndexByX(index: Int) =
