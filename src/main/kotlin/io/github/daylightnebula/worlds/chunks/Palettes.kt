@@ -47,12 +47,13 @@ class FlexiblePalette(
     }
 
     fun set(position: Vector3i, newID: Int) {
+        println("Setting block at $position to $newID")
         // range check
         if (position.x !in 0..15 || position.y !in 0 .. 15 || position.z !in 0 .. 15)
             throw IllegalArgumentException("Section set call out of range $position")
 
         // get ref index
-        val refIndex = (position.y * 256) + (position.z * 16) + position.x
+        val refIndex = (position.y * 256) + (position.z * 16) + modChunkRefIndexByX(position.x)
 
         // get index of new id in block ids
         var index = blockIDs.indexOf(newID)
@@ -72,4 +73,11 @@ class FlexiblePalette(
         // set block
         blockReferences[refIndex] = index.toByte()
     }
+
+    // why is this necessary for java edition clients?  IDK
+    private fun modChunkRefIndexByX(index: Int) =
+        when (index) {
+            in 0 .. 7 -> 7 - index
+            else -> 23 - index
+        }
 }

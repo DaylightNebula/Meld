@@ -38,7 +38,7 @@ fun Player.handleStartDiggingAction(position: Vector3i, face: Byte) {
                     floor((position.y % 16).inc16IfNegative().toDouble()).toInt(),
                     floor((position.z % 16).inc16IfNegative().toDouble()).toInt(),
                 ), 0
-            ) // TODO fix, may check that chunk position is accurate to minecraft f3 and protocol site
+            )
 
             when (connection) {
                 is JavaConnection -> connection.sendPacket(JavaChunkPacket(chunk))

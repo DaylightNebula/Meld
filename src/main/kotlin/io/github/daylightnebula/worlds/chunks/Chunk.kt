@@ -72,8 +72,8 @@ fun Vector3f.toChunkPosition(): Vector2i =
 fun Int.dec16IfNegative(): Int { return if (this < 0) this - 15 else this }
 fun Float.dec16IfNegative(): Float { return if (this < 0) this - 15f else this }
 
-fun Int.inc16IfNegative(): Int { return if (this < 0) this + 15 else this }
-fun Float.inc16IfNegative(): Float { return if (this < 0) this + 15f else this }
+fun Int.inc16IfNegative(): Int { return if (this < 0) this + 16 else this }
+fun Float.inc16IfNegative(): Float { return if (this < 0) this + 16f else this }
 
 fun Int.toSectionID(): Int = (this + 64) / 16
 fun Float.toSectionID(): Int = floor(this).toInt().toSectionID()
