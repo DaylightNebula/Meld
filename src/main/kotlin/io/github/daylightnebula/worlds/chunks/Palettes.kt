@@ -4,35 +4,34 @@ import io.github.daylightnebula.networking.common.ByteWriter
 import org.cloudburstmc.math.vector.Vector3i
 
 
-interface Palette {
-    val count: Short
-    fun write(writer: ByteWriter)
-}
-
-class FilledPalette(var id: Int = 0): Palette {
-    override val count: Short get() = if (id == 0) 0 else 1
-    override fun write(writer: ByteWriter) {
-        writer.writeUByte(0u)      // bits per entry
-        writer.writeVarInt(id)          // single value of id
-        writer.writeVarInt(0)        // length of data array (none)
-    }
-}
 
 class FlexiblePalette(
     var blockIDs: IntArray = intArrayOf(0),
     var blockReferences: ByteArray = ByteArray(16 * 16 * 16) { 0 },
-    var internalCount: Short = 0
-): Palette {
+    var startCount: Short = 0
+) {
     companion object {
         fun filled(blockID: Int = 0) = FlexiblePalette(
             blockIDs = if (blockID != 0) intArrayOf(0, blockID) else intArrayOf(0),
             blockReferences = ByteArray(16 * 16 * 16) { if (blockID != 0) 1 else 0 },
-            internalCount = if (blockID == 0) 0 else 4096
+            startCount = if (blockID == 0) 0 else 4096
         )
     }
 
-    override val count: Short get() = internalCount
-    override fun write(writer: ByteWriter) {
+    // count variable with private set
+    var count: Short = startCount
+        private set
+
+    // writer to byte writer
+    fun write(writer: ByteWriter) {
+        // if the template is filled, send a filled chunk
+        if (count.toInt() == 0 || count.toInt() == blockReferences.size) {
+            writer.writeUByte(0u)
+            writer.writeVarInt(if (count.toInt() == 0) blockIDs.first() else blockIDs.last())
+            writer.writeVarInt(0)
+            return
+        }
+
         // 8 bits per entry (byte per block (could this be lowered for compression?))
         writer.writeUByte(8u)
 
@@ -63,15 +62,27 @@ class FlexiblePalette(
 
         // update index if necessary
         if (index == -1) {
-            blockIDs = intArrayOf(*blockIDs, newID)
             index = blockIDs.size
+            blockIDs = intArrayOf(*blockIDs, newID)
         }
 
         // update block count
-        if (newID == 0) internalCount-- else internalCount++
+        if (newID == 0) count-- else count++
 
         // set block
+        val oldIndex = blockReferences[refIndex]
         blockReferences[refIndex] = index.toByte()
+
+        // check if old index does not exist in block references anymore
+        if (!blockReferences.any { it == oldIndex }) {
+            // remove the old index
+            blockIDs = blockIDs.filterIndexed { index, _ -> index != oldIndex.toInt() }.toIntArray()
+
+            // any items in block references greater than old index, remove 1 from that item
+            for (i in blockReferences.indices) {
+                if (blockReferences[i] > oldIndex) blockReferences[i]--
+            }
+        }
     }
 
     // why is this necessary for java edition clients?  IDK
