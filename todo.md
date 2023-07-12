@@ -1,0 +1,30 @@
+- [ ] Player inventories
+  - [ ] Move items around inventory
+  - [ ] Creative clear inventories
+- [ ] Modularize
+  - [ ] Core module
+    - All network and event infrastructure as well as those required for basic player operations
+  - [ ] Inventory module
+    - Inventory management for both player and not-player inventories
+    - May contain chests in the future
+    - [ ] Move inventories out of player
+  - [ ] Entity module
+  - [ ] Block module
+  - [ ] Item module
+    - [ ] Create core-side configurations
+- [ ] Creative module (allows players to place, break, and modify blocks freely like in standard creative mode)
+- [ ] Entities
+  - [ ] Spawn and de-spawn entities
+  - [ ] Move entities
+  - [ ] Push entities
+- [ ] Fully multiplayer
+  - [ ] Implement broadcasts
+    - [ ] Animations
+    - [ ] Block changes
+    - [ ] Other todos
+- [ ] More Events
+  - [ ] Events for game modes
+- [ ] Worlds
+  - [ ] Save world changes
+  - [ ] Load world
+  - [ ] Convert java worlds on startup if no saved world
