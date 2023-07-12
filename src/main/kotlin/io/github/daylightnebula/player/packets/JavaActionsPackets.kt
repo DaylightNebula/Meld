@@ -6,6 +6,7 @@ import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.noEncode
 import io.github.daylightnebula.player.PlayerBlockAction
 import io.github.daylightnebula.player.PlayerCommandAction
+import io.github.daylightnebula.worlds.BlockFace
 import org.cloudburstmc.math.vector.Vector3i
 
 class JavaPlayerCommandPacket(
@@ -25,7 +26,7 @@ class JavaPlayerCommandPacket(
 class JavaBlockActionPacket(
     var action: PlayerBlockAction = PlayerBlockAction.START_DIGGING,
     var blockPosition: Vector3i = Vector3i.ZERO,
-    var face: Byte = 0x00,
+    var face: BlockFace = BlockFace.BOTTOM,
     var sequence: Int = 0
 ): JavaPacket {
     override val id: Int = 0x1D
@@ -33,7 +34,7 @@ class JavaBlockActionPacket(
     override fun decode(reader: AbstractReader) {
         action = PlayerBlockAction.values()[reader.readVarInt()]
         blockPosition = reader.readBlockPosition()
-        face = reader.readByte()
+        face = BlockFace.values()[reader.readByte().toInt()]
         sequence = reader.readVarInt()
     }
 }

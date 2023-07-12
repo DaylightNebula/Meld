@@ -36,7 +36,7 @@ class Player(
         }
     }
 
-    val inventory  = PlayerInventory()
+    val inventory  = PlayerInventory(this)
 
     // marks if the player has been sent their join packets
     var joinSent = false
@@ -65,3 +65,4 @@ enum class PlayerMainHand { LEFT, RIGHT }
 enum class PlayerHand { MAIN, OFF }
 enum class PlayerCommandAction { START_SNEAKING, STOP_SNEAKING, LEAVE_BED, START_SPRINTING, STOP_SPRINTING, START_JUMP_HORSE, STOP_JUMP_HORSE, OPEN_HORSE_INVENTORY, START_FLYING_ELYTRA }
 enum class PlayerBlockAction { START_DIGGING, CANCELLED_DIGGING, FINISHED_DIGGING, DROP_ITEM_STACK, DROP_ITEM, SHOOT_ARROW_FINISH_EATING, SWAP_ITEM_IN_HAND }
+enum class PlayerAnimation { SWING_ARM }

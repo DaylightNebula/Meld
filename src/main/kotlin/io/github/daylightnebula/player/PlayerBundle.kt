@@ -1,12 +1,16 @@
 package io.github.daylightnebula.player
 
 import io.github.daylightnebula.*
+import io.github.daylightnebula.events.Event
+import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.networking.java.JavaConnectionState
 import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.player.extensions.handleBlockAction
 import io.github.daylightnebula.player.packets.*
 import io.github.daylightnebula.player.packets.join.JavaClientInfoPacket
 import io.github.daylightnebula.player.packets.join.JavaPluginMessagePacket
+import io.github.daylightnebula.worlds.BlockFace
+import org.cloudburstmc.math.vector.Vector3i
 import org.cloudburstmc.protocol.bedrock.packet.AnimatePacket
 import org.cloudburstmc.protocol.bedrock.packet.ChunkRadiusUpdatedPacket
 import org.cloudburstmc.protocol.bedrock.packet.EmoteListPacket
@@ -102,28 +106,29 @@ class PlayerBundle: PacketBundle(
 
         JavaPlayerCommandPacket::class.java.name to { connection, packet ->
             packet as JavaPlayerCommandPacket
+
+            // start event
+            EventBus.callEvent(PlayerActionEvent(connection.player!!, packet.action, packet.entityID, packet.jumpBoost))
+
+            // handle base functions
             when(packet.action) {
                 PlayerCommandAction.START_SNEAKING -> connection.player!!.sneaking = true
                 PlayerCommandAction.STOP_SNEAKING -> connection.player!!.sneaking = false
                 PlayerCommandAction.START_SPRINTING -> connection.player!!.sprinting = true
                 PlayerCommandAction.STOP_SPRINTING -> connection.player!!.sprinting = false
-                PlayerCommandAction.LEAVE_BED -> TODO()
-                PlayerCommandAction.START_JUMP_HORSE -> TODO()
-                PlayerCommandAction.STOP_JUMP_HORSE -> TODO()
-                PlayerCommandAction.OPEN_HORSE_INVENTORY -> TODO()
-                PlayerCommandAction.START_FLYING_ELYTRA -> TODO()
+                else -> {}
             }
-            println("TODO handle player command action ${packet.action}")
         },
 
         JavaBlockActionPacket::class.java.name to { connection, packet ->
             packet as JavaBlockActionPacket
-            connection.player!!.handleBlockAction(packet.action, packet.blockPosition, packet.face)
+            EventBus.callEvent(PlayerBlockActionEvent(connection.player!!, packet.action, packet.blockPosition, packet.face))
+//            connection.player!!.handleBlockAction(packet.action, packet.blockPosition, packet.face)
         },
 
         JavaSwingArmPacket::class.java.name to { connection, packet ->
             packet as JavaSwingArmPacket
-            println("TODO handle player swing hand")
+            EventBus.callEvent(PlayerAnimationEvent(connection.player!!, PlayerAnimation.SWING_ARM))
         }
     )
 ) {
@@ -141,3 +146,7 @@ class PlayerBundle: PacketBundle(
         javaGamePacket(0x1D) to { JavaBlockActionPacket() }
     )
 }
+
+data class PlayerActionEvent(val player: Player, val action: PlayerCommandAction, val entityID: Int, val jumpBoost: Int): Event
+data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Vector3i, val face: BlockFace): Event
+data class PlayerAnimationEvent(val player: Player, val animation: PlayerAnimation): Event

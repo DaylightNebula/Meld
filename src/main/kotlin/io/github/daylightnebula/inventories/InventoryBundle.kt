@@ -1,29 +1,28 @@
 package io.github.daylightnebula.inventories
 
 import io.github.daylightnebula.*
+import io.github.daylightnebula.events.Event
+import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.inventories.packets.JavaCloseInventoryPacket
 import io.github.daylightnebula.inventories.packets.JavaCreativeModeSlotPacket
 import io.github.daylightnebula.inventories.packets.JavaSetSelectedSlotPacket
 import io.github.daylightnebula.networking.java.JavaConnectionState
 import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.inventories.packets.JavaUseItemPacket
+import io.github.daylightnebula.player.Player
+import io.github.daylightnebula.player.PlayerHand
+import io.github.daylightnebula.worlds.BlockFace
 import io.github.daylightnebula.worlds.World
 import io.github.daylightnebula.worlds.chunks.toChunkPosition
+import org.cloudburstmc.math.vector.Vector3f
+import org.cloudburstmc.math.vector.Vector3i
 
 class InventoryBundle: PacketBundle(
     bedrock(),
     java(
         JavaUseItemPacket::class.java.name to { connection, packet ->
             packet as JavaUseItemPacket
-            val player = connection.player!!
-            val selectedItem = player.inventory.getItem(player.inventory.selectedSlot + 36)
-            if (selectedItem != null) {
-                val placeLocation = packet.location.clone().add(packet.face.offset.clone().mul(-1)).add(0, 1, 0)
-                val chunkPos = placeLocation.toChunkPosition()
-                val chunk = World.dimensions[player.dimensionID]?.loadedChunks?.get(chunkPos)
-                    ?: throw RuntimeException("No chunk $chunkPos found for place block")
-                chunk.setBlock(player, placeLocation, selectedItem.id)
-            } else println("No selected")
+            EventBus.callEvent(PlayerUseItemEvent(packet, connection.player!!))
         },
 
         JavaSetSelectedSlotPacket::class.java.name to { connection, packet ->
@@ -34,8 +33,7 @@ class InventoryBundle: PacketBundle(
 
         JavaCloseInventoryPacket::class.java.name to { connection, packet ->
             packet as JavaCloseInventoryPacket
-            println("Received close inventory ${packet.inventoryID}")
-            // TODO handle close inventory
+            EventBus.callEvent(PlayerCloseInventoryEvent(connection.player!!, packet.inventoryID.toInt()))
         },
 
         JavaCreativeModeSlotPacket::class.java.name to { connection, packet ->
@@ -52,3 +50,16 @@ class InventoryBundle: PacketBundle(
         javaGamePacket(0x2B) to { JavaCreativeModeSlotPacket() }
     )
 }
+
+data class PlayerUseItemEvent(
+    val player: Player,
+    val hand: PlayerHand,
+    val location: Vector3i,
+    val face: BlockFace,
+    val cursorPosition: Vector3f,
+    val insideBlock: Boolean,
+): Event {
+    constructor(packet: JavaUseItemPacket, player: Player): this(player, packet.hand, packet.location, packet.face, packet.cursorPosition, packet.insideBlock)
+}
+
+data class PlayerCloseInventoryEvent(val player: Player, val inventoryID: Int): Event
