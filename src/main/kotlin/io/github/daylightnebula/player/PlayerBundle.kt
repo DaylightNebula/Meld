@@ -102,6 +102,17 @@ class PlayerBundle: PacketBundle(
 
         JavaPlayerCommandPacket::class.java.name to { connection, packet ->
             packet as JavaPlayerCommandPacket
+            when(packet.action) {
+                PlayerCommandAction.START_SNEAKING -> connection.player!!.sneaking = true
+                PlayerCommandAction.STOP_SNEAKING -> connection.player!!.sneaking = false
+                PlayerCommandAction.START_SPRINTING -> connection.player!!.sprinting = true
+                PlayerCommandAction.STOP_SPRINTING -> connection.player!!.sprinting = false
+                PlayerCommandAction.LEAVE_BED -> TODO()
+                PlayerCommandAction.START_JUMP_HORSE -> TODO()
+                PlayerCommandAction.STOP_JUMP_HORSE -> TODO()
+                PlayerCommandAction.OPEN_HORSE_INVENTORY -> TODO()
+                PlayerCommandAction.START_FLYING_ELYTRA -> TODO()
+            }
             println("TODO handle player command action ${packet.action}")
         },
 
@@ -113,11 +124,6 @@ class PlayerBundle: PacketBundle(
         JavaSwingArmPacket::class.java.name to { connection, packet ->
             packet as JavaSwingArmPacket
             println("TODO handle player swing hand")
-        },
-
-        JavaUseItemPacket::class.java.name to { connection, packet ->
-            packet as JavaUseItemPacket
-            println("TODO Use item packet: ${packet.hand} ${packet.location} ${packet.face} ${packet.cursorPosition} ${packet.insideBlock} ${packet.sequence}")
         }
     )
 ) {
@@ -132,7 +138,6 @@ class PlayerBundle: PacketBundle(
         javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },
         javaGamePacket(0x1E) to { JavaPlayerCommandPacket() },
         javaGamePacket(0x2F) to { JavaSwingArmPacket() },
-        javaGamePacket(0x1D) to { JavaBlockActionPacket() },
-        javaGamePacket(0x31) to { JavaUseItemPacket() }
+        javaGamePacket(0x1D) to { JavaBlockActionPacket() }
     )
 }

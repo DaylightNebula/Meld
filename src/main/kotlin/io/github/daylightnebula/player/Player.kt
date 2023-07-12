@@ -4,6 +4,7 @@ import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
 import io.github.daylightnebula.entities.EntityController
 import io.github.daylightnebula.entities.Health
 import io.github.daylightnebula.entities.LivingEntity
+import io.github.daylightnebula.inventories.PlayerInventory
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.packets.JavaKeepAlivePacket
@@ -35,9 +36,15 @@ class Player(
         }
     }
 
+    val inventory  = PlayerInventory()
+
     // marks if the player has been sent their join packets
     var joinSent = false
         internal set
+
+    // TODO on set, broadcast packet
+    var sneaking = false
+    var sprinting = false
 
     // TODO on set, broadcast packet
     var gameMode: GameMode = GameMode.CREATIVE

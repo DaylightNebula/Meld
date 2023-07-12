@@ -5,6 +5,7 @@ import io.ktor.utils.io.core.*
 import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import kotlinx.coroutines.runBlocking
 import org.cloudburstmc.math.vector.Vector3i
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.text.String
@@ -40,6 +41,7 @@ abstract class AbstractReader() {
 
     // simple primitive reads
     fun readBoolean(): Boolean = readByte() > 0
+    fun readUByte(): UByte = readByte().toUByte()
 
     fun readShort(): Short = ByteBuffer.wrap(readArray(2)).getShort()
     fun readUShort(): UShort = readShort().toUShort()

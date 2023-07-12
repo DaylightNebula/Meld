@@ -1,6 +1,7 @@
 package io.github.daylightnebula
 
 import io.github.daylightnebula.events.EventBus
+import io.github.daylightnebula.inventories.InventoryBundle
 import io.github.daylightnebula.player.PlayerListener
 import io.github.daylightnebula.login.LoginBundle
 import io.github.daylightnebula.networking.bedrock.BedrockNetworkController
@@ -49,6 +50,7 @@ fun main() {
     println("Registering packet bundles...")
     PacketHandler.register(LoginBundle())
     PacketHandler.register(PlayerBundle())
+    PacketHandler.register(InventoryBundle())
 
     println("Loading world...")
     World.init()
