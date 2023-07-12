@@ -57,7 +57,7 @@ fun main() {
 
     // start the network controllers
     JavaNetworkController.start()
-    BedrockNetworkController.start()
+//    BedrockNetworkController.start()
 
     println("Started")
 }

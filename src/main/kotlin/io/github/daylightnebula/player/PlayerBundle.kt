@@ -114,6 +114,11 @@ class PlayerBundle: PacketBundle(
             packet as JavaSwingArmPacket
             println("TODO handle player swing hand")
         },
+
+        JavaUseItemPacket::class.java.name to { connection, packet ->
+            packet as JavaUseItemPacket
+            println("TODO Use item packet: ${packet.hand} ${packet.location} ${packet.face} ${packet.cursorPosition} ${packet.insideBlock} ${packet.sequence}")
+        }
     )
 ) {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> = javaPackets(
@@ -127,6 +132,7 @@ class PlayerBundle: PacketBundle(
         javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },
         javaGamePacket(0x1E) to { JavaPlayerCommandPacket() },
         javaGamePacket(0x2F) to { JavaSwingArmPacket() },
-        javaGamePacket(0x1D) to { JavaBlockActionPacket() }
+        javaGamePacket(0x1D) to { JavaBlockActionPacket() },
+        javaGamePacket(0x31) to { JavaUseItemPacket() }
     )
 }
