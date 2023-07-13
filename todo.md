@@ -14,12 +14,13 @@
     - [ ] Create core-side configurations
 - [ ] Creative module (allows players to place, break, and modify blocks freely like in standard creative mode)
 - [ ] Entities
-  - [ ] Spawn and de-spawn entities
-  - [ ] Move entities
-  - [ ] Push entities
+  - [x] Spawn on load
+  - [ ] De-spawn on unload
+  - [ ] Remove functions
+  - [ ] Easy spawn functions
+  - [x] Move entities
+  - [x] Push entities
   - [ ] Attach to chunks
-  - [ ] Spawn on load
-  - [ ] Despawn on unload
 - [ ] Fully multiplayer
   - [ ] Implement broadcasts
     - [ ] Animations

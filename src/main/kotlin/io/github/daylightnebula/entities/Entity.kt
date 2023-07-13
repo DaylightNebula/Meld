@@ -1,6 +1,12 @@
 package io.github.daylightnebula.entities
 
+import io.github.daylightnebula.Meld
+import io.github.daylightnebula.entities.packets.JavaSetEntityVelocityPacket
 import io.github.daylightnebula.entities.packets.JavaSpawnEntityPacket
+import io.github.daylightnebula.entities.packets.JavaUpdateEntityPositionPacket
+import io.github.daylightnebula.entities.packets.JavaUpdateEntityRotationPacket
+import io.github.daylightnebula.networking.bedrock.BedrockConnection
+import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.networking.java.JavaPacket
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
@@ -15,17 +21,62 @@ open class Entity(
     startVelocity: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
     startRotation: Vector2f = Vector2f.ZERO
 ) {
-    // TODO set function and broadcast changes
     var position = startPosition
         private set
 
-    // TODO set function and broadcast changes
+    fun setPosition(newPosition: Vector3f) {
+        // broadcast packets
+        val javaPacket = JavaUpdateEntityPositionPacket(
+            id, Vector3f.from(
+                ((newPosition.x * 32f) - (position.x * 32f)) * 128f,
+                ((newPosition.y * 32f) - (position.y * 32f)) * 128f,
+                ((newPosition.z * 32f) - (position.z * 32f)) * 128f,
+            ), true
+        )
+        Meld.connections.forEach { connection ->
+            when(connection) {
+                is JavaConnection -> connection.sendPacket(javaPacket)
+                is BedrockConnection -> TODO()
+            }
+        }
+
+        // update position
+        position = newPosition
+    }
+
     var velocity = startVelocity
         private set
 
-    // TODO set function and broadcast changes
+    fun setVelocity(velocity: Vector3f) {
+        // broadcast changes
+        val javaPacket = JavaSetEntityVelocityPacket(id, velocity)
+        Meld.connections.forEach { connection ->
+            when (connection) {
+                is JavaConnection -> connection.sendPacket(javaPacket)
+                is BedrockConnection -> TODO()
+            }
+        }
+
+        // update velocity
+        this.velocity = velocity
+    }
+
     var rotation = startRotation
         private set
+
+    fun setRotation(rotation: Vector2f) {
+        // broadcast changes
+        val javaPacket = JavaUpdateEntityRotationPacket(id, rotation, true)
+        Meld.connections.forEach { connection ->
+            when(connection) {
+                is JavaConnection -> connection.sendPacket(javaPacket)
+                is BedrockConnection -> TODO()
+            }
+        }
+
+        // update rotation
+        this.rotation = rotation
+    }
 
     open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
 }

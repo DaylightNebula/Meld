@@ -5,27 +5,28 @@ import io.github.daylightnebula.networking.common.ByteWriter
 import io.github.daylightnebula.networking.java.JavaPacket
 import io.github.daylightnebula.noDecode
 import org.cloudburstmc.math.vector.Vector2f
+import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
 
 data class JavaUpdateEntityPositionPacket(
     var entityID: Int = 0,
-    var delta: Vector3i = Vector3i.ZERO,
+    var delta: Vector3f = Vector3f.ZERO,
     var onGround: Boolean = false
 ): JavaPacket {
     override val id: Int = 0x2B
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)
-        writer.writeShort((delta.x * 4096).toShort())
-        writer.writeShort((delta.y * 4096).toShort())
-        writer.writeShort((delta.z * 4096).toShort())
+        writer.writeShort(delta.x.toInt().toShort())
+        writer.writeShort(delta.y.toInt().toShort())
+        writer.writeShort(delta.z.toInt().toShort())
         writer.writeBoolean(onGround)
     }
 }
 
 data class JavaUpdateEntityPositionAndRotationPacket(
     var entityID: Int = 0,
-    var delta: Vector3i = Vector3i.ZERO,
+    var delta: Vector3f = Vector3f.ZERO,
     var rotation: Vector2f = Vector2f.ZERO,
     var onGround: Boolean = false
 ): JavaPacket {
@@ -33,9 +34,9 @@ data class JavaUpdateEntityPositionAndRotationPacket(
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)
-        writer.writeShort((delta.x * 4096).toShort())
-        writer.writeShort((delta.y * 4096).toShort())
-        writer.writeShort((delta.z * 4096).toShort())
+        writer.writeShort(delta.x.toInt().toShort())
+        writer.writeShort(delta.y.toInt().toShort())
+        writer.writeShort(delta.z.toInt().toShort())
         writer.writeByte(rotation.x.toAngleByte())
         writer.writeByte(rotation.y.toAngleByte())
         writer.writeBoolean(onGround)
