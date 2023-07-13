@@ -1,6 +1,7 @@
 package io.github.daylightnebula.player
 
 import io.github.daylightnebula.*
+import io.github.daylightnebula.entities.EntityAnimation
 import io.github.daylightnebula.events.Event
 import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.networking.java.JavaConnectionState
@@ -128,7 +129,7 @@ class PlayerBundle: PacketBundle(
 
         JavaSwingArmPacket::class.java.name to { connection, packet ->
             packet as JavaSwingArmPacket
-            EventBus.callEvent(PlayerAnimationEvent(connection.player!!, PlayerAnimation.SWING_ARM))
+            EventBus.callEvent(PlayerAnimationEvent(connection.player!!, EntityAnimation.SWING_ARM))
         }
     )
 ) {
@@ -149,4 +150,4 @@ class PlayerBundle: PacketBundle(
 
 data class PlayerActionEvent(val player: Player, val action: PlayerCommandAction, val entityID: Int, val jumpBoost: Int): Event
 data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Vector3i, val face: BlockFace): Event
-data class PlayerAnimationEvent(val player: Player, val animation: PlayerAnimation): Event
+data class PlayerAnimationEvent(val player: Player, val animation: EntityAnimation): Event

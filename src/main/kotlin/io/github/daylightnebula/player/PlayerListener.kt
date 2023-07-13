@@ -38,7 +38,7 @@ class PlayerListener: EventListener {
         // TODO held item slot packet + bedrock
 
         // create player and broadcast pre join
-        val player = Player(event.connection)
+        val player = Player(event.connection, event.uid)
         event.connection.player = player
         EventBus.callEvent(PreJoinEvent(player))
 

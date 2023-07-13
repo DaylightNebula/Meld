@@ -17,6 +17,9 @@
   - [ ] Spawn and de-spawn entities
   - [ ] Move entities
   - [ ] Push entities
+  - [ ] Attach to chunks
+  - [ ] Spawn on load
+  - [ ] Despawn on unload
 - [ ] Fully multiplayer
   - [ ] Implement broadcasts
     - [ ] Animations
@@ -25,6 +28,8 @@
 - [ ] More Events
   - [ ] Events for game modes
 - [ ] Worlds
+  - [ ] Dynamically load and unload chunks when players are in range
+  - [ ] Track player center chunk and send update packets
   - [ ] Save world changes
   - [ ] Load world
   - [ ] Convert java worlds on startup if no saved world

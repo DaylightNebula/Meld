@@ -1,5 +1,6 @@
 package io.github.daylightnebula.worlds.chunks
 
+import io.github.daylightnebula.entities.Entity
 import io.github.daylightnebula.events.Event
 import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.networking.common.ByteWriter
@@ -15,7 +16,8 @@ import kotlin.math.floor
 data class Chunk(
     var chunkX: Int = 0,
     var chunkY: Int = 0,
-    var sections: Array<Section> = Array(24) { Section() }
+    var sections: Array<Section> = Array(24) { Section() },
+    var entities: MutableList<Entity> = mutableListOf()
 ) {
     fun writeJava(writer: ByteWriter) {
         // synchronously loop over the sections
@@ -23,8 +25,7 @@ data class Chunk(
             section.writeJava(writer)
     }
 
-    fun writeBedrock(writer: ByteWriter) {
-    }
+    fun writeBedrock(writer: ByteWriter) {}
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

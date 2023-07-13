@@ -51,7 +51,8 @@ class LoginBundle: PacketBundle(
                 ResourcePackClientResponsePacket.Status.COMPLETED -> {
                     // call login event
                     println("Resource pack completed")
-                    EventBus.callEvent(LoginEvent(connection))
+                    TODO("Fix login event")
+//                    EventBus.callEvent(LoginEvent(connection, UUID))
                     // https://wiki.vg/Bedrock_Protocol#Start_Game
                 }
 
@@ -93,7 +94,7 @@ class LoginBundle: PacketBundle(
             connection.state = JavaConnectionState.IN_GAME
 
             // call login event
-            EventBus.callEvent(LoginEvent(connection))
+            EventBus.callEvent(LoginEvent(connection, packet.uuid ?: UUID.randomUUID()))
         }
     )
 ) {
@@ -106,5 +107,6 @@ class LoginBundle: PacketBundle(
 }
 
 class LoginEvent(
-    val connection: IConnection<*>
+    val connection: IConnection<*>,
+    val uid: UUID
 ): Event

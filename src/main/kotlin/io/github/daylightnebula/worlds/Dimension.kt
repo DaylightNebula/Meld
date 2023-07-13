@@ -1,6 +1,8 @@
 package io.github.daylightnebula.worlds
 
 import io.github.daylightnebula.Meld
+import io.github.daylightnebula.events.Event
+import io.github.daylightnebula.events.EventBus
 import io.github.daylightnebula.events.EventHandler
 import io.github.daylightnebula.events.EventListener
 import io.github.daylightnebula.networking.bedrock.BedrockConnection
@@ -63,6 +65,11 @@ class Dimension(
                 data = Unpooled.wrappedBuffer(writer.getRawData())
             })
         }
+
+        // spawn entities
+
+        // broadcast sent chunk event
+        EventBus.callEvent(PlayerSentChunkEvent(player, chunk))
     }
 
     private fun centerPacket(player: Player) {
@@ -83,3 +90,5 @@ fun dimension(
     name: String,
     vararg loadedChunks: Pair<Vector2i, Chunk>
 ) = name to Dimension(name, hashMapOf(*loadedChunks))
+
+data class PlayerSentChunkEvent(val player: Player, val chunk: Chunk): Event

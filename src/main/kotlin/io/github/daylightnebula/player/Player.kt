@@ -2,17 +2,20 @@ package io.github.daylightnebula.player
 
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
 import io.github.daylightnebula.entities.EntityController
+import io.github.daylightnebula.entities.EntityType
 import io.github.daylightnebula.entities.Health
 import io.github.daylightnebula.entities.LivingEntity
 import io.github.daylightnebula.inventories.PlayerInventory
 import io.github.daylightnebula.networking.common.IConnection
 import io.github.daylightnebula.networking.java.JavaConnection
 import io.github.daylightnebula.player.packets.JavaKeepAlivePacket
+import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
 import org.cloudburstmc.protocol.bedrock.data.GameType
 import java.lang.Thread.sleep
+import java.util.*
 import kotlin.concurrent.thread
 import kotlin.math.floor
 
@@ -22,11 +25,16 @@ import kotlin.math.floor
 // TODO simulation distance packets
 class Player(
     val connection: IConnection<*>,
+    uid: UUID,
     id: Int = EntityController.nextID(),
+    dimensionID: String = "overworld",
     position: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
+    velocity: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
+    rotation: Vector2f = Vector2f.from(0.0, 0.0),
+    startHeadYaw: Float = 0f,
     health: Health = Health(20.0)
 ): LivingEntity(
-    id, position, health
+    uid, id, EntityType.PLAYER, dimensionID, position, velocity, rotation, startHeadYaw, health
 ) {
     // TODO replace
     val keepAliveThread = thread {
@@ -65,4 +73,3 @@ enum class PlayerMainHand { LEFT, RIGHT }
 enum class PlayerHand { MAIN, OFF }
 enum class PlayerCommandAction { START_SNEAKING, STOP_SNEAKING, LEAVE_BED, START_SPRINTING, STOP_SPRINTING, START_JUMP_HORSE, STOP_JUMP_HORSE, OPEN_HORSE_INVENTORY, START_FLYING_ELYTRA }
 enum class PlayerBlockAction { START_DIGGING, CANCELLED_DIGGING, FINISHED_DIGGING, DROP_ITEM_STACK, DROP_ITEM, SHOOT_ARROW_FINISH_EATING, SWAP_ITEM_IN_HAND }
-enum class PlayerAnimation { SWING_ARM }
