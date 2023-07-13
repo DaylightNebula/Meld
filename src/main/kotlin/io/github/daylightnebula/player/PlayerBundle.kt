@@ -130,6 +130,11 @@ class PlayerBundle: PacketBundle(
         JavaSwingArmPacket::class.java.name to { connection, packet ->
             packet as JavaSwingArmPacket
             EventBus.callEvent(PlayerAnimationEvent(connection.player!!, EntityAnimation.SWING_ARM))
+        },
+
+        JavaEntityInteractPacket::class.java.name to { connection, packet ->
+            packet as JavaEntityInteractPacket
+            println("Interact packet $packet")
         }
     )
 ) {
@@ -144,7 +149,8 @@ class PlayerBundle: PacketBundle(
         javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },
         javaGamePacket(0x1E) to { JavaPlayerCommandPacket() },
         javaGamePacket(0x2F) to { JavaSwingArmPacket() },
-        javaGamePacket(0x1D) to { JavaBlockActionPacket() }
+        javaGamePacket(0x1D) to { JavaBlockActionPacket() },
+        javaGamePacket(0x10) to { JavaEntityInteractPacket() }
     )
 }
 
