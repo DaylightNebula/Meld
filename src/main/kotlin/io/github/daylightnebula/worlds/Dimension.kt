@@ -67,6 +67,10 @@ class Dimension(
         }
 
         // spawn entities
+        when(player.connection) {
+            is JavaConnection -> chunk.entities.forEach { e -> e.getSpawnJavaPackets().forEach { player.connection.sendPacket(it) } }
+            is BedrockConnection -> TODO()
+        }
 
         // broadcast sent chunk event
         EventBus.callEvent(PlayerSentChunkEvent(player, chunk))

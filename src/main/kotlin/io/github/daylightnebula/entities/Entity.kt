@@ -6,7 +6,7 @@ import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import java.util.*
 
-abstract class Entity(
+open class Entity(
     val uid: UUID = UUID.randomUUID(),
     val id: Int = EntityController.nextID(),
     val type: EntityType = EntityType.ARROW,
