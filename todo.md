@@ -20,7 +20,7 @@
   - [ ] Easy spawn functions
   - [x] Move entities
   - [x] Push entities
-  - [ ] Attach to chunks
+  - [x] Attach to chunks
 - [ ] Fully multiplayer
   - [ ] Implement broadcasts
     - [ ] Animations
