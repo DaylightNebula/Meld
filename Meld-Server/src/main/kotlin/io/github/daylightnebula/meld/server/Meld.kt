@@ -1,16 +1,11 @@
 package io.github.daylightnebula.meld.server
 
 import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.inventories.InventoryBundle
-import io.github.daylightnebula.meld.server.player.PlayerListener
-import io.github.daylightnebula.meld.server.login.LoginBundle
 import io.github.daylightnebula.meld.server.modules.ModuleLoader
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockNetworkController
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
-import io.github.daylightnebula.meld.server.player.PlayerBundle
 import io.github.daylightnebula.meld.server.registries.RegistryCodec
-import io.github.daylightnebula.meld.server.worlds.World
 
 object Meld {
     // config TODO move to config file
@@ -44,18 +39,6 @@ object Meld {
 }
 
 fun main() {
-    println("NBT ${RegistryCodec.nbt}")
-    println("Registering event listeners")
-    EventBus.register(PlayerListener())
-
-    println("Registering packet bundles...")
-    PacketHandler.register(LoginBundle())
-    PacketHandler.register(PlayerBundle())
-    PacketHandler.register(InventoryBundle())
-
-    println("Loading world...")
-    World.init()
-
     println("Loading modules...")
     ModuleLoader.load()
 

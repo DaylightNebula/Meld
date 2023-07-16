@@ -13,11 +13,17 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":Meld-Server"))
+    implementation("org.json:json:20230227")
 
     // protocols
     implementation(libs.bundles.fastutil)
     api(libs.bundles.bedrockprotocol)
     api(libs.bundles.javaprotocol)
+
+    // nbt
+    implementation("io.github.jglrxavpok.hephaistos:common:2.5.3")
+    implementation("io.github.jglrxavpok.hephaistos:antlr:2.5.3")
+    implementation("io.github.jglrxavpok.hephaistos:gson:2.5.3")
 }
 
 tasks {
