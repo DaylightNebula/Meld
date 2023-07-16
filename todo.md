@@ -2,8 +2,10 @@
   - [ ] Move items around inventory
   - [ ] Creative clear inventories
 - [ ] Modularize
+  - [ ] Server
+    - Networking infrastucture, events system, module loader, etc
   - [ ] Core module
-    - All network and event infrastructure as well as those required for basic player operations
+    - Everything required basic operations like spawning players, etc
   - [ ] Inventory module
     - Inventory management for both player and not-player inventories
     - May contain chests in the future
@@ -12,7 +14,7 @@
   - [ ] Block module
   - [ ] Item module
     - [ ] Create core-side configurations
-- [ ] Creative module (allows players to place, break, and modify blocks freely like in standard creative mode)
+  - [ ] Creative module (allows players to place, break, and modify blocks freely like in standard creative mode)
 - [ ] Entities
   - [x] Spawn on load
   - [ ] De-spawn on unload
