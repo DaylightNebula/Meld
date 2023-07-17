@@ -22,3 +22,6 @@
 - [ ] spawn and de-spawn block display entity when block is loaded and unloaded
 [ ] auto compile and populate lights
 - [ ] ???
+[ ] events
+- [ ] Chunk load for player event
+- [ ] Chunk unload for player event

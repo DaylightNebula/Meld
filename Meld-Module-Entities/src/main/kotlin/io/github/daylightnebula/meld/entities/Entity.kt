@@ -5,6 +5,7 @@ import io.github.daylightnebula.meld.entities.packets.JavaSetEntityVelocityPacke
 import io.github.daylightnebula.meld.entities.packets.JavaSpawnEntityPacket
 import io.github.daylightnebula.meld.entities.packets.JavaUpdateEntityPositionPacket
 import io.github.daylightnebula.meld.entities.packets.JavaUpdateEntityRotationPacket
+import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -36,7 +37,7 @@ open class Entity(
         Meld.connections.forEach { connection ->
             when(connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
-                is BedrockConnection -> TODO()
+                is BedrockConnection -> NeedsBedrock()
             }
         }
 
@@ -53,7 +54,7 @@ open class Entity(
         Meld.connections.forEach { connection ->
             when (connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
-                is BedrockConnection -> TODO()
+                is BedrockConnection -> NeedsBedrock()
             }
         }
 
@@ -70,7 +71,7 @@ open class Entity(
         Meld.connections.forEach { connection ->
             when(connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
-                is BedrockConnection -> TODO()
+                is BedrockConnection -> NeedsBedrock()
             }
         }
 

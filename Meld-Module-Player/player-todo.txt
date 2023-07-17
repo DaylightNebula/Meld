@@ -1,1 +1,2 @@
 [ ] Events on player move and rotation
+[ ] Teleport functionality (do entity teleport first)

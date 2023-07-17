@@ -1,0 +1,6 @@
+[ ] broadcast player inventory slot selected state
+[ ] move selected slot functionality to player with an event on change
+[ ] make inventory that entity implementations can import to add an inventory to themselves of any size
+[ ] open and close inventory functionality
+- [ ] allow item moving to be enabled and disabled
+- [ ] code to build inventories
