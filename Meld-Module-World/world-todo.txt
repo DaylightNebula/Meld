@@ -6,5 +6,19 @@
  - [ ] Clear blocks function
  - [ ] Broadcast block changes to all players
 [ ] block entities implementation
+ - [ ] Allow custom nbt to be added to blocks that is removed when the block is removed or cleared
+ - [ ] Send custom nbt as block entity data in chunk data packet
+[ ] block handlers
+- [ ] allow for block handlers to be registered
+    - [ ] allow block handlers to handle what to do when the blocks are:
+        - [ ] Interacted with
+        - [ ] Start breaking (control how long blocks take to break here / block broken stages)
+        - [ ] Broken
+        - [ ] Placed
+- [ ] specify Minecraft block IDs here (useful for custom blocks)
 [ ] custom blocks
+- [ ] use block handlers implementation above
+- [ ] use block ID "template" that already exists in Minecraft as a base
+- [ ] spawn and de-spawn block display entity when block is loaded and unloaded
 [ ] auto compile and populate lights
+- [ ] ???
