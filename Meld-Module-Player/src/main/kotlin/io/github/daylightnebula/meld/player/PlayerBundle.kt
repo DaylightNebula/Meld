@@ -9,6 +9,8 @@ import io.github.daylightnebula.meld.player.packets.join.JavaClientInfoPacket
 import io.github.daylightnebula.meld.player.packets.join.JavaPluginMessagePacket
 import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.*
+import io.github.daylightnebula.meld.server.javaGamePacket
+import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import org.cloudburstmc.math.vector.Vector3i
 import org.cloudburstmc.protocol.bedrock.packet.AnimatePacket
@@ -146,19 +148,19 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
     )
 ) {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
-        io.github.daylightnebula.meld.server.javaPackets(
-            io.github.daylightnebula.meld.server.javaGamePacket(0x12) to { JavaKeepAlivePacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x14) to { JavaReceivePlayerPositionPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x16) to { JavaReceivePlayerRotationPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x15) to { JavaReceivePlayerPositionAndRotationPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x08) to { JavaClientInfoPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x0D) to { JavaPluginMessagePacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x00) to { JavaConfirmTeleportPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x1E) to { JavaPlayerCommandPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x2F) to { JavaSwingArmPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x1D) to { JavaBlockActionPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x10) to { JavaEntityInteractPacket() }
+        javaPackets(
+            javaGamePacket(0x12) to { JavaKeepAlivePacket() },
+            javaGamePacket(0x14) to { JavaReceivePlayerPositionPacket() },
+            javaGamePacket(0x16) to { JavaReceivePlayerRotationPacket() },
+            javaGamePacket(0x15) to { JavaReceivePlayerPositionAndRotationPacket() },
+            javaGamePacket(0x08) to { JavaClientInfoPacket() },
+            javaGamePacket(0x0D) to { JavaPluginMessagePacket() },
+            javaGamePacket(0x00) to { JavaConfirmTeleportPacket() },
+            javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },
+            javaGamePacket(0x1E) to { JavaPlayerCommandPacket() },
+            javaGamePacket(0x2F) to { JavaSwingArmPacket() },
+            javaGamePacket(0x1D) to { JavaBlockActionPacket() },
+            javaGamePacket(0x10) to { JavaEntityInteractPacket() }
         )
 }
 

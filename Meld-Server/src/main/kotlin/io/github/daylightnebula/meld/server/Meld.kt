@@ -6,6 +6,7 @@ import io.github.daylightnebula.meld.server.networking.bedrock.BedrockNetworkCon
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
 import io.github.daylightnebula.meld.server.registries.RegistryCodec
+import kotlin.concurrent.thread
 
 object Meld {
     // config TODO move to config file
@@ -42,11 +43,16 @@ fun main() {
     println("Loading modules...")
     ModuleLoader.load()
 
+    println("Adding shutdown hook...")
+    Runtime.getRuntime().addShutdownHook(thread(start = false) {
+        println("Shutting down modules...")
+        ModuleLoader.modules.forEach { it.onDisable() }
+        println("Goodbye :-(")
+    })
+
     println("Starting...")
 
-    // start the network controllers
     JavaNetworkController.start()
-//    BedrockNetworkController.start()
 
     println("Started")
 }

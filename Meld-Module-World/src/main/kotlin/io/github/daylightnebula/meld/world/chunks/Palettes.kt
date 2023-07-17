@@ -23,7 +23,7 @@ class FlexiblePalette(
     // writer to byte writer
     fun write(writer: ByteWriter) {
         // if the template is filled, send a filled chunk
-        if (count.toInt() == 0 || count.toInt() == blockReferences.size) {
+        if ((count.toInt() == 0 || count.toInt() == blockReferences.size) && blockIDs.size < 2) {
             writer.writeUByte(0u)
             writer.writeVarInt(if (count.toInt() == 0) blockIDs.first() else blockIDs.last())
             writer.writeVarInt(0)
