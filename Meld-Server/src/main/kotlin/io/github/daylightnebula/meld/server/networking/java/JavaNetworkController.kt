@@ -1,7 +1,6 @@
 package io.github.daylightnebula.meld.server.networking.java
 
 import io.github.daylightnebula.meld.server.Meld
-import io.github.daylightnebula.meld.server.Meld.connections
 import io.github.daylightnebula.meld.server.PacketHandler
 import io.github.daylightnebula.meld.server.networking.common.*
 import io.ktor.network.selector.*
@@ -22,7 +21,7 @@ object JavaNetworkController: INetworkController {
         while(true) {
             runBlocking {
                 val connected = serverSocket.accept()
-                connections.add(JavaConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel(autoFlush = true)))
+                Meld.connections.add(JavaConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel(autoFlush = true)))
                 println("New connection from ${connected.remoteAddress}")
             }
         }
@@ -33,9 +32,11 @@ object JavaNetworkController: INetworkController {
     val listener = thread(start = false) {
         while(true) {
             // for each connection, process incoming packets
-            connections.filter { it is JavaConnection }.forEach { connection ->
+            Meld.connections.filter { it is JavaConnection }.forEach { connection ->
+                // connection is java connection and get read channel
                 connection as JavaConnection
                 val read = connection.read
+
                 // skip if nothing new
                 if (read.channel.availableForRead == 0) return@forEach
 
@@ -83,7 +84,7 @@ object JavaNetworkController: INetworkController {
         listener.join(100)
 
         // stop sockets
-        connections.filter { it is JavaConnection }.forEach { (it as JavaConnection).socket.dispose() }
+        Meld.connections.filter { it is JavaConnection }.forEach { (it as JavaConnection).socket.dispose() }
         serverSocket.dispose()
     }
 }

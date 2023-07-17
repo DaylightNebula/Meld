@@ -1,45 +1,58 @@
 package io.github.daylightnebula.meld.server
 
-import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.modules.ModuleLoader
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockNetworkController
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
-import io.github.daylightnebula.meld.server.registries.RegistryCodec
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.io.File
 import kotlin.concurrent.thread
 
-object Meld {
-    // config TODO move to config file
+@Serializable
+data class MeldConfig (
     // java specific
-    val javaPort = 25565
-    val javaProtocol = 763
-    val javaVersion = "1.20.1"
+    val javaPort: Int = 25565,
+    val javaProtocol: Int = 763,
+    val javaVersion: String = "1.20.1",
 
     // bedrock specific
-    val bedrockPort = 19132
-    val bedrockPortv6 = 19133
-    val reknetProtcol = 11
-    val bedrockProtocol = 593
-    val bedrockVersion = "1.20.10"
+    val bedrockPort: Int = 19132,
+    val bedrockPortv6: Int = 19133,
+    val raknetProtocol: Int = 11,
+    val bedrockProtocol: Int = 593,
+    val bedrockVersion: String = "1.20.10",
 
     // other stuffs
-    val maxPlayers = 100
-    val players = 0
-    val serverName = "Meld test server!"
-    val description = "Hello World!"
-    val favicon = "data:image/png;base64,<data>"
-    val enforceSecureChat = false
-    val previewsChat = false
-    val viewDistance = 8
-    val simDistance = 8
-    val isFlatWorld = false
-    val portalCooldown = 20
-
-    // connections
-    val connections = mutableListOf<IConnection<*>>()
+    val maxPlayers: Int = 100,
+    val players: Int = 0,
+    val serverName: String = "Meld test server!",
+    val description: String = "Hello World!",
+    val favicon: String = "data:image/png;base64,<data>",
+    val enforceSecureChat: Boolean = false,
+    val previewsChat: Boolean = false,
+    val viewDistance: Int = 8,
+    val simDistance: Int = 8,
+    val isFlatWorld: Boolean = false,
+    val portalCooldown: Int = 20,
+) {
+    @Transient val connections = mutableListOf<IConnection<*>>()
 }
 
+val meldConfigFile = File("config.json")
+val configSerializer = Json {
+    encodeDefaults = true
+    prettyPrint = true
+}
+val Meld =
+    if (meldConfigFile.exists()) configSerializer.decodeFromString<MeldConfig>(meldConfigFile.readText())
+    else MeldConfig()
+
 fun main() {
+    println("Updating config...")
+    meldConfigFile.writeText(configSerializer.encodeToString(Meld))
+
     println("Loading modules...")
     ModuleLoader.load()
 

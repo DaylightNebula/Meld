@@ -1,0 +1,21 @@
+{
+    "javaPort": 25565,
+    "javaProtocol": 763,
+    "javaVersion": "1.20.1",
+    "bedrockPort": 19132,
+    "bedrockPortv6": 19133,
+    "raknetProtocol": 11,
+    "bedrockProtocol": 593,
+    "bedrockVersion": "1.20.10",
+    "maxPlayers": 42,
+    "players": 0,
+    "serverName": "Meld test server!",
+    "description": "Hello World!",
+    "favicon": "data:image/png;base64,<data>",
+    "enforceSecureChat": false,
+    "previewsChat": false,
+    "viewDistance": 8,
+    "simDistance": 8,
+    "isFlatWorld": false,
+    "portalCooldown": 20
+}

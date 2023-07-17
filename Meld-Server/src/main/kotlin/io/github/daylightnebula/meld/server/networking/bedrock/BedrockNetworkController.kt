@@ -61,8 +61,6 @@ object BedrockNetworkController: INetworkController {
                 // update session
                 session.codec = Bedrock_v589.CODEC
                 session.packetHandler = handler
-
-                // TODO broadcast connection created event
             }
 
             override fun userEventTriggered(ctx: ChannelHandlerContext?, evt: Any?) {
@@ -75,7 +73,7 @@ object BedrockNetworkController: INetworkController {
         println("Started bedrock network controller")
     }
 
-    override fun stop() { TODO() }
+    override fun stop() {}
 }
 
 class BedrockNetworkPacketHandler : BedrockPacketHandler {

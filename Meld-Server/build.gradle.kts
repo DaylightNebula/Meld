@@ -6,6 +6,7 @@ val logback_version: String by project
 
 plugins {
     kotlin("jvm") version "1.8.22"
+    kotlin("plugin.serialization") version "1.8.22"
     id("io.ktor.plugin") version "2.3.1"
     id("com.github.johnrengelman.shadow") version "6.1.0"
 }
@@ -64,6 +65,7 @@ repositories {
 dependencies {
     // kotlin
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("org.json:json:20230227")
 
     // networking
