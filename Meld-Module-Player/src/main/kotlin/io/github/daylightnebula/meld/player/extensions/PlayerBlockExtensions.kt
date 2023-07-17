@@ -11,12 +11,12 @@ import org.cloudburstmc.math.vector.Vector3i
 fun Player.handleBlockAction(action: PlayerBlockAction, position: Vector3i, face: Byte) {
     when(action) {
         PlayerBlockAction.START_DIGGING -> handleStartDiggingAction(position, face)
-        PlayerBlockAction.CANCELLED_DIGGING -> TODO()
-        PlayerBlockAction.FINISHED_DIGGING -> TODO()
-        PlayerBlockAction.DROP_ITEM_STACK -> TODO()
-        PlayerBlockAction.DROP_ITEM -> TODO()
-        PlayerBlockAction.SHOOT_ARROW_FINISH_EATING -> TODO()
-        PlayerBlockAction.SWAP_ITEM_IN_HAND -> TODO()
+        PlayerBlockAction.CANCELLED_DIGGING -> {}
+        PlayerBlockAction.FINISHED_DIGGING -> {}
+        PlayerBlockAction.DROP_ITEM_STACK -> {}
+        PlayerBlockAction.DROP_ITEM -> {}
+        PlayerBlockAction.SHOOT_ARROW_FINISH_EATING -> {}
+        PlayerBlockAction.SWAP_ITEM_IN_HAND -> {}
     }
 }
 
@@ -32,8 +32,8 @@ fun Player.handleStartDiggingAction(position: Vector3i, face: Byte) {
             chunk.setBlock(this, position, 0)
         }
 
-        GameMode.SURVIVAL -> TODO()
-        GameMode.ADVENTURE -> TODO()
-        GameMode.SPECTATOR -> TODO()
+        GameMode.SURVIVAL -> {}
+        GameMode.ADVENTURE -> {}
+        GameMode.SPECTATOR -> {}
     }
 }*/

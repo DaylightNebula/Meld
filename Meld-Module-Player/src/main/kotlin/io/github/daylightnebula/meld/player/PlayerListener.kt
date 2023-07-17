@@ -33,10 +33,6 @@ class PlayerListener: EventListener {
     // on login
     @EventHandler
     fun onLoginEvent(event: LoginEvent) {
-        println("Login from ${event.connection}")
-        // TODO difficulty packet + bedrock
-        // TODO held item slot packet + bedrock
-
         // create player and broadcast pre join
         val player = Player(event.connection, event.uid)
         event.connection.player = player

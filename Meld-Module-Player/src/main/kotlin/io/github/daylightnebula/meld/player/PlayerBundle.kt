@@ -23,9 +23,6 @@ import org.cloudburstmc.protocol.bedrock.packet.RequestChunkRadiusPacket
 import org.cloudburstmc.protocol.bedrock.packet.SetLocalPlayerAsInitializedPacket
 import org.cloudburstmc.protocol.bedrock.packet.TickSyncPacket
 
-// TODO handle https://wiki.vg/Protocol#Client_Information
-// TODO handle https://wiki.vg/Protocol#Plugin_Message
-// TODO handle https://wiki.vg/Protocol#Set_Player_Position_and_Rotation
 class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
     io.github.daylightnebula.meld.server.bedrock(
         // handle chunk radius packets
