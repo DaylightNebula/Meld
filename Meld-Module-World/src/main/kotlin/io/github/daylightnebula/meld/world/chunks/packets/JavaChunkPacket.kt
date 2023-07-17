@@ -29,10 +29,8 @@ class JavaChunkPacket(
         writer.writeVarInt(data.size)
         writer.writeByteArray(data)
 
-        // TODO block entities here
         writer.writeVarInt(0)
 
-        // TODO light info
         writer.writeVarInt(2)
         writer.writeLong(0)
         writer.writeLong(0)

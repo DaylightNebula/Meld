@@ -49,6 +49,8 @@ val Meld =
     if (meldConfigFile.exists()) configSerializer.decodeFromString<MeldConfig>(meldConfigFile.readText())
     else MeldConfig()
 
+fun NeedsBedrock(): Nothing = throw NotImplementedError("This function requires a bedrock implementation!")
+
 fun main() {
     println("Updating config...")
     meldConfigFile.writeText(configSerializer.encodeToString(Meld))

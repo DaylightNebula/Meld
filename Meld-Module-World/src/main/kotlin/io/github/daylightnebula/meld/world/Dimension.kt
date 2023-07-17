@@ -14,12 +14,12 @@ import io.github.daylightnebula.meld.world.chunks.getChunkPosition
 import io.github.daylightnebula.meld.player.JoinEvent
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.packets.JavaSetCenterChunkPacket
+import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.world.chunks.packets.JavaChunkPacket
 import io.netty.buffer.Unpooled
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
 
-// TODO when player moves, check if we need to load and unload chunks
 class Dimension(
     val id: String,
     val loadedChunks: HashMap<Vector2i, Chunk> = hashMapOf()
@@ -69,7 +69,7 @@ class Dimension(
             is JavaConnection -> chunk.entities.forEach { e -> e.getSpawnJavaPackets().forEach {
                 (player.connection as JavaConnection).sendPacket(it)
             } }
-            is BedrockConnection -> TODO()
+            is BedrockConnection -> NeedsBedrock()
         }
 
         // broadcast sent chunk event

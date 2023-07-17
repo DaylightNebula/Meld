@@ -1,0 +1,10 @@
+[ ] Automatic send new chunks to players on move
+[ ] Automatic unload old chunks to players on move
+[ ] Automatic send update center packet when player moves between chunks
+[ ] Finish chunks
+ - [ ] Fill blocks function
+ - [ ] Clear blocks function
+ - [ ] Broadcast block changes to all players
+[ ] block entities implementation
+[ ] custom blocks
+[ ] auto compile and populate lights

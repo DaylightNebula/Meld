@@ -2,6 +2,7 @@ package io.github.daylightnebula.meld.world.chunks
 
 import io.github.daylightnebula.meld.entities.Entity
 import io.github.daylightnebula.meld.player.Player
+import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
@@ -10,9 +11,6 @@ import io.github.daylightnebula.meld.world.chunks.packets.JavaChunkPacket
 import org.cloudburstmc.math.vector.Vector3i
 import kotlin.math.floor
 
-// TODO fill blocks function
-// TODO clear blocks function
-// TODO broadcast changes
 data class Chunk(
     var chunkX: Int = 0,
     var chunkY: Int = 0,
@@ -69,7 +67,7 @@ data class Chunk(
         // send update packets
         when (player.connection) {
             is JavaConnection -> (player.connection as JavaConnection).sendPacket(JavaChunkPacket(this))
-            else -> TODO()
+            else -> NeedsBedrock()
         }
 
         // call set event
