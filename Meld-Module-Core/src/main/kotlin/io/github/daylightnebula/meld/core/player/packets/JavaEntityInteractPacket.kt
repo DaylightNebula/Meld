@@ -16,7 +16,7 @@ data class JavaEntityInteractPacket(
     var sneaking: Boolean = false
 ): JavaPacket {
     override val id: Int = 0x10
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         // load header
         entityID = reader.readVarInt()

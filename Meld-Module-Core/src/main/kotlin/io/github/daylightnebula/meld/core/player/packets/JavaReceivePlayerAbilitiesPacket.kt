@@ -9,7 +9,7 @@ class JavaReceivePlayerAbilitiesPacket(
     var flags: Byte = 0
 ): JavaPacket {
     override val id: Int = 0x1C
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         flags = reader.readByte()
     }

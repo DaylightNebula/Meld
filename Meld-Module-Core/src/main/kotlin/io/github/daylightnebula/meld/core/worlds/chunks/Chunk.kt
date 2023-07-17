@@ -1,6 +1,6 @@
 package io.github.daylightnebula.meld.core.worlds.chunks
 
-import io.github.daylightnebula.meld.core.entities.Entity
+import io.github.daylightnebula.meld.entities.Entity
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter

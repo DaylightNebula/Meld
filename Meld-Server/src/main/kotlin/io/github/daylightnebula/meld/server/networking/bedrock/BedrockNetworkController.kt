@@ -38,7 +38,7 @@ import java.util.*
 import kotlin.concurrent.thread
 
 object BedrockNetworkController: INetworkController {
-    private val address = InetSocketAddress("localhost", io.github.daylightnebula.meld.server.Meld.bedrockPort)
+    private val address = InetSocketAddress("localhost", Meld.bedrockPort)
 
     private val motdResponse = BedrockPong()
         .edition("MCPE")
@@ -56,7 +56,7 @@ object BedrockNetworkController: INetworkController {
             override fun initSession(session: BedrockServerSession) {
                 // create and store new connection
                 val handler = BedrockNetworkPacketHandler()
-                io.github.daylightnebula.meld.server.Meld.connections.add(BedrockConnection(handler, session))
+                Meld.connections.add(BedrockConnection(handler, session))
 
                 // update session
                 session.codec = Bedrock_v589.CODEC
@@ -78,18 +78,18 @@ object BedrockNetworkController: INetworkController {
     override fun stop() { TODO() }
 }
 
-class BedrockNetworkPacketHandler(): BedrockPacketHandler {
+class BedrockNetworkPacketHandler : BedrockPacketHandler {
     lateinit var connection: BedrockConnection
 
     // handle incoming packets
     override fun handlePacket(packet: BedrockPacket): PacketSignal {
-        io.github.daylightnebula.meld.server.PacketHandler.handlePacket(connection, packet)
+        PacketHandler.handlePacket(connection, packet)
         return PacketSignal.HANDLED
     }
 
     // handle disconnections
     override fun onDisconnect(reason: String?) {
         println("Disconnect $reason")
-        io.github.daylightnebula.meld.server.Meld.connections.removeIf { it is BedrockConnection && it.packetHandler == this }
+        Meld.connections.removeIf { it is BedrockConnection && it.packetHandler == this }
     }
 }

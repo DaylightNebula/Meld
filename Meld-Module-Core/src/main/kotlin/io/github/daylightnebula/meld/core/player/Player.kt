@@ -1,14 +1,14 @@
 package io.github.daylightnebula.meld.core.player
 
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
-import io.github.daylightnebula.meld.core.entities.EntityController
-import io.github.daylightnebula.meld.core.entities.EntityType
-import io.github.daylightnebula.meld.core.entities.Health
-import io.github.daylightnebula.meld.core.entities.LivingEntity
 import io.github.daylightnebula.meld.core.inventories.PlayerInventory
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.core.player.packets.JavaKeepAlivePacket
+import io.github.daylightnebula.meld.entities.EntityController
+import io.github.daylightnebula.meld.entities.EntityType
+import io.github.daylightnebula.meld.entities.Health
+import io.github.daylightnebula.meld.entities.LivingEntity
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3f

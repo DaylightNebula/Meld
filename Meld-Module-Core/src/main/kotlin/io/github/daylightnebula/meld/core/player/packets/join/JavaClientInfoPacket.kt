@@ -18,7 +18,7 @@ class JavaClientInfoPacket(
     var allowServerListings: Boolean = true
 ): JavaPacket {
     override val id: Int = 0x08
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         locale = reader.readVarString()
         viewDistance = reader.readByte().toInt()

@@ -9,7 +9,7 @@ class JavaCloseInventoryPacket(
     var inventoryID: UByte = 0u
 ): JavaPacket {
     override val id: Int = 0x0C
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         inventoryID = reader.readUByte()
     }

@@ -15,7 +15,7 @@ class JavaReceivePlayerPositionPacket(
     var onGround: Boolean = false
 ): JavaPacket {
     override val id: Int = 0x14
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         x = reader.readDouble()
         y = reader.readDouble()
@@ -28,7 +28,7 @@ class JavaConfirmTeleportPacket(
     var teleportID: Int = 0
 ): JavaPacket {
     override val id: Int = 0x00
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         teleportID = reader.readVarInt()
     }
@@ -43,7 +43,7 @@ class JavaReceivePlayerPositionAndRotationPacket(
     var onGround: Boolean = false
 ): JavaPacket {
     override val id: Int = 0x15
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         x = reader.readDouble()
         y = reader.readDouble()
@@ -60,7 +60,7 @@ class JavaReceivePlayerRotationPacket(
     var onGround: Boolean = false
 ): JavaPacket {
     override val id: Int = 0x16
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         yaw = reader.readFloat()
         pitch = reader.readFloat()
@@ -78,7 +78,7 @@ class JavaSetPlayerPositionPacket(
     var teleportID: Int = TeleportCounter.nextID()
 ): JavaPacket {
     override val id: Int = 0x3C
-    override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
+    override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeDouble(x)
         writer.writeDouble(y)
@@ -95,7 +95,7 @@ class JavaSetSpawnPositionPacket(
     var rotation: Float
 ): JavaPacket {
     override val id: Int = 0x50
-    override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
+    override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeBlockPosition(blockPosition)
         writer.writeFloat(rotation)

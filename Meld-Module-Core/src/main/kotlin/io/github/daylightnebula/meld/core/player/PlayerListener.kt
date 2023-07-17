@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.core.player
 
-import io.github.daylightnebula.meld.core.entities.JavaEntityStatusPacket
+import io.github.daylightnebula.meld.core.extensions.JavaEntityStatusPacket
+import io.github.daylightnebula.meld.entities.packets.JavaEntityStatusPacket
 import io.github.daylightnebula.meld.core.extensions.player
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus

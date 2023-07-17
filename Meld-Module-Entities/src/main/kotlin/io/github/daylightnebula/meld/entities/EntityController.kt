@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.core.entities
+package io.github.daylightnebula.meld.entities
 
 object EntityController {
     private var id = Int.MIN_VALUE

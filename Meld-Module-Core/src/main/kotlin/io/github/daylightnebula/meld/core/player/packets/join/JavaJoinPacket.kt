@@ -3,7 +3,7 @@ package io.github.daylightnebula.meld.core.player.packets.join
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.registries.RegistryCodec
-import io.github.daylightnebula.meld.core.entities.EntityController
+import io.github.daylightnebula.meld.entities.EntityController
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -24,14 +24,14 @@ class JavaJoinPacket(
     val dimensionType: String = "minecraft:overworld",
     val dimensionName: String = "minecraft:overworld",
     val seed: Long = 0L,
-    val maxPlayers: Int = io.github.daylightnebula.meld.server.Meld.maxPlayers,
-    val viewDistance: Int = io.github.daylightnebula.meld.server.Meld.viewDistance,
-    val simDistance: Int = io.github.daylightnebula.meld.server.Meld.simDistance,
+    val maxPlayers: Int = Meld.maxPlayers,
+    val viewDistance: Int = Meld.viewDistance,
+    val simDistance: Int = Meld.simDistance,
     val reducedDebugInfo: Boolean = false,
     val enableRespawnScreen: Boolean = true,
     val isDebug: Boolean = false,
-    val isFlat: Boolean = io.github.daylightnebula.meld.server.Meld.isFlatWorld,
-    val portalCooldown: Int = io.github.daylightnebula.meld.server.Meld.portalCooldown
+    val isFlat: Boolean = Meld.isFlatWorld,
+    val portalCooldown: Int = Meld.portalCooldown
 ): JavaPacket {
 
     constructor(player: Player): this(
@@ -42,7 +42,7 @@ class JavaJoinPacket(
 
     companion object { val ID = 0x28 }
     override val id: Int = ID
-    override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
+    override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeInt(playerID)
         writer.writeBoolean(isHardcore)

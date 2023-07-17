@@ -14,7 +14,7 @@ class JavaCreativeModeSlotPacket(
     var item: Item? = null
 ): JavaPacket {
     override val id: Int = 0x2B
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         slot = reader.readShort().toInt()
 

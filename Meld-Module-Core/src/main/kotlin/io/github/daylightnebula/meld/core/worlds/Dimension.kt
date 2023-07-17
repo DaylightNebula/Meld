@@ -35,7 +35,7 @@ class Dimension(
 
         // send all loaded chunk events
         val chunkPos = player.getChunkPosition()
-        val radius = io.github.daylightnebula.meld.server.Meld.viewDistance / 2
+        val radius = Meld.viewDistance / 2
         ((chunkPos.x - radius) .. (chunkPos.x + radius)).forEach { chunkX ->
             ((chunkPos.y - radius) .. (chunkPos.y + radius)).forEach { chunkZ ->
                 loadedChunks[Vector2i.from(chunkX, chunkZ)]?.let {

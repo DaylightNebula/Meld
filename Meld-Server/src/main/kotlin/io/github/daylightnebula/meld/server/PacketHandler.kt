@@ -20,7 +20,7 @@ object PacketHandler {
     // handle incoming java packets
     fun handleJavaPacket(connection: JavaConnection, packetID: Int, reader: AbstractReader) {
         // attempt to find an initializer for the given packet id and the connections state
-        val packet = io.github.daylightnebula.meld.server.JavaPacketRegistry[packetID to connection.state]?.let { it() }
+        val packet = JavaPacketRegistry[packetID to connection.state]?.let { it() }
         if (packet == null) {
             println("WARN no java packet registered for id $packetID and state ${connection.state}")
             return
@@ -30,28 +30,28 @@ object PacketHandler {
         packet.decode(reader)
 
         // handle the packet
-        io.github.daylightnebula.meld.server.PacketHandler.handlePacket(connection, packet)
+        handlePacket(connection, packet)
     }
 
     // handle an incoming packet
     fun <T: Any> handlePacket(connection: IConnection<T>, packet: T) {
         when(connection) {
-            is BedrockConnection -> io.github.daylightnebula.meld.server.PacketHandler.bedrockHandlers[packet.javaClass.name]?.let { it(connection, packet as BedrockPacket) }
+            is BedrockConnection -> bedrockHandlers[packet.javaClass.name]?.let { it(connection, packet as BedrockPacket) }
                 ?: println("WARN no bedrock packet registered for name ${packet.javaClass.name}")
 
-            is JavaConnection -> io.github.daylightnebula.meld.server.PacketHandler.javaHandlers[packet.javaClass.name]?.let { it(connection, packet as JavaPacket) }
+            is JavaConnection -> javaHandlers[packet.javaClass.name]?.let { it(connection, packet as JavaPacket) }
                 ?: println("WARN no java packet registered for name ${packet.javaClass.name}")
         }
     }
 
     // add the given bundle to the list of handlers
-    fun register(bundle: io.github.daylightnebula.meld.server.PacketBundle) {
+    fun register(bundle: PacketBundle) {
         // save packet handlers
-        io.github.daylightnebula.meld.server.PacketHandler.bedrockHandlers.putAll(bundle.bedrock)
-        io.github.daylightnebula.meld.server.PacketHandler.javaHandlers.putAll(bundle.java)
+        bedrockHandlers.putAll(bundle.bedrock)
+        javaHandlers.putAll(bundle.java)
 
         // register java packets
-        io.github.daylightnebula.meld.server.JavaPacketRegistry.putAll(bundle.registerJavaPackets())
+        JavaPacketRegistry.putAll(bundle.registerJavaPackets())
 
         println("Registered packet bundle: $bundle")
     }

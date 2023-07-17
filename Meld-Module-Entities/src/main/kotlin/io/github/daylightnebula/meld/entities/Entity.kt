@@ -1,10 +1,10 @@
-package io.github.daylightnebula.meld.core.entities
+package io.github.daylightnebula.meld.entities
 
 import io.github.daylightnebula.meld.server.Meld
-import io.github.daylightnebula.meld.core.entities.packets.JavaSetEntityVelocityPacket
-import io.github.daylightnebula.meld.core.entities.packets.JavaSpawnEntityPacket
-import io.github.daylightnebula.meld.core.entities.packets.JavaUpdateEntityPositionPacket
-import io.github.daylightnebula.meld.core.entities.packets.JavaUpdateEntityRotationPacket
+import io.github.daylightnebula.meld.entities.packets.JavaSetEntityVelocityPacket
+import io.github.daylightnebula.meld.entities.packets.JavaSpawnEntityPacket
+import io.github.daylightnebula.meld.entities.packets.JavaUpdateEntityPositionPacket
+import io.github.daylightnebula.meld.entities.packets.JavaUpdateEntityRotationPacket
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -33,7 +33,7 @@ open class Entity(
                 ((newPosition.z * 32f) - (position.z * 32f)) * 128f,
             ), true
         )
-        io.github.daylightnebula.meld.server.Meld.connections.forEach { connection ->
+        Meld.connections.forEach { connection ->
             when(connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
                 is BedrockConnection -> TODO()
@@ -50,7 +50,7 @@ open class Entity(
     fun setVelocity(velocity: Vector3f) {
         // broadcast changes
         val javaPacket = JavaSetEntityVelocityPacket(id, velocity)
-        io.github.daylightnebula.meld.server.Meld.connections.forEach { connection ->
+        Meld.connections.forEach { connection ->
             when (connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
                 is BedrockConnection -> TODO()
@@ -67,7 +67,7 @@ open class Entity(
     fun setRotation(rotation: Vector2f) {
         // broadcast changes
         val javaPacket = JavaUpdateEntityRotationPacket(id, rotation, true)
-        io.github.daylightnebula.meld.server.Meld.connections.forEach { connection ->
+        Meld.connections.forEach { connection ->
             when(connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
                 is BedrockConnection -> TODO()

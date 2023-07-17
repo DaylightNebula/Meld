@@ -1,7 +1,7 @@
 package io.github.daylightnebula.meld.core.worlds
 
-import io.github.daylightnebula.meld.core.entities.Entity
-import io.github.daylightnebula.meld.core.entities.EntityType
+import io.github.daylightnebula.meld.entities.Entity
+import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.core.worlds.chunks.FlexiblePalette
 import io.github.daylightnebula.meld.core.worlds.chunks.Section

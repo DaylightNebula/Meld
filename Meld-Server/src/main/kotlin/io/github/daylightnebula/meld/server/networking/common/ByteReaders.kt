@@ -10,7 +10,7 @@ import java.nio.ByteBuffer
 import java.util.*
 import kotlin.text.String
 
-abstract class AbstractReader() {
+abstract class AbstractReader {
     // important abstract functions
     abstract fun readByte(): Byte
     abstract fun readArray(count: Int): ByteArray

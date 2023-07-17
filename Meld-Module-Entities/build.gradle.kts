@@ -13,7 +13,6 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":Meld-Server"))
-    implementation(project(":Meld-Module-Entities"))
     implementation("org.json:json:20230227")
 
     // protocols

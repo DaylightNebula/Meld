@@ -10,7 +10,7 @@ class JavaSetCenterChunkPacket(
     var chunkY: Int = 0
 ): JavaPacket {
     override val id: Int = 0x4E
-    override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
+    override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(chunkX)
         writer.writeVarInt(chunkY)

@@ -10,7 +10,7 @@ class JavaSwingArmPacket(
     var hand: PlayerHand = PlayerHand.MAIN
 ): JavaPacket {
     override val id: Int = 0x2F
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         hand = PlayerHand.values()[reader.readVarInt()]
     }

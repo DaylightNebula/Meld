@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.core.entities
+package io.github.daylightnebula.meld.entities
 
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f

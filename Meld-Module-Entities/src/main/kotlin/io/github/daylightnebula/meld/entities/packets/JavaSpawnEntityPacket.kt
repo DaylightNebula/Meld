@@ -1,7 +1,7 @@
-package io.github.daylightnebula.meld.core.entities.packets
+package io.github.daylightnebula.meld.entities.packets
 
-import io.github.daylightnebula.meld.core.entities.Entity
-import io.github.daylightnebula.meld.core.entities.LivingEntity
+import io.github.daylightnebula.meld.entities.Entity
+import io.github.daylightnebula.meld.entities.LivingEntity
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -27,7 +27,7 @@ class JavaSpawnEntityPacket(
     )
 
     override val id: Int = 0x01
-    override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
+    override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)
         writer.writeLong(entityUID.mostSignificantBits)

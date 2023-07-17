@@ -18,7 +18,7 @@ class JavaUseItemPacket(
     var sequence: Int = 0
 ): JavaPacket {
     override val id: Int = 0x31
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         hand = PlayerHand.values()[reader.readVarInt()]
         location = reader.readBlockPosition()

@@ -48,7 +48,7 @@ object JavaNetworkController: INetworkController {
                     // try catch due to packet 122 in status state
                     val data = ByteArrayReader(read.readArray(length - 1))
 
-                    io.github.daylightnebula.meld.server.PacketHandler.handleJavaPacket(connection, packetID, data)
+                    PacketHandler.handleJavaPacket(connection, packetID, data)
                 }
             }
 
@@ -58,17 +58,17 @@ object JavaNetworkController: INetworkController {
     }
 
     fun pingJson(): JSONObject = JSONObject()
-        .put("version", JSONObject().put("name", io.github.daylightnebula.meld.server.Meld.javaVersion).put("protocol", io.github.daylightnebula.meld.server.Meld.javaProtocol))
-        .put("players", JSONObject().put("max", io.github.daylightnebula.meld.server.Meld.maxPlayers).put("online", io.github.daylightnebula.meld.server.Meld.players).put("sample", JSONArray().put(JSONObject().put("name", "hello_world").put("id", UUID.randomUUID().toString()))))
-        .put("description", JSONObject().put("text", io.github.daylightnebula.meld.server.Meld.description))
-        .put("favicon", JSONObject().put("favicon", io.github.daylightnebula.meld.server.Meld.favicon))
-        .put("enforcesSecureChat", io.github.daylightnebula.meld.server.Meld.enforceSecureChat)
-        .put("previewsChat", io.github.daylightnebula.meld.server.Meld.previewsChat)
+        .put("version", JSONObject().put("name", Meld.javaVersion).put("protocol", Meld.javaProtocol))
+        .put("players", JSONObject().put("max", Meld.maxPlayers).put("online", Meld.players).put("sample", JSONArray().put(JSONObject().put("name", "hello_world").put("id", UUID.randomUUID().toString()))))
+        .put("description", JSONObject().put("text", Meld.description))
+        .put("favicon", JSONObject().put("favicon", Meld.favicon))
+        .put("enforcesSecureChat", Meld.enforceSecureChat)
+        .put("previewsChat", Meld.previewsChat)
 
     override fun start() {
         // start socket
         val selectorManager = ActorSelectorManager(Dispatchers.IO)
-        serverSocket = aSocket(selectorManager).tcp().bind(port = io.github.daylightnebula.meld.server.Meld.javaPort)
+        serverSocket = aSocket(selectorManager).tcp().bind(port = Meld.javaPort)
 
         // start threads
         acceptor.start()

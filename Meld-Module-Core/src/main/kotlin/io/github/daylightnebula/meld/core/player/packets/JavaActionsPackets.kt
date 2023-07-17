@@ -15,7 +15,7 @@ class JavaPlayerCommandPacket(
     var jumpBoost: Int = 0
 ): JavaPacket {
     override val id: Int = 0x1E
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         entityID = reader.readVarInt()
         action = PlayerCommandAction.values()[reader.readVarInt()]
@@ -30,7 +30,7 @@ class JavaBlockActionPacket(
     var sequence: Int = 0
 ): JavaPacket {
     override val id: Int = 0x1D
-    override fun encode(writer: ByteWriter) = io.github.daylightnebula.meld.server.noEncode()
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         action = PlayerBlockAction.values()[reader.readVarInt()]
         blockPosition = reader.readBlockPosition()

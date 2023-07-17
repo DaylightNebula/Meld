@@ -7,7 +7,7 @@ import io.github.daylightnebula.meld.server.noDecode
 
 class JavaFeatureFlagsPacket(var features: Array<String> = arrayOf("minecraft:vanilla")): JavaPacket {
     override val id: Int = 0x6B
-    override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
+    override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(features.size)
         features.forEach { writer.writeString(it) }
@@ -20,7 +20,7 @@ class JavaAbilitiesPacket(
     var flags: Byte = 0x04
 ): JavaPacket {
     override val id: Int = 0x34
-    override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
+    override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeByte(flags)
         writer.writeFloat(flySpeed)

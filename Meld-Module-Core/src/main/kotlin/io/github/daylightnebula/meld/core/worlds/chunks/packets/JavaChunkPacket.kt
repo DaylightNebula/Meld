@@ -15,7 +15,7 @@ class JavaChunkPacket(
 ): JavaPacket {
 
     override val id: Int = 0x24
-    override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
+    override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         // serialize chunk
         val dataWriter = ByteWriter(0, DataPacketMode.JAVA)

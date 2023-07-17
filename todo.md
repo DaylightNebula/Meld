@@ -2,9 +2,9 @@
   - [ ] Move items around inventory
   - [ ] Creative clear inventories
 - [ ] Modularize
-  - [ ] Server
+  - [x] Server
     - Networking infrastucture, events system, module loader, etc
-  - [ ] Core module
+  - [x] Core module
     - Everything required basic operations like spawning players, etc
   - [ ] Inventory module
     - Inventory management for both player and not-player inventories

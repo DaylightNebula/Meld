@@ -9,7 +9,7 @@ class SimpleRegistry<M>(
         fun <I: Any, M: Any> fromLoader(input: I, loader: RegistryLoader<I, M>) =
                 SimpleRegistry(loader.load(input))
 
-        fun <I: Any, M: Any> create(input: I, registryLoader: Supplier<RegistryLoader<I, M>>): SimpleRegistry<M>? {
+        fun <I: Any, M: Any> create(input: I, registryLoader: Supplier<RegistryLoader<I, M>>): SimpleRegistry<M> {
             return fromLoader(input, registryLoader.get())
         }
 
