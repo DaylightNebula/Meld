@@ -4,13 +4,13 @@
 - [ ] Modularize
   - [x] Server
     - Networking infrastucture, events system, module loader, etc
-  - [x] Core module
-    - Everything required basic operations like spawning players, etc
-  - [ ] Inventory module
+  - [x] World module
+  - [x] Player module
+  - [x] Inventory module
     - Inventory management for both player and not-player inventories
     - May contain chests in the future
-    - [ ] Move inventories out of player
-  - [ ] Entity module
+    - [x] Move inventories out of player
+  - [x] Entity module
   - [ ] Block module
   - [ ] Item module
     - [ ] Create core-side configurations

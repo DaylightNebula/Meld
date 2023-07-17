@@ -50,18 +50,3 @@ object EventBus {
     private fun checkParameterInheritance(parameter: KParameter, className: KClass<*>) =
         parameter.type.classifier?.let { it as? KClass<*> }?.isSubclassOf(className) ?: false
 }
-
-class TestEvent(val time: Long): Event
-
-class TestListener: EventListener {
-    @EventHandler
-    fun handleTestEvent(event: TestEvent) {
-        println("Test event at time ${event.time}")
-    }
-}
-
-// test events
-fun main() {
-    EventBus.register(TestListener())
-    EventBus.callEvent(TestEvent(System.currentTimeMillis()))
-}
