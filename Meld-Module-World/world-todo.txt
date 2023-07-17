@@ -25,3 +25,6 @@
 [ ] events
 - [ ] Chunk load for player event
 - [ ] Chunk unload for player event
+[ ] load from java worlds if no normal format
+[ ] load from local storage on enable
+[ ] save to local storage on disable
