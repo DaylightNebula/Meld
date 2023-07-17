@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.core.worlds.chunks
+package io.github.daylightnebula.meld.world.chunks
 
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.common.DataPacketMode

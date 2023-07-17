@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.core.worlds
+package io.github.daylightnebula.meld.world
 
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.events.Event
@@ -10,11 +10,11 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.common.DataPacketMode
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.world.chunks.Chunk
-import io.github.daylightnebula.meld.core.worlds.chunks.packets.JavaChunkPacket
 import io.github.daylightnebula.meld.world.chunks.getChunkPosition
 import io.github.daylightnebula.meld.player.JoinEvent
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.packets.JavaSetCenterChunkPacket
+import io.github.daylightnebula.meld.world.chunks.packets.JavaChunkPacket
 import io.netty.buffer.Unpooled
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket

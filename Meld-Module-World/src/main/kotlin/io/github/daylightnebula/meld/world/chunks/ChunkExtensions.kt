@@ -1,6 +1,6 @@
 package io.github.daylightnebula.meld.world.chunks
 
-import io.github.daylightnebula.meld.core.worlds.chunks.Section
+import io.github.daylightnebula.meld.world.chunks.Section
 import io.github.daylightnebula.meld.player.Player
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3f

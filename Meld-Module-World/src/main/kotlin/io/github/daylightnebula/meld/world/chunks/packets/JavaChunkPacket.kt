@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.core.worlds.chunks.packets
+package io.github.daylightnebula.meld.world.chunks.packets
 
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
@@ -6,7 +6,7 @@ import io.github.daylightnebula.meld.server.networking.common.DataPacketMode
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
 import io.github.daylightnebula.meld.world.chunks.Chunk
-import io.github.daylightnebula.meld.core.worlds.chunks.ChunkRegistry
+import io.github.daylightnebula.meld.world.chunks.ChunkRegistry
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class JavaChunkPacket(

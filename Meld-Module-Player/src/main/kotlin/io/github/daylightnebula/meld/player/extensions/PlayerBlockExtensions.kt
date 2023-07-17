@@ -2,8 +2,8 @@ package io.github.daylightnebula.meld.player.extensions
 
 /*
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
-import io.github.daylightnebula.meld.core.worlds.World
-import io.github.daylightnebula.meld.core.worlds.chunks.toChunkPosition
+import io.github.daylightnebula.meld.world.World
+import io.github.daylightnebula.meld.world.chunks.toChunkPosition
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.PlayerBlockAction
 import org.cloudburstmc.math.vector.Vector3i
