@@ -1,2 +1,4 @@
 [ ] Events on player move and rotation
 [ ] Teleport functionality (do entity teleport first)
+[ ] broadcast animations to nearby players
+[ ] set held item function that alerts nearby players
