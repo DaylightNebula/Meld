@@ -1,11 +1,10 @@
 package io.github.daylightnebula.meld.entities
 
+import io.github.daylightnebula.meld.entities.packets.*
 import io.github.daylightnebula.meld.server.Meld
-import io.github.daylightnebula.meld.entities.packets.JavaSetEntityVelocityPacket
-import io.github.daylightnebula.meld.entities.packets.JavaSpawnEntityPacket
-import io.github.daylightnebula.meld.entities.packets.JavaUpdateEntityPositionPacket
-import io.github.daylightnebula.meld.entities.packets.JavaUpdateEntityRotationPacket
 import io.github.daylightnebula.meld.server.NeedsBedrock
+import io.github.daylightnebula.meld.server.events.Event
+import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -25,33 +24,45 @@ open class Entity(
     var position = startPosition
         private set
 
-    fun setPosition(newPosition: Vector3f) {
-        // broadcast packets
-        val javaPacket = JavaUpdateEntityPositionPacket(
-            id, Vector3f.from(
-                ((newPosition.x * 32f) - (position.x * 32f)) * 128f,
-                ((newPosition.y * 32f) - (position.y * 32f)) * 128f,
-                ((newPosition.z * 32f) - (position.z * 32f)) * 128f,
-            ), true
-        )
-        Meld.connections.forEach { connection ->
+    open fun setPosition(newPosition: Vector3f) {
+        // get change in position
+        val change = newPosition.clone().sub(position)
+
+        // send packets
+        broadcastPositionUpdatesTo().forEach { connection ->
             when(connection) {
-                is JavaConnection -> connection.sendPacket(javaPacket)
+                is JavaConnection -> {
+                    // send packet based on if change is greater than 8 blocks, teleport if greater than 8, otherwise just update position
+                    if (change.length() > 8) connection.sendPacket(JavaTeleportEntityPacket(
+                        id, newPosition, rotation, true
+                    )) else connection.sendPacket(JavaUpdateEntityPositionPacket(
+                        id, Vector3f.from(
+                            ((newPosition.x * 32f) - (position.x * 32f)) * 128f,
+                            ((newPosition.y * 32f) - (position.y * 32f)) * 128f,
+                            ((newPosition.z * 32f) - (position.z * 32f)) * 128f,
+                        ), true
+                    ))
+                }
                 is BedrockConnection -> NeedsBedrock()
             }
         }
 
         // update position
         position = newPosition
+
+        // broadcast event
+        EventBus.callEvent(EntityMoveEvent(this, position))
     }
+
+    open fun broadcastPositionUpdatesTo() = Meld.connections.toList()
 
     var velocity = startVelocity
         private set
 
-    fun setVelocity(velocity: Vector3f) {
+    open fun setVelocity(velocity: Vector3f) {
         // broadcast changes
         val javaPacket = JavaSetEntityVelocityPacket(id, velocity)
-        Meld.connections.forEach { connection ->
+        broadcastPositionUpdatesTo().forEach { connection ->
             when (connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
                 is BedrockConnection -> NeedsBedrock()
@@ -60,15 +71,18 @@ open class Entity(
 
         // update velocity
         this.velocity = velocity
+
+        // call event
+        EventBus.callEvent(EntityVelocityChangeEvent(this, velocity))
     }
 
     var rotation = startRotation
         private set
 
-    fun setRotation(rotation: Vector2f) {
+    open fun setRotation(rotation: Vector2f) {
         // broadcast changes
         val javaPacket = JavaUpdateEntityRotationPacket(id, rotation, true)
-        Meld.connections.forEach { connection ->
+        broadcastPositionUpdatesTo().forEach { connection ->
             when(connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
                 is BedrockConnection -> NeedsBedrock()
@@ -77,6 +91,9 @@ open class Entity(
 
         // update rotation
         this.rotation = rotation
+
+        // call event
+        EventBus.callEvent(EntityRotateEvent(this, rotation))
     }
 
     open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
@@ -92,3 +109,7 @@ enum class EntityType(val mcID: Int, val identifier: String) {
 }
 
 enum class EntityAnimation { SWING_ARM, TAKE_DAMAGE, LEAVE_BED, SWING_OFFHAND, CRITICAL_EFFECT, MAGICAL_CRITICAL_EFFECT }
+
+data class EntityMoveEvent(val entity: Entity, val position: Vector3f): Event
+data class EntityRotateEvent(val entity: Entity, val rotation: Vector2f): Event
+data class EntityVelocityChangeEvent(val entity: Entity, val velocity: Vector3f): Event

@@ -65,17 +65,50 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
         JavaReceivePlayerPositionPacket::class.java.name to { connection, packet ->
             packet as JavaReceivePlayerPositionPacket
-//            println("Position: ${packet.x} ${packet.y} ${packet.z} ${packet.onGround}")
+
+            // get player and broadcast event
+            val player = connection.player
+            val event = PlayerMoveEvent(player, packet.position)
+            EventBus.callEvent(event)
+
+            // if cancelled, send sync packet, otherwise, set position
+            if (event.cancelled) player.teleport()
+            else player.setPosition(packet.position)
         },
 
         JavaReceivePlayerPositionAndRotationPacket::class.java.name to { connection, packet ->
             packet as JavaReceivePlayerPositionAndRotationPacket
-//            println("Position: ${packet.x} ${packet.y} ${packet.z} Rotation: ${packet.yaw} ${packet.pitch} ${packet.onGround}")
+
+            // get player and broadcast events
+            val player = connection.player
+            val moveEvent = PlayerMoveEvent(player, packet.position)
+            val rotateEvent = PlayerRotateEvent(player, packet.rotation)
+            EventBus.callEvent(moveEvent)
+            EventBus.callEvent(rotateEvent)
+
+            // get new position and rotation
+            val position = if (moveEvent.cancelled) player.position else packet.position
+            val rotation = if (rotateEvent.cancelled) player.rotation else packet.rotation
+
+            // if either event is cancelled, call teleport
+            if (moveEvent.cancelled || rotateEvent.cancelled) player.teleport(position, rotation)
+
+            // call update position and rotation if their respective events are not cancelled
+            if (!moveEvent.cancelled) player.setPosition(position)
+            if (!rotateEvent.cancelled) player.setRotation(rotation)
         },
 
         JavaReceivePlayerRotationPacket::class.java.name to { connection, packet ->
             packet as JavaReceivePlayerRotationPacket
-//            println("Rotation: ${packet.yaw} ${packet.pitch} ${packet.onGround}")
+
+            // get player and broadcast event
+            val player = connection.player
+            val event = PlayerRotateEvent(player, packet.rotation)
+            EventBus.callEvent(event)
+
+            // if cancelled, send sync packet, otherwise, set rotation
+            if (event.cancelled) player.teleport()
+            else player.setRotation(packet.rotation)
         },
 
         JavaClientInfoPacket::class.java.name to { connection, packet ->

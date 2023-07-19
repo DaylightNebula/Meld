@@ -1,6 +1,7 @@
-[ ] teleport functionality
-[ ] events
-- [ ] entity move event
-- [ ] living entity rotate event
+[x] teleport functionality
+[x] events
+- [x] entity move event
+- [x] entity rotate event
+- [x] entity velocity change event
 [ ] spawn on chunk load
 [ ] despawn on chunk unload

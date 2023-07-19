@@ -10,6 +10,9 @@ import kotlin.reflect.full.*
 annotation class EventHandler
 interface EventListener
 interface Event
+interface CancellableEvent: Event {
+    var cancelled: Boolean
+}
 
 object EventBus {
     private val listenerMap = hashMapOf<KType, MutableList<Pair<EventListener, KFunction<*>>>>()

@@ -8,6 +8,11 @@ import io.github.daylightnebula.meld.entities.EntityController
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
 import io.github.daylightnebula.meld.entities.LivingEntity
+import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
+import io.github.daylightnebula.meld.server.Meld
+import io.github.daylightnebula.meld.server.NeedsBedrock
+import io.github.daylightnebula.meld.server.events.CancellableEvent
+import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.protocol.bedrock.data.GameType
@@ -52,9 +57,25 @@ class Player(
     var gameMode: GameMode = GameMode.CREATIVE
         private set
 
-    // TODO teleport functions
+    // do not broadcast changes to self
+    override fun broadcastPositionUpdatesTo() = Meld.connections.filter { it != connection }
+
+    // teleports the player to the given position and rotation
+    fun teleport(position: Vector3f = this.position, rotation: Vector2f = this.rotation) {
+        setPosition(position)
+        setRotation(rotation)
+        when(connection) {
+            is JavaConnection -> connection.sendPacket(JavaSetPlayerPositionPacket(position, rotation))
+            is BedrockConnection -> NeedsBedrock()
+        }
+    }
 }
 
+// events
+data class PlayerMoveEvent(val player: Player, val position: Vector3f, override var cancelled: Boolean = false): CancellableEvent
+data class PlayerRotateEvent(val player: Player, val rotation: Vector2f, override var cancelled: Boolean = false): CancellableEvent
+
+// extensions
 fun GameMode.bedrockGameMode() = when(this) {
     GameMode.SURVIVAL -> GameType.SURVIVAL
     GameMode.CREATIVE -> GameType.CREATIVE
@@ -62,6 +83,7 @@ fun GameMode.bedrockGameMode() = when(this) {
     GameMode.SPECTATOR -> GameType.SPECTATOR
 }
 
+// enums
 enum class PlayerChatMode { ENABLED, COMMANDS_ONLY, HIDDEN }
 enum class PlayerMainHand { LEFT, RIGHT }
 enum class PlayerHand { MAIN, OFF }

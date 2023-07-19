@@ -1,4 +1,5 @@
-[ ] Events on player move and rotation
-[ ] Teleport functionality (do entity teleport first)
+[x] Events on player move and rotation in packet bundle
+- [x] If any above event is cancelled, synchronize to old position and rotation
+[x] Teleport functionality (do entity teleport first)
 [ ] broadcast animations to nearby players
 [ ] set held item function that alerts nearby players
