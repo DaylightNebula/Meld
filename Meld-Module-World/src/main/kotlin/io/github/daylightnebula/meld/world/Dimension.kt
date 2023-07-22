@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.world
 
+import io.github.daylightnebula.meld.entities.EntityMoveEvent
 import io.github.daylightnebula.meld.entities.packets.JavaRemoveEntitiesPacket
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.events.Event
@@ -16,8 +17,8 @@ import io.github.daylightnebula.meld.player.JoinEvent
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.PlayerMoveEvent
 import io.github.daylightnebula.meld.server.NeedsBedrock
+import io.github.daylightnebula.meld.server.extensions.toChunkPosition
 import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
-import io.github.daylightnebula.meld.world.chunks.toChunkPosition
 import io.github.daylightnebula.meld.world.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.meld.world.packets.JavaUnloadChunkPacket
 import io.netty.buffer.Unpooled
@@ -67,7 +68,21 @@ class Dimension(
         // spawn new chunks
         toAdd.forEach { loadChunkForPlayer(event.player, newChunks[it]) }
 
-        println("Moved chunks, change ${newChunkPos.clone().sub(oldChunkPos)}")
+        // send center packet
+        centerPacket(event.player)
+    }
+
+    @EventHandler
+    fun onEntityMove(event: EntityMoveEvent) {
+        // check if there is a change in chunk position
+        val oldChunkPos = event.oldPosition.toChunkPosition()
+        val newChunkPos = event.newPosition.toChunkPosition()
+
+        // move entity to new chunk
+        loadedChunks[oldChunkPos]?.entities?.remove(event.entity)
+        loadedChunks[newChunkPos]?.entities?.add(event.entity)
+
+        // todo remove for players out of range
     }
 
     // unload a chunk and its entities for the player

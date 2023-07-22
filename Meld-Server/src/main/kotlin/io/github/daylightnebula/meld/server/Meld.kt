@@ -82,8 +82,10 @@ fun main() {
     Runtime.getRuntime().addShutdownHook(thread(start = false) {
         println("Shutting down modules...")
         ModuleLoader.modules.forEach { it.onDisable() }
+
         println("Shutting down ticker...")
         keepAliveThread.join(10)
+
         println("Goodbye :-(")
     })
 

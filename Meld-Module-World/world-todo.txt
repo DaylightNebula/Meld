@@ -1,5 +1,5 @@
-[ ] Automatic send new chunks to players on move
-[ ] Automatic unload old chunks to players on move
+[x] Automatic send new chunks to players on move
+[x] Automatic unload old chunks to players on move
 [ ] Automatic send update center packet when player moves between chunks
 [ ] Finish chunks
  - [ ] Fill blocks function

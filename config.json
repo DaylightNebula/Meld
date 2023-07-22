@@ -14,8 +14,8 @@
     "favicon": "data:image/png;base64,<data>",
     "enforceSecureChat": false,
     "previewsChat": false,
-    "viewDistance": 4,
-    "simDistance": 4,
+    "viewDistance": 8,
+    "simDistance": 8,
     "isFlatWorld": false,
     "portalCooldown": 20
 }

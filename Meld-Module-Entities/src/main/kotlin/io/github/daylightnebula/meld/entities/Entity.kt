@@ -5,6 +5,7 @@ import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
+import io.github.daylightnebula.meld.server.extensions.toChunkPosition
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -47,11 +48,11 @@ open class Entity(
             }
         }
 
+        // broadcast event
+        EventBus.callEvent(EntityMoveEvent(this, position, newPosition))
+
         // update position
         position = newPosition
-
-        // broadcast event
-        EventBus.callEvent(EntityMoveEvent(this, position))
     }
 
     open fun broadcastPositionUpdatesTo() = Meld.connections.toList()
@@ -69,11 +70,11 @@ open class Entity(
             }
         }
 
+        // call event
+        EventBus.callEvent(EntityVelocityChangeEvent(this, this.velocity, velocity))
+
         // update velocity
         this.velocity = velocity
-
-        // call event
-        EventBus.callEvent(EntityVelocityChangeEvent(this, velocity))
     }
 
     var rotation = startRotation
@@ -89,11 +90,11 @@ open class Entity(
             }
         }
 
+        // call event
+        EventBus.callEvent(EntityRotateEvent(this, this.rotation, rotation))
+
         // update rotation
         this.rotation = rotation
-
-        // call event
-        EventBus.callEvent(EntityRotateEvent(this, rotation))
     }
 
     open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
@@ -110,6 +111,6 @@ enum class EntityType(val mcID: Int, val identifier: String) {
 
 enum class EntityAnimation { SWING_ARM, TAKE_DAMAGE, LEAVE_BED, SWING_OFFHAND, CRITICAL_EFFECT, MAGICAL_CRITICAL_EFFECT }
 
-data class EntityMoveEvent(val entity: Entity, val position: Vector3f): Event
-data class EntityRotateEvent(val entity: Entity, val rotation: Vector2f): Event
-data class EntityVelocityChangeEvent(val entity: Entity, val velocity: Vector3f): Event
+data class EntityMoveEvent(val entity: Entity, val oldPosition: Vector3f, val newPosition: Vector3f): Event
+data class EntityRotateEvent(val entity: Entity, val oldRotation: Vector2f, val newRotation: Vector2f): Event
+data class EntityVelocityChangeEvent(val entity: Entity, val oldVelocity: Vector3f, val velocity: Vector3f): Event
