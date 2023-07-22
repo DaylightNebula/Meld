@@ -83,7 +83,7 @@ fun main() {
         println("Shutting down modules...")
         ModuleLoader.modules.forEach { it.onDisable() }
         println("Shutting down ticker...")
-        keepAliveThread.join()
+        keepAliveThread.join(10)
         println("Goodbye :-(")
     })
 

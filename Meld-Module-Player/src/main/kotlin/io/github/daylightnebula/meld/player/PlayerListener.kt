@@ -16,7 +16,6 @@ import io.github.daylightnebula.meld.player.packets.login.JavaFeatureFlagsPacket
 import io.github.daylightnebula.meld.player.packets.join.JavaJoinPacket
 import io.github.daylightnebula.meld.server.registries.BedrockRegistries
 import io.github.daylightnebula.meld.player.extensions.JavaEntityStatusPacket
-import io.github.daylightnebula.meld.player.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
@@ -51,7 +50,6 @@ class PlayerListener: EventListener {
                 connection.sendPacket(JavaAbilitiesPacket())
                 connection.sendPacket(JavaEntityStatusPacket(player))
                 connection.sendPacket(JavaDifficultyPacket())
-                connection.sendPacket(JavaSetCenterChunkPacket())
 
                 // send positions
                 connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))

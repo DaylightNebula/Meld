@@ -10,7 +10,7 @@ import kotlin.math.floor
 fun chunk(
     chunkX: Int = 0, chunkY: Int = 0,
     sections: Array<Section> = Array(24) { Section() }
-) = Vector2i.from(chunkX, chunkY) to Chunk(chunkX, chunkY, sections)
+) = Vector2i.from(chunkX, chunkY) to Chunk(Vector2i.from(chunkX, chunkY), sections)
 
 fun Player.getChunkPosition(): Vector2i =
     Vector2i.from(floor(position.x.dec16IfNegative() / 16).toInt(), floor(position.z.dec16IfNegative() / 16).toInt())

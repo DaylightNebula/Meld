@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.world
 
+import io.github.daylightnebula.meld.entities.packets.JavaRemoveEntitiesPacket
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
@@ -14,13 +15,15 @@ import io.github.daylightnebula.meld.world.chunks.getChunkPosition
 import io.github.daylightnebula.meld.player.JoinEvent
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.PlayerMoveEvent
-import io.github.daylightnebula.meld.player.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.meld.server.NeedsBedrock
-import io.github.daylightnebula.meld.world.chunks.packets.JavaChunkPacket
+import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
 import io.github.daylightnebula.meld.world.chunks.toChunkPosition
+import io.github.daylightnebula.meld.world.packets.JavaSetCenterChunkPacket
+import io.github.daylightnebula.meld.world.packets.JavaUnloadChunkPacket
 import io.netty.buffer.Unpooled
-import org.cloudburstmc.math.vector.Vector2f
+import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import org.cloudburstmc.math.vector.Vector2i
+import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
 
 class Dimension(
@@ -35,15 +38,7 @@ class Dimension(
         val player = event.player
 
         // send all loaded chunk events
-        val chunkPos = player.getChunkPosition()
-        val radius = Meld.viewDistance / 2
-        ((chunkPos.x - radius) .. (chunkPos.x + radius)).forEach { chunkX ->
-            ((chunkPos.y - radius) .. (chunkPos.y + radius)).forEach { chunkZ ->
-                loadedChunks[Vector2i.from(chunkX, chunkZ)]?.let {
-                    loadChunkForPlayer(player, it)
-                }
-            }
-        }
+        getChunksInViewDistance(player.position).forEach { loadChunkForPlayer(player, it) }
 
         // send center chunk packet
         centerPacket(player)
@@ -51,13 +46,40 @@ class Dimension(
 
     @EventHandler
     fun onPlayerMove(event: PlayerMoveEvent) {
+        val connection = event.player.connection
+
         // check if the players chunk has changed
         val oldChunkPos = event.oldPosition.toChunkPosition()
         val newChunkPos = event.position.toChunkPosition()
         if (oldChunkPos == newChunkPos) return
 
-        println("Moved chunks")
+        // get chunks in view distance of old and new chunk positions
+        val oldChunks = getChunksInViewDistanceOfChunk(oldChunkPos)
+        val newChunks = getChunksInViewDistanceOfChunk(newChunkPos)
+
+        // get chunks to remove
+        val toRemove = (0 until oldChunks.size).filter { !newChunks.contains(oldChunks[it]) }
+        val toAdd = (0 until newChunks.size).filter { !oldChunks.contains(newChunks[it]) }
+
+        // remove old chunks
+        toRemove.forEach { unloadChunkForPlayer(event.player, oldChunks[it]) }
+
+        // spawn new chunks
+        toAdd.forEach { loadChunkForPlayer(event.player, newChunks[it]) }
+
+        println("Moved chunks, change ${newChunkPos.clone().sub(oldChunkPos)}")
     }
+
+    // unload a chunk and its entities for the player
+    private fun unloadChunkForPlayer(player: Player, chunk: Chunk) =
+        when (val connection = player.connection) {
+            is JavaConnection -> {
+                connection.sendPacket(JavaUnloadChunkPacket(chunk.position))
+                connection.sendPacket(JavaRemoveEntitiesPacket(chunk.entities.map { it.id }))
+            }
+            is BedrockConnection -> NeedsBedrock()
+            else -> throw UnsupportedOperationException()
+        }
 
     private fun loadChunkForPlayer(player: Player, chunk: Chunk) {
         // send packet based on connection type
@@ -67,8 +89,8 @@ class Dimension(
                 // update basic values of packet
                 subChunksLength = 24
                 isCachingEnabled = false
-                chunkX = chunk.chunkX
-                chunkZ = chunk.chunkY
+                chunkX = chunk.position.x
+                chunkZ = chunk.position.y
 
                 // serialize data
                 val writer = ByteWriter(0x00, DataPacketMode.BEDROCK)
@@ -81,12 +103,12 @@ class Dimension(
         when(player.connection) {
             is JavaConnection -> chunk.entities.forEach { e -> e.getSpawnJavaPackets().forEach {
                 (player.connection as JavaConnection).sendPacket(it)
-            } }
+            }}
             is BedrockConnection -> NeedsBedrock()
         }
 
         // broadcast sent chunk event
-        EventBus.callEvent(PlayerSentChunkEvent(player, chunk))
+        EventBus.callEvent(PlayerLoadChunkEvent(player, chunk))
     }
 
     private fun centerPacket(player: Player) {
@@ -101,6 +123,17 @@ class Dimension(
             else -> {} // throw IllegalArgumentException("No center packet for bedrock connections")
         }
     }
+    fun getChunksInViewDistance(location: Vector3f): MutableList<Chunk> = getChunksInViewDistanceOfChunk(location.toChunkPosition())
+    fun getChunksInViewDistanceOfChunk(chunkPos: Vector2i): MutableList<Chunk> {
+        // return chunks between min and max chunk
+        val output = mutableListOf<Chunk>()
+        (chunkPos.x - Meld.viewDistance .. chunkPos.x + Meld.viewDistance).forEach { x ->
+            (chunkPos.y - Meld.viewDistance .. chunkPos.y + Meld.viewDistance).forEach { y ->
+                loadedChunks[Vector2i.from(x, y)]?.let { output.add(it) }
+            }
+        }
+        return output
+    }
 }
 
 fun dimension(
@@ -108,4 +141,5 @@ fun dimension(
     vararg loadedChunks: Pair<Vector2i, Chunk>
 ) = name to Dimension(name, hashMapOf(*loadedChunks))
 
-data class PlayerSentChunkEvent(val player: Player, val chunk: Chunk): Event
+data class PlayerLoadChunkEvent(val player: Player, val chunk: Chunk): Event
+data class PlayerUnloadChunkEvent(val player: Player, val chunk: Chunk): Event

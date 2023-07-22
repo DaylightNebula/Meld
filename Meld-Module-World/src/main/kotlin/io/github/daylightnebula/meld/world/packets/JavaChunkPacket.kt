@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.world.chunks.packets
+package io.github.daylightnebula.meld.world.packets
 
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
@@ -23,8 +23,8 @@ class JavaChunkPacket(
         val data = dataWriter.getRawData()
 
         // write chunk header and raw data
-        writer.writeInt(chunk.chunkX)
-        writer.writeInt(chunk.chunkY)
+        writer.writeInt(chunk.position.x)
+        writer.writeInt(chunk.position.y)
         writer.writeNBT(heightmaps)
         writer.writeVarInt(data.size)
         writer.writeByteArray(data)

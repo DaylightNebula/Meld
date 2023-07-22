@@ -7,13 +7,13 @@ import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.world.chunks.packets.JavaChunkPacket
+import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
+import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3i
 import kotlin.math.floor
 
 data class Chunk(
-    var chunkX: Int = 0,
-    var chunkY: Int = 0,
+    var position: Vector2i = Vector2i.from(0, 0),
     var sections: Array<Section> = Array(24) { Section() },
     var entities: MutableList<Entity> = mutableListOf()
 ) {
@@ -31,13 +31,13 @@ data class Chunk(
 
         other as Chunk
 
-        if (chunkX != other.chunkX) return false
-        if (chunkY != other.chunkY) return false
+        if (position.x != other.position.x) return false
+        if (position.y != other.position.y) return false
         return sections.contentEquals(other.sections)
     }
     override fun hashCode(): Int {
-        var result = chunkX
-        result = 31 * result + chunkY
+        var result = position.x
+        result = 31 * result + position.y
         result = 31 * result + sections.contentHashCode()
         return result
     }
