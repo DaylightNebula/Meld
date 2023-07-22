@@ -1,5 +1,9 @@
 package io.github.daylightnebula.meld.server.networking.java
 
+import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
+import io.github.daylightnebula.meld.server.Meld
+import io.github.daylightnebula.meld.server.events.Event
+import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
@@ -22,8 +26,16 @@ class JavaConnection(
 
         // send byte array to client
         val bytes = writer.getData()
+        val me = this
         runBlocking {
-            write.writeFully(bytes, 0, bytes.size)
+            // if write fails, the connection is aborted
+            try {
+                write.writeFully(bytes, 0, bytes.size)
+            } catch (ex: Exception) {
+                if (state == JavaConnectionState.IN_GAME) println("Connection $me aborted")
+                EventBus.callEvent(ConnectionAbortedEvent(me))
+                Meld.connections.remove(me as IConnection<*>)
+            }
         }
     }
 

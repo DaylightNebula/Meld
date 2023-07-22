@@ -11,6 +11,7 @@ import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.*
 import io.github.daylightnebula.meld.server.javaGamePacket
 import io.github.daylightnebula.meld.server.javaPackets
+import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import org.cloudburstmc.math.vector.Vector3i
 import org.cloudburstmc.protocol.bedrock.packet.AnimatePacket
@@ -68,7 +69,7 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
             // get player and broadcast event
             val player = connection.player
-            val event = PlayerMoveEvent(player, packet.position)
+            val event = PlayerMoveEvent(player, player.position, packet.position)
             EventBus.callEvent(event)
 
             // if cancelled, send sync packet, otherwise, set position
@@ -81,8 +82,8 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
             // get player and broadcast events
             val player = connection.player
-            val moveEvent = PlayerMoveEvent(player, packet.position)
-            val rotateEvent = PlayerRotateEvent(player, packet.rotation)
+            val moveEvent = PlayerMoveEvent(player, player.position, packet.position)
+            val rotateEvent = PlayerRotateEvent(player, player.rotation, packet.rotation)
             EventBus.callEvent(moveEvent)
             EventBus.callEvent(rotateEvent)
 
@@ -103,7 +104,7 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
             // get player and broadcast event
             val player = connection.player
-            val event = PlayerRotateEvent(player, packet.rotation)
+            val event = PlayerRotateEvent(player, player.rotation, packet.rotation)
             EventBus.callEvent(event)
 
             // if cancelled, send sync packet, otherwise, set rotation

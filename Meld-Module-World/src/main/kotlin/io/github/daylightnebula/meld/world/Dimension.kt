@@ -13,10 +13,13 @@ import io.github.daylightnebula.meld.world.chunks.Chunk
 import io.github.daylightnebula.meld.world.chunks.getChunkPosition
 import io.github.daylightnebula.meld.player.JoinEvent
 import io.github.daylightnebula.meld.player.Player
+import io.github.daylightnebula.meld.player.PlayerMoveEvent
 import io.github.daylightnebula.meld.player.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.world.chunks.packets.JavaChunkPacket
+import io.github.daylightnebula.meld.world.chunks.toChunkPosition
 import io.netty.buffer.Unpooled
+import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
 
@@ -44,6 +47,16 @@ class Dimension(
 
         // send center chunk packet
         centerPacket(player)
+    }
+
+    @EventHandler
+    fun onPlayerMove(event: PlayerMoveEvent) {
+        // check if the players chunk has changed
+        val oldChunkPos = event.oldPosition.toChunkPosition()
+        val newChunkPos = event.position.toChunkPosition()
+        if (oldChunkPos == newChunkPos) return
+
+        println("Moved chunks")
     }
 
     private fun loadChunkForPlayer(player: Player, chunk: Chunk) {

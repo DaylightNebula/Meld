@@ -1,13 +1,18 @@
 package io.github.daylightnebula.meld.server
 
+import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.modules.ModuleLoader
 import io.github.daylightnebula.meld.server.networking.common.IConnection
+import io.github.daylightnebula.meld.server.networking.java.JavaConnection
+import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
 import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.lang.Thread.sleep
+import java.util.ConcurrentModificationException
 import kotlin.concurrent.thread
 
 @Serializable
@@ -40,16 +45,31 @@ data class MeldConfig (
     @Transient val connections = mutableListOf<IConnection<*>>()
 }
 
+// handle config
 val meldConfigFile = File("config.json")
 val configSerializer = Json {
     encodeDefaults = true
     prettyPrint = true
 }
+
+// config
 val Meld =
     if (meldConfigFile.exists()) configSerializer.decodeFromString<MeldConfig>(meldConfigFile.readText())
     else MeldConfig()
 
+// needs bedrock function
 fun NeedsBedrock(): Nothing = throw NotImplementedError("This function requires a bedrock implementation!")
+
+// send keep alive packet to all in game java connections once a second
+val keepAliveThread = thread {
+    while (true) {
+        sleep(1000)
+        try {
+            Meld.connections
+                .forEach { if (it is JavaConnection) it.sendPacket(JavaKeepAlivePacket()) }
+        } catch (_: ConcurrentModificationException) {}
+    }
+}
 
 fun main() {
     println("Updating config...")
@@ -62,6 +82,8 @@ fun main() {
     Runtime.getRuntime().addShutdownHook(thread(start = false) {
         println("Shutting down modules...")
         ModuleLoader.modules.forEach { it.onDisable() }
+        println("Shutting down ticker...")
+        keepAliveThread.join()
         println("Goodbye :-(")
     })
 
@@ -71,3 +93,5 @@ fun main() {
 
     println("Started")
 }
+
+data class ConnectionAbortedEvent(val connection: IConnection<*>): Event

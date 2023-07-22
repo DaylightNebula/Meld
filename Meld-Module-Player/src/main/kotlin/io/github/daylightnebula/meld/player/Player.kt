@@ -3,7 +3,7 @@ package io.github.daylightnebula.meld.player
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.player.packets.JavaKeepAlivePacket
+import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
 import io.github.daylightnebula.meld.entities.EntityController
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
@@ -37,14 +37,6 @@ class Player(
 ): LivingEntity(
     uid, id, EntityType.PLAYER, dimensionID, position, velocity, rotation, startHeadYaw, health
 ) {
-    // TODO replace
-    val keepAliveThread = thread {
-        while (true) {
-            sleep(1000)
-            if (connection is JavaConnection) connection.sendPacket(JavaKeepAlivePacket())
-        }
-    }
-
     // marks if the player has been sent their join packets
     var joinSent = false
         internal set
@@ -72,8 +64,8 @@ class Player(
 }
 
 // events
-data class PlayerMoveEvent(val player: Player, val position: Vector3f, override var cancelled: Boolean = false): CancellableEvent
-data class PlayerRotateEvent(val player: Player, val rotation: Vector2f, override var cancelled: Boolean = false): CancellableEvent
+data class PlayerMoveEvent(val player: Player, val oldPosition: Vector3f, val position: Vector3f, override var cancelled: Boolean = false): CancellableEvent
+data class PlayerRotateEvent(val player: Player, val oldRotation: Vector2f, val rotation: Vector2f, override var cancelled: Boolean = false): CancellableEvent
 
 // extensions
 fun GameMode.bedrockGameMode() = when(this) {
