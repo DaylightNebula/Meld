@@ -8,8 +8,10 @@ import io.github.daylightnebula.meld.entities.EntityController
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
 import io.github.daylightnebula.meld.entities.LivingEntity
+import io.github.daylightnebula.meld.player.packets.JavaPlayerInfoUpdatePacket
 import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
 import io.github.daylightnebula.meld.player.packets.JavaSpawnPlayerPacket
+import io.github.daylightnebula.meld.player.packets.PlayerInfoAction
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
@@ -65,7 +67,8 @@ class Player(
     }
 
     override fun getSpawnJavaPackets(): List<JavaPacket> = listOf(
-        JavaSpawnPlayerPacket(id, uid, position, rotation)
+        JavaPlayerInfoUpdatePacket(uid, listOf(PlayerInfoAction.AddPlayer("player"))),
+        JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO)
     )
 }
 

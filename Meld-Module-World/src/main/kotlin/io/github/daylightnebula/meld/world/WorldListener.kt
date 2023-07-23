@@ -25,7 +25,20 @@ class WorldListener: EventListener {
         val dimension = World.dimensions[entity.dimensionID] ?: return
 
         // add entity to its chunk
-        dimension.loadedChunks[entity.position.toChunkPosition()]?.entities?.add(entity)
+        val chunk = dimension.loadedChunks[entity.position.toChunkPosition()] ?: return
+        chunk.entities.add(entity)
+
+        // spawn for all players in view distance
+        val javaSpawnPackets = entity.getSpawnJavaPackets()
+        dimension.getChunksInViewDistanceOfChunk(chunk.position).forEach { chunk ->
+            chunk.entities.filter { it is Player && it != entity }.forEach { player ->
+                player as Player
+                when (player.connection) {
+                    is JavaConnection -> javaSpawnPackets.forEach { (player.connection as JavaConnection).sendPacket(it) }
+                    is BedrockConnection -> NeedsBedrock()
+                }
+            }
+        }
     }
 
     @EventHandler

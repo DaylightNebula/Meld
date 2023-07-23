@@ -8,9 +8,9 @@ import org.cloudburstmc.math.vector.Vector3f
 import kotlin.random.Random
 
 class WorldModule: MeldModule {
-    val testEntities = true
-    val numTestEntitiesPerChunk = 16
-    val testEntitiesHeight = 33f
+    private val testEntities = false
+    private val numTestEntitiesPerChunk = 16
+    private val testEntitiesHeight = 33f
 
     override fun onEnable() {
         EventBus.register(WorldListener())
