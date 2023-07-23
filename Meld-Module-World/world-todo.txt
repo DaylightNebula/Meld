@@ -1,6 +1,6 @@
 [x] Automatic send new chunks to players on move
 [x] Automatic unload old chunks to players on move
-[ ] Automatic send update center packet when player moves between chunks
+[x] Automatic send update center packet when player moves between chunks
 [ ] Finish chunks
  - [ ] Fill blocks function
  - [ ] Clear blocks function
@@ -22,9 +22,9 @@
 - [ ] spawn and de-spawn block display entity when block is loaded and unloaded
 [ ] auto compile and populate lights
 - [ ] ???
-[ ] events
-- [ ] Chunk load for player event
-- [ ] Chunk unload for player event
+[x] events
+- [x] Chunk load for player event
+- [x] Chunk unload for player event
 [ ] load from java worlds if no normal format
 [ ] load from local storage on enable
 [ ] save to local storage on disable

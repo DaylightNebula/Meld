@@ -18,15 +18,6 @@ object World {
                 val y = index % 100
                 val chunk = chunk(x - 50, y - 50, Array(24) { idx -> Section(if (idx < 6) FlexiblePalette.filled(11) else FlexiblePalette.filled()) })
 
-                // add entities
-//                val entityPosition = Vector3f.from((x - 50) * 16f, 33f, (y - 50) * 16f)
-//                chunk.second.entities.add(
-//                    Entity(
-//                        type = EntityType.AXOLOTL,
-//                        startPosition = entityPosition
-//                    )
-//                )
-
                 // return chunk
                 chunk
             }.toTypedArray()

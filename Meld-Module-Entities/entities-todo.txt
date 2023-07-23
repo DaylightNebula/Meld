@@ -3,5 +3,5 @@
 - [x] entity move event
 - [x] entity rotate event
 - [x] entity velocity change event
-[ ] spawn on chunk load
-[ ] despawn on chunk unload
+[x] spawn on chunk load
+[x] despawn on chunk unload

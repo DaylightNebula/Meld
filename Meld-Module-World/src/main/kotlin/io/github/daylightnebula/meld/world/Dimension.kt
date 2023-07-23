@@ -37,7 +37,7 @@ class Dimension(
         when (val connection = player.connection) {
             is JavaConnection -> {
                 connection.sendPacket(JavaUnloadChunkPacket(chunk.position))
-                connection.sendPacket(JavaRemoveEntitiesPacket(chunk.entities.map { it.id }))
+                connection.sendPacket(JavaRemoveEntitiesPacket(chunk.entities.filter { it != player }.map { it.id }))
             }
             is BedrockConnection -> NeedsBedrock()
             else -> throw UnsupportedOperationException()
@@ -64,7 +64,8 @@ class Dimension(
         // spawn entities
         when(player.connection) {
             is JavaConnection -> chunk.entities.forEach { e -> e.getSpawnJavaPackets().forEach {
-                (player.connection as JavaConnection).sendPacket(it)
+                if (e != player)
+                    (player.connection as JavaConnection).sendPacket(it)
             }}
             is BedrockConnection -> NeedsBedrock()
         }

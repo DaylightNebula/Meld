@@ -104,15 +104,6 @@ open class Entity(
     open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
 }
 
-enum class EntityType(val mcID: Int, val identifier: String) {
-    ALLAY(0, "minecraft:allay"),
-    AREA_EFFECT_CLOUD(1, "minecraft:area_effect_cloud"),
-    ARMOR_STAND(2, "minecraft:armor_stand"),
-    ARROW(3, "minecraft:arrow"),
-    AXOLOTL(4, "minecraft:axolotl"),
-    PLAYER(122, "minecraft:player")
-}
-
 enum class EntityAnimation { SWING_ARM, TAKE_DAMAGE, LEAVE_BED, SWING_OFFHAND, CRITICAL_EFFECT, MAGICAL_CRITICAL_EFFECT }
 
 data class EntityMoveEvent(val entity: Entity, val oldPosition: Vector3f, val newPosition: Vector3f): Event

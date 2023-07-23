@@ -1,0 +1,752 @@
+{| class="wikitable"
+|-
+! Type
+! Name
+! bounding box x and z
+! bounding box y
+! ID
+|-
+| 0
+| Allay
+| 0.35
+| 0.6
+| <code>minecraft:allay</code>
+|-
+| 1
+| Area Effect Cloud
+| 2.0 * Radius
+| 0.5
+| <code>minecraft:area_effect_cloud</code>
+|-
+| 2
+| Armor Stand
+| normal: 0.5 marker: 0.0 small: 0.25
+| normal: 1.975 marker: 0.0 small: 0.9875
+| <code>minecraft:armor_stand</code>
+|-
+| 3
+| Arrow
+| 0.5
+| 0.5
+| <code>minecraft:arrow</code>
+|-
+| 4
+| Axolotl
+| 0.75
+| 0.42
+| <code>minecraft:axolotl</code>
+|-
+| 5
+| Bat
+| 0.5
+| 0.9
+| <code>minecraft:bat</code>
+|-
+| 6
+| Bee
+| 0.7
+| 0.6
+| <code>minecraft:bee</code>
+|-
+| 7
+| Blaze
+| 0.6
+| 1.8
+| <code>minecraft:blaze</code>
+|-
+| 8
+| Block Display
+| 0.0
+| 0.0
+| <code>minecraft:block_display</code>
+|-
+| 9
+| Boat
+| 1.375
+| 0.5625
+| <code>minecraft:boat</code>
+|-
+| 10
+| Camel
+| 1.7
+| 2.375
+| <code>minecraft:camel</code>
+|-
+| 11
+| Cat
+| 0.6
+| 0.7
+| <code>minecraft:cat</code>
+|-
+| 12
+| Cave Spider
+| 0.7
+| 0.5
+| <code>minecraft:cave_spider</code>
+|-
+| 13
+| Chest Boat
+| 1.375
+| 0.5625
+| <code>minecraft:chest_boat</code>
+|-
+| 14
+| Chest Minecart
+| 0.98
+| 0.7
+| <code>minecraft:chest_minecart</code>
+|-
+| 15
+| Chicken
+| 0.4
+| 0.7
+| <code>minecraft:chicken</code>
+|-
+| 16
+| Cod
+| 0.5
+| 0.3
+| <code>minecraft:cod</code>
+|-
+| 17
+| Command Block Minecart
+| 0.98
+| 0.7
+| <code>minecraft:command_block_minecart</code>
+|-
+| 18
+| Cow
+| 0.9
+| 1.4
+| <code>minecraft:cow</code>
+|-
+| 19
+| Creeper
+| 0.6
+| 1.7
+| <code>minecraft:creeper</code>
+|-
+| 20
+| Dolphin
+| 0.9
+| 0.6
+| <code>minecraft:dolphin</code>
+|-
+| 21
+| Donkey
+| 1.3964844
+| 1.5
+| <code>minecraft:donkey</code>
+|-
+| 22
+| Dragon Fireball
+| 1.0
+| 1.0
+| <code>minecraft:dragon_fireball</code>
+|-
+| 23
+| Drowned
+| 0.6
+| 1.95
+| <code>minecraft:drowned</code>
+|-
+| 24
+| Egg
+| 0.25
+| 0.25
+| <code>minecraft:egg</code>
+|-
+| 25
+| Elder Guardian
+| 1.9975 (2.35 * guardian)
+| 1.9975 (2.35 * guardian)
+| <code>minecraft:elder_guardian</code>
+|-
+| 26
+| End Crystal
+| 2.0
+| 2.0
+| <code>minecraft:end_crystal</code>
+|-
+| 27
+| Ender Dragon
+| 16.0
+| 8.0
+| <code>minecraft:ender_dragon</code>
+|-
+| 28
+| Ender Pearl
+| 0.25
+| 0.25
+| <code>minecraft:ender_pearl</code>
+|-
+| 29
+| Enderman
+| 0.6
+| 2.9
+| <code>minecraft:enderman</code>
+|-
+| 30
+| Endermite
+| 0.4
+| 0.3
+| <code>minecraft:endermite</code>
+|-
+| 31
+| Evoker
+| 0.6
+| 1.95
+| <code>minecraft:evoker</code>
+|-
+| 32
+| Evoker Fangs
+| 0.5
+| 0.8
+| <code>minecraft:evoker_fangs</code>
+|-
+| 33
+| Experience Bottle
+| 0.25
+| 0.25
+| <code>minecraft:experience_bottle</code>
+|- style="background: #aaaaff;"
+| 34
+| Experience Orb
+| 0.5
+| 0.5
+| <code>minecraft:experience_orb</code>
+|-
+| 35
+| Eye Of Ender
+| 0.25
+| 0.25
+| <code>minecraft:eye_of_ender</code>
+|-
+| 36
+| Falling Block
+| 0.98
+| 0.98
+| <code>minecraft:falling_block</code>
+|-
+| 37
+| Firework Rocket
+| 0.25
+| 0.25
+| <code>minecraft:firework_rocket</code>
+|-
+| 38
+| Fox
+| 0.6
+| 0.7
+| <code>minecraft:fox</code>
+|-
+| 39
+| Frog
+| 0.5
+| 0.5
+| <code>minecraft:frog</code>
+|-
+| 40
+| Furnace Minecart
+| 0.98
+| 0.7
+| <code>minecraft:furnace_minecart</code>
+|-
+| 41
+| Ghast
+| 4.0
+| 4.0
+| <code>minecraft:ghast</code>
+|-
+| 42
+| Giant
+| 3.6
+| 12.0
+| <code>minecraft:giant</code>
+|-
+| 43
+| Glow Item Frame
+| 0.75 or 0.0625 (depth)
+| 0.75
+| <code>minecraft:glow_item_frame</code>
+|-
+| 44
+| Glow Squid
+| 0.8
+| 0.8
+| <code>minecraft:glow_squid</code>
+|-
+| 45
+| Goat
+| 1.3
+| 0.9
+| <code>minecraft:goat</code>
+|-
+| 46
+| Guardian
+| 0.85
+| 0.85
+| <code>minecraft:guardian</code>
+|-
+| 47
+| Hoglin
+| 1.3964844
+| 1.4
+| <code>minecraft:hoglin</code>
+|-
+| 48
+| Hopper Minecart
+| 0.98
+| 0.7
+| <code>minecraft:hopper_minecart</code>
+|-
+| 49
+| Horse
+| 1.3964844
+| 1.6
+| <code>minecraft:horse</code>
+|-
+| 50
+| Husk
+| 0.6
+| 1.95
+| <code>minecraft:husk</code>
+|-
+| 51
+| Illusioner
+| 0.6
+| 1.95
+| <code>minecraft:illusioner</code>
+|-
+| 52
+| Interaction
+| 0.0
+| 0.0
+| <code>minecraft:interaction</code>
+|-
+| 53
+| Iron Golem
+| 1.4
+| 2.7
+| <code>minecraft:iron_golem</code>
+|-
+| 54
+| Item
+| 0.25
+| 0.25
+| <code>minecraft:item</code>
+|-
+| 55
+| Item Display
+| 0.0
+| 0.0
+| <code>minecraft:item_display</code>
+|-
+| 56
+| Item Frame
+| 0.75 or 0.0625 (depth)
+| 0.75
+| <code>minecraft:item_frame</code>
+|-
+| 57
+| Fireball
+| 1.0
+| 1.0
+| <code>minecraft:fireball</code>
+|-
+| 58
+| Leash Knot
+| 0.375
+| 0.5
+| <code>minecraft:leash_knot</code>
+|-
+| 59
+| Lightning Bolt
+| 0.0
+| 0.0
+| <code>minecraft:lightning_bolt</code>
+|-
+| 60
+| Llama
+| 0.9
+| 1.87
+| <code>minecraft:llama</code>
+|-
+| 61
+| Llama Spit
+| 0.25
+| 0.25
+| <code>minecraft:llama_spit</code>
+|-
+| 62
+| Magma Cube
+| 0.5202 * size
+| 0.5202 * size
+| <code>minecraft:magma_cube</code>
+|- style="background: #ffaaaa;"
+| 63
+| Marker
+| 0.0
+| 0.0
+| <code>minecraft:marker</code>
+|-
+| 64
+| Minecart
+| 0.98
+| 0.7
+| <code>minecraft:minecart</code>
+|-
+| 65
+| Mooshroom
+| 0.9
+| 1.4
+| <code>minecraft:mooshroom</code>
+|-
+| 66
+| Mule
+| 1.3964844
+| 1.6
+| <code>minecraft:mule</code>
+|-
+| 67
+| Ocelot
+| 0.6
+| 0.7
+| <code>minecraft:ocelot</code>
+|-
+| 68
+| Painting
+| type width or 0.0625 (depth)
+| type height
+| <code>minecraft:painting</code>
+|-
+| 69
+| Panda
+| 1.3
+| 1.25
+| <code>minecraft:panda</code>
+|-
+| 70
+| Parrot
+| 0.5
+| 0.9
+| <code>minecraft:parrot</code>
+|-
+| 71
+| Phantom
+| 0.9
+| 0.5
+| <code>minecraft:phantom</code>
+|-
+| 72
+| Pig
+| 0.9
+| 0.9
+| <code>minecraft:pig</code>
+|-
+| 73
+| Piglin
+| 0.6
+| 1.95
+| <code>minecraft:piglin</code>
+|-
+| 74
+| Piglin Brute
+| 0.6
+| 1.95
+| <code>minecraft:piglin_brute</code>
+|-
+| 75
+| Pillager
+| 0.6
+| 1.95
+| <code>minecraft:pillager</code>
+|-
+| 76
+| Polar Bear
+| 1.4
+| 1.4
+| <code>minecraft:polar_bear</code>
+|-
+| 77
+| Potion
+| 0.25
+| 0.25
+| <code>minecraft:potion</code>
+|-
+| 78
+| Pufferfish
+| 0.7
+| 0.7
+| <code>minecraft:pufferfish</code>
+|-
+| 79
+| Rabbit
+| 0.4
+| 0.5
+| <code>minecraft:rabbit</code>
+|-
+| 80
+| Ravager
+| 1.95
+| 2.2
+| <code>minecraft:ravager</code>
+|-
+| 81
+| Salmon
+| 0.7
+| 0.4
+| <code>minecraft:salmon</code>
+|-
+| 82
+| Sheep
+| 0.9
+| 1.3
+| <code>minecraft:sheep</code>
+|-
+| 83
+| Shulker
+| 1.0
+| 1.0-2.0 (depending on peek)
+| <code>minecraft:shulker</code>
+|-
+| 84
+| Shulker Bullet
+| 0.3125
+| 0.3125
+| <code>minecraft:shulker_bullet</code>
+|-
+| 85
+| Silverfish
+| 0.4
+| 0.3
+| <code>minecraft:silverfish</code>
+|-
+| 86
+| Skeleton
+| 0.6
+| 1.99
+| <code>minecraft:skeleton</code>
+|-
+| 87
+| Skeleton Horse
+| 1.3964844
+| 1.6
+| <code>minecraft:skeleton_horse</code>
+|-
+| 88
+| Slime
+| 0.5202 * size
+| 0.5202 * size
+| <code>minecraft:slime</code>
+|-
+| 89
+| Small Fireball
+| 0.3125
+| 0.3125
+| <code>minecraft:small_fireball</code>
+|-
+| 90
+| Sniffer
+| 1.9
+| 1.75
+| <code>minecraft:sniffer</code>
+|-
+| 91
+| Snow Golem
+| 0.7
+| 1.9
+| <code>minecraft:snow_golem</code>
+|-
+| 92
+| Snowball
+| 0.25
+| 0.25
+| <code>minecraft:snowball</code>
+|-
+| 93
+| Spawner Minecart
+| 0.98
+| 0.7
+| <code>minecraft:spawner_minecart</code>
+|-
+| 94
+| Spectral Arrow
+| 0.5
+| 0.5
+| <code>minecraft:spectral_arrow</code>
+|-
+| 95
+| Spider
+| 1.4
+| 0.9
+| <code>minecraft:spider</code>
+|-
+| 96
+| Squid
+| 0.8
+| 0.8
+| <code>minecraft:squid</code>
+|-
+| 97
+| Stray
+| 0.6
+| 1.99
+| <code>minecraft:stray</code>
+|-
+| 98
+| Strider
+| 0.9
+| 1.7
+| <code>minecraft:strider</code>
+|-
+| 99
+| Tadpole
+| 0.4
+| 0.3
+| <code>minecraft:tadpole</code>
+|-
+| 100
+| Text Display
+| 0.0
+| 0.0
+| <code>minecraft:text_display</code>
+|-
+| 101
+| Tnt
+| 0.98
+| 0.98
+| <code>minecraft:tnt</code>
+|-
+| 102
+| Tnt Minecart
+| 0.98
+| 0.7
+| <code>minecraft:tnt_minecart</code>
+|-
+| 103
+| Trader Llama
+| 0.9
+| 1.87
+| <code>minecraft:trader_llama</code>
+|-
+| 104
+| Trident
+| 0.5
+| 0.5
+| <code>minecraft:trident</code>
+|-
+| 105
+| Tropical Fish
+| 0.5
+| 0.4
+| <code>minecraft:tropical_fish</code>
+|-
+| 106
+| Turtle
+| 1.2
+| 0.4
+| <code>minecraft:turtle</code>
+|-
+| 107
+| Vex
+| 0.4
+| 0.8
+| <code>minecraft:vex</code>
+|-
+| 108
+| Villager
+| 0.6
+| 1.95
+| <code>minecraft:villager</code>
+|-
+| 109
+| Vindicator
+| 0.6
+| 1.95
+| <code>minecraft:vindicator</code>
+|-
+| 110
+| Wandering Trader
+| 0.6
+| 1.95
+| <code>minecraft:wandering_trader</code>
+|-
+| 111
+| Warden
+| 0.9
+| 2.9
+| <code>minecraft:warden</code>
+|-
+| 112
+| Witch
+| 0.6
+| 1.95
+| <code>minecraft:witch</code>
+|-
+| 113
+| Wither
+| 0.9
+| 3.5
+| <code>minecraft:wither</code>
+|-
+| 114
+| Wither Skeleton
+| 0.7
+| 2.4
+| <code>minecraft:wither_skeleton</code>
+|-
+| 115
+| Wither Skull
+| 0.3125
+| 0.3125
+| <code>minecraft:wither_skull</code>
+|-
+| 116
+| Wolf
+| 0.6
+| 0.85
+| <code>minecraft:wolf</code>
+|-
+| 117
+| Zoglin
+| 1.3964844
+| 1.4
+| <code>minecraft:zoglin</code>
+|-
+| 118
+| Zombie
+| 0.6
+| 1.95
+| <code>minecraft:zombie</code>
+|-
+| 119
+| Zombie Horse
+| 1.3964844
+| 1.6
+| <code>minecraft:zombie_horse</code>
+|-
+| 120
+| Zombie Villager
+| 0.6
+| 1.95
+| <code>minecraft:zombie_villager</code>
+|-
+| 121
+| Zombified Piglin
+| 0.6
+| 1.95
+| <code>minecraft:zombified_piglin</code>
+|- style="background: #aaaaff;"
+| 122
+| Player
+| 0.6
+| 1.8
+| <code>minecraft:player</code>
+|-
+| 123
+| Fishing Bobber
+| 0.25
+| 0.25
+| <code>minecraft:fishing_bobber</code>
+|}
