@@ -3,4 +3,5 @@
 [x] Teleport functionality (do entity teleport first)
 [ ] broadcast animations to nearby players
 [ ] set held item function that alerts nearby players
-[ ] spawn players with player info
+[x] spawn players with player info
+[ ] sync player rotation
