@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.world
 
+import io.github.daylightnebula.meld.entities.EntityDespawnEvent
 import io.github.daylightnebula.meld.entities.EntityMoveEvent
 import io.github.daylightnebula.meld.entities.EntitySpawnEvent
 import io.github.daylightnebula.meld.entities.packets.JavaRemoveEntitiesPacket
@@ -15,6 +16,7 @@ import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.world.chunks.Chunk
+import org.json.XMLTokener.entity
 
 class WorldListener: EventListener {
     @EventHandler
@@ -34,11 +36,37 @@ class WorldListener: EventListener {
             chunk.entities.filter { it is Player && it != entity }.forEach { player ->
                 player as Player
                 when (player.connection) {
-                    is JavaConnection -> javaSpawnPackets.forEach { (player.connection as JavaConnection).sendPacket(it) }
+                    is JavaConnection -> {
+                        javaSpawnPackets.forEach { (player.connection as JavaConnection).sendPacket(it) }
+                    }
                     is BedrockConnection -> NeedsBedrock()
                 }
             }
         }
+    }
+
+    @EventHandler
+    fun onEntityDespawn(event: EntityDespawnEvent) {
+        val entity = event.entity
+
+        // get dimension and chunk
+        val dimension = World.dimensions[entity.dimensionID] ?: return
+        val chunk = dimension.loadedChunks[entity.position.toChunkPosition()] ?: return
+
+        // despawn for all players in range
+        val javaRemovePacket = JavaRemoveEntitiesPacket(listOf(entity.id))
+        dimension.getChunksInViewDistanceOfChunk(chunk.position).forEach { chunk ->
+            chunk.entities.filter { it is Player && it != entity }.forEach { player ->
+                player as Player
+                when (player.connection) {
+                    is JavaConnection -> (player.connection as JavaConnection).sendPacket(javaRemovePacket)
+                    is BedrockConnection -> NeedsBedrock()
+                }
+            }
+        }
+
+        // remove from chunk
+        chunk.entities.remove(entity)
     }
 
     @EventHandler

@@ -30,6 +30,12 @@ import org.cloudburstmc.protocol.common.util.OptionalBoolean
 import java.util.*
 
 class PlayerListener: EventListener {
+    // on disconnect
+    @EventHandler
+    fun onConnectionAborted(event: ConnectionAbortedEvent) {
+        event.connection.player.despawn()
+    }
+
     // on login
     @EventHandler
     fun onLoginEvent(event: LoginEvent) {

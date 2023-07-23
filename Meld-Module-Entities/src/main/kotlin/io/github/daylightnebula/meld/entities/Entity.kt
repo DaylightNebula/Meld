@@ -102,6 +102,10 @@ open class Entity(
     }
 
     open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
+
+    open fun despawn() {
+        EventBus.callEvent(EntityDespawnEvent(this))
+    }
 }
 
 enum class EntityAnimation { SWING_ARM, TAKE_DAMAGE, LEAVE_BED, SWING_OFFHAND, CRITICAL_EFFECT, MAGICAL_CRITICAL_EFFECT }
@@ -110,3 +114,4 @@ data class EntityMoveEvent(val entity: Entity, val oldPosition: Vector3f, val ne
 data class EntityRotateEvent(val entity: Entity, val oldRotation: Vector2f, val newRotation: Vector2f): Event
 data class EntityVelocityChangeEvent(val entity: Entity, val oldVelocity: Vector3f, val velocity: Vector3f): Event
 data class EntitySpawnEvent(val entity: Entity): Event
+data class EntityDespawnEvent(val entity: Entity): Event
