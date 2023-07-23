@@ -25,6 +25,10 @@ open class Entity(
     var position = startPosition
         private set
 
+    init {
+        EventBus.callEvent(EntitySpawnEvent(this))
+    }
+
     open fun setPosition(newPosition: Vector3f) {
         // get change in position
         val change = newPosition.clone().sub(position)
@@ -114,3 +118,4 @@ enum class EntityAnimation { SWING_ARM, TAKE_DAMAGE, LEAVE_BED, SWING_OFFHAND, C
 data class EntityMoveEvent(val entity: Entity, val oldPosition: Vector3f, val newPosition: Vector3f): Event
 data class EntityRotateEvent(val entity: Entity, val oldRotation: Vector2f, val newRotation: Vector2f): Event
 data class EntityVelocityChangeEvent(val entity: Entity, val oldVelocity: Vector3f, val velocity: Vector3f): Event
+data class EntitySpawnEvent(val entity: Entity): Event

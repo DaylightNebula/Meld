@@ -19,14 +19,13 @@ object World {
                 val chunk = chunk(x - 50, y - 50, Array(24) { idx -> Section(if (idx < 6) FlexiblePalette.filled(11) else FlexiblePalette.filled()) })
 
                 // add entities
-                val epos = Vector3f.from((x - 50) * 16f, 33f, (y - 50) * 16f)
-                println("Entity position: $epos")
-                chunk.second.entities.add(
-                    Entity(
-                        type = EntityType.AXOLOTL,
-                        startPosition = epos
-                    )
-                )
+//                val entityPosition = Vector3f.from((x - 50) * 16f, 33f, (y - 50) * 16f)
+//                chunk.second.entities.add(
+//                    Entity(
+//                        type = EntityType.AXOLOTL,
+//                        startPosition = entityPosition
+//                    )
+//                )
 
                 // return chunk
                 chunk
@@ -34,7 +33,5 @@ object World {
         )
     )
 
-    fun init() {
-        dimensions.values.forEach { EventBus.register(it) }
-    }
+    fun init() {}
 }

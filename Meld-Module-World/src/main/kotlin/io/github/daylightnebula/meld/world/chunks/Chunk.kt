@@ -5,6 +5,8 @@ import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
+import io.github.daylightnebula.meld.server.extensions.inc16IfNegative
+import io.github.daylightnebula.meld.server.extensions.toSectionID
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.world.packets.JavaChunkPacket

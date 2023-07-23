@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.world
 
 import io.github.daylightnebula.meld.entities.EntityMoveEvent
+import io.github.daylightnebula.meld.entities.EntitySpawnEvent
 import io.github.daylightnebula.meld.entities.packets.JavaRemoveEntitiesPacket
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.events.Event
@@ -30,63 +31,9 @@ import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
 class Dimension(
     val id: String,
     val loadedChunks: HashMap<Vector2i, Chunk> = hashMapOf()
-): EventListener {
-    @EventHandler
-    fun onPlayerJoin(event: JoinEvent) {
-        // make sure in this world
-        if (event.player.dimensionID != id) return
-        println("Received load on join")
-        val player = event.player
-
-        // send all loaded chunk events
-        getChunksInViewDistance(player.position).forEach { loadChunkForPlayer(player, it) }
-
-        // send center chunk packet
-        centerPacket(player)
-    }
-
-    @EventHandler
-    fun onPlayerMove(event: PlayerMoveEvent) {
-        val connection = event.player.connection
-
-        // check if the players chunk has changed
-        val oldChunkPos = event.oldPosition.toChunkPosition()
-        val newChunkPos = event.position.toChunkPosition()
-        if (oldChunkPos == newChunkPos) return
-
-        // get chunks in view distance of old and new chunk positions
-        val oldChunks = getChunksInViewDistanceOfChunk(oldChunkPos)
-        val newChunks = getChunksInViewDistanceOfChunk(newChunkPos)
-
-        // get chunks to remove
-        val toRemove = (0 until oldChunks.size).filter { !newChunks.contains(oldChunks[it]) }
-        val toAdd = (0 until newChunks.size).filter { !oldChunks.contains(newChunks[it]) }
-
-        // remove old chunks
-        toRemove.forEach { unloadChunkForPlayer(event.player, oldChunks[it]) }
-
-        // spawn new chunks
-        toAdd.forEach { loadChunkForPlayer(event.player, newChunks[it]) }
-
-        // send center packet
-        centerPacket(event.player)
-    }
-
-    @EventHandler
-    fun onEntityMove(event: EntityMoveEvent) {
-        // check if there is a change in chunk position
-        val oldChunkPos = event.oldPosition.toChunkPosition()
-        val newChunkPos = event.newPosition.toChunkPosition()
-
-        // move entity to new chunk
-        loadedChunks[oldChunkPos]?.entities?.remove(event.entity)
-        loadedChunks[newChunkPos]?.entities?.add(event.entity)
-
-        // todo remove for players out of range
-    }
-
+) {
     // unload a chunk and its entities for the player
-    private fun unloadChunkForPlayer(player: Player, chunk: Chunk) =
+    internal fun unloadChunkForPlayer(player: Player, chunk: Chunk) =
         when (val connection = player.connection) {
             is JavaConnection -> {
                 connection.sendPacket(JavaUnloadChunkPacket(chunk.position))
@@ -96,7 +43,7 @@ class Dimension(
             else -> throw UnsupportedOperationException()
         }
 
-    private fun loadChunkForPlayer(player: Player, chunk: Chunk) {
+    internal fun loadChunkForPlayer(player: Player, chunk: Chunk) {
         // send packet based on connection type
         when (player.connection) {
             is JavaConnection -> (player.connection as JavaConnection).sendPacket(JavaChunkPacket(chunk))
@@ -126,7 +73,7 @@ class Dimension(
         EventBus.callEvent(PlayerLoadChunkEvent(player, chunk))
     }
 
-    private fun centerPacket(player: Player) {
+    internal fun centerPacket(player: Player) {
         // get center positions
         val chunkPosition = player.getChunkPosition()
 
@@ -148,6 +95,23 @@ class Dimension(
             }
         }
         return output
+    }
+
+    data class ChunkDiffs(val oldOnly: List<Chunk>, val newOnly: List<Chunk>)
+    fun getDiffChunks(oldChunkPos: Vector2i, newChunkPos: Vector2i): ChunkDiffs {
+        // skip if the same
+        if (oldChunkPos == newChunkPos) return ChunkDiffs(listOf(), listOf())
+
+        // get chunks in view distance of old and new chunk positions
+        val oldChunks = getChunksInViewDistanceOfChunk(oldChunkPos)
+        val newChunks = getChunksInViewDistanceOfChunk(newChunkPos)
+
+        // get chunks to remove
+        val toRemove = (0 until oldChunks.size).filter { !newChunks.contains(oldChunks[it]) }
+        val toAdd = (0 until newChunks.size).filter { !oldChunks.contains(newChunks[it]) }
+
+        // response
+        return ChunkDiffs(toRemove.map { oldChunks[it] }, toAdd.map { newChunks[it] })
     }
 }
 
