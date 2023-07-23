@@ -9,10 +9,12 @@ import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
 import io.github.daylightnebula.meld.entities.LivingEntity
 import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
+import io.github.daylightnebula.meld.player.packets.JavaSpawnPlayerPacket
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
+import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.protocol.bedrock.data.GameType
@@ -61,6 +63,10 @@ class Player(
             is BedrockConnection -> NeedsBedrock()
         }
     }
+
+    override fun getSpawnJavaPackets(): List<JavaPacket> = listOf(
+        JavaSpawnPlayerPacket(id, uid, position, rotation)
+    )
 }
 
 // events

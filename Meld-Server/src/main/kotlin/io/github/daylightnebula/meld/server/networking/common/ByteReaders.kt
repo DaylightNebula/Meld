@@ -76,7 +76,7 @@ class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
     override fun readArray(count: Int): ByteArray {
         return runBlocking {
             val array = ByteArray(count)
-            channel.readFully(array, 0, count)
+            try { channel.readFully(array, 0, count) } catch (_: Exception) {}
             array
         }
     }

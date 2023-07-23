@@ -80,17 +80,17 @@ class WorldListener: EventListener {
             dimension.getDiffChunks(event.oldPosition.toChunkPosition(), event.newPosition.toChunkPosition())
 
         // de-spawn for all players in old chunks and spawn for all players in new chunks
-        val javaDeSpawnPacket = JavaRemoveEntitiesPacket(listOf(entity.id))
-        val javaSpawnPacket = JavaSpawnEntityPacket(entity)
+        val javaDeSpawnPacket = listOf(JavaRemoveEntitiesPacket(listOf(entity.id)))
+        val javaSpawnPacket = entity.getSpawnJavaPackets()
         sendPacketsToAllPlayersInChunkList(entity as? Player, chunkDiffs.oldOnly, javaDeSpawnPacket)
         sendPacketsToAllPlayersInChunkList(entity as? Player, chunkDiffs.newOnly, javaSpawnPacket)
     }
 
-    private fun sendPacketsToAllPlayersInChunkList(bannedPlayer: Player?, chunks: List<Chunk>, javaPacket: JavaPacket, /*packet: BedrockPacket*/) {
+    private fun sendPacketsToAllPlayersInChunkList(bannedPlayer: Player?, chunks: List<Chunk>, javaPackets: List<JavaPacket>, /*packet: BedrockPacket*/) {
         chunks.forEach { chunk -> chunk.entities.filterIsInstance<Player>().filter { it != bannedPlayer }.forEach {
             it as Player
             when (it.connection) {
-                is JavaConnection -> (it.connection as JavaConnection).sendPacket(javaPacket)
+                is JavaConnection -> javaPackets.forEach { packet -> (it.connection as JavaConnection).sendPacket(packet) }
                 is BedrockConnection -> NeedsBedrock()
             }
         }}
