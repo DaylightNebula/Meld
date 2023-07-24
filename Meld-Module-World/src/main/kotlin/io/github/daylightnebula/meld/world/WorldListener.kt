@@ -28,17 +28,10 @@ class WorldListener: EventListener {
         val chunk = dimension.loadedChunks[entity.position.toChunkPosition()] ?: return
         chunk.entities.add(entity)
 
-        // spawn for all players in view distance
-        val javaSpawnPackets = entity.getSpawnJavaPackets()
+        // add all nearby players as watchers
         dimension.getChunksInViewDistanceOfChunk(chunk.position).forEach { chunk ->
-            chunk.entities.filter { it is Player && it != entity }.forEach { player ->
-                player as Player
-                when (player.connection) {
-                    is JavaConnection -> {
-                        javaSpawnPackets.forEach { (player.connection as JavaConnection).sendPacket(it) }
-                    }
-                    is BedrockConnection -> NeedsBedrock()
-                }
+            chunk.entities.filterIsInstance<Player>().forEach {
+                entity.addWatcher(it.connection)
             }
         }
     }
@@ -50,18 +43,6 @@ class WorldListener: EventListener {
         // get dimension and chunk
         val dimension = World.dimensions[entity.dimensionID] ?: return
         val chunk = dimension.loadedChunks[entity.position.toChunkPosition()] ?: return
-
-        // despawn for all players in range
-        val javaRemovePacket = JavaRemoveEntitiesPacket(listOf(entity.id))
-        dimension.getChunksInViewDistanceOfChunk(chunk.position).forEach { chunk ->
-            chunk.entities.filter { it is Player && it != entity }.forEach { player ->
-                player as Player
-                when (player.connection) {
-                    is JavaConnection -> (player.connection as JavaConnection).sendPacket(javaRemovePacket)
-                    is BedrockConnection -> NeedsBedrock()
-                }
-            }
-        }
 
         // remove from chunk
         chunk.entities.remove(entity)
@@ -118,20 +99,14 @@ class WorldListener: EventListener {
         val chunkDiffs =
             dimension.getDiffChunks(event.oldPosition.toChunkPosition(), event.newPosition.toChunkPosition())
 
-        // de-spawn for all players in old chunks and spawn for all players in new chunks
-        val javaDeSpawnPacket = listOf(JavaRemoveEntitiesPacket(listOf(entity.id)))
-        val javaSpawnPacket = entity.getSpawnJavaPackets()
-        sendPacketsToAllPlayersInChunkList(entity as? Player, chunkDiffs.oldOnly, javaDeSpawnPacket)
-        sendPacketsToAllPlayersInChunkList(entity as? Player, chunkDiffs.newOnly, javaSpawnPacket)
-    }
+        // remove all players in old chunks from watchers
+        chunkDiffs.oldOnly.forEach { chunk -> chunk.entities.filterIsInstance<Player>().forEach {
+            entity.removeWatcher(it.connection)
+        }}
 
-    private fun sendPacketsToAllPlayersInChunkList(bannedPlayer: Player?, chunks: List<Chunk>, javaPackets: List<JavaPacket>, /*packet: BedrockPacket*/) {
-        chunks.forEach { chunk -> chunk.entities.filterIsInstance<Player>().filter { it != bannedPlayer }.forEach {
-            it as Player
-            when (it.connection) {
-                is JavaConnection -> javaPackets.forEach { packet -> (it.connection as JavaConnection).sendPacket(packet) }
-                is BedrockConnection -> NeedsBedrock()
-            }
+        // add all players in new chunk to watchers
+        chunkDiffs.newOnly.forEach { chunk -> chunk.entities.filterIsInstance<Player>().forEach {
+            entity.addWatcher(it.connection)
         }}
     }
 }

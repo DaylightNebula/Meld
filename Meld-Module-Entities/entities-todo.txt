@@ -6,8 +6,8 @@
 [x] spawn on chunk load
 [x] despawn on chunk unload
 [ ] move to watchers system
-- [ ] only send updates to watchers
-- [ ] on add, spawn entity
-- [ ] on remove, despawn entity
-- [ ] have world system update watchers automatically
-[ ] make entity changes reflect watchers
+- [x] only send updates to watchers
+- [x] on add, spawn entity
+- [x] on remove, despawn entity
+- [x] have world system update watchers automatically
+[x] make entity changes reflect watchers

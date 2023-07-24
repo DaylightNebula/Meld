@@ -6,6 +6,7 @@ import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
+import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import org.cloudburstmc.math.vector.Vector2f
@@ -23,20 +24,20 @@ open class Entity(
     startVelocity: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
     startRotation: Vector2f = Vector2f.ZERO
 ) {
-    var position = startPosition
-        private set
 
     init {
         thread { sleep(1); EventBus.callEvent(EntitySpawnEvent(this)) }
     }
 
+    // position of the entity
+    var position = startPosition
+        private set
     open fun setPosition(newPosition: Vector3f) {
-//        println("Entity $this moved to $newPosition")
         // get change in position
         val change = newPosition.clone().sub(position)
 
         // send packets
-        broadcastPositionUpdatesTo().forEach { connection ->
+        watchers.forEach { connection ->
             when(connection) {
                 is JavaConnection -> {
                     // send packet based on if change is greater than 8 blocks, teleport if greater than 8, otherwise just update position
@@ -61,15 +62,13 @@ open class Entity(
         position = newPosition
     }
 
-    open fun broadcastPositionUpdatesTo() = Meld.connections.toList()
-
+    // velocity of the entity
     var velocity = startVelocity
         private set
-
     open fun setVelocity(velocity: Vector3f) {
         // broadcast changes
         val javaPacket = JavaSetEntityVelocityPacket(id, velocity)
-        broadcastPositionUpdatesTo().forEach { connection ->
+        watchers.forEach { connection ->
             when (connection) {
                 is JavaConnection -> {
                     connection.sendPacket(javaPacket)
@@ -85,16 +84,16 @@ open class Entity(
         this.velocity = velocity
     }
 
+    // rotation of the entity
     var rotation = startRotation
         private set
-
     open fun setRotation(rotation: Vector2f) {
         // broadcast changes
         val javaPackets = listOf(
             JavaUpdateHeadYawPacket(id, rotation.x),
             JavaUpdateEntityRotationPacket(id, rotation, true)
         )
-        broadcastPositionUpdatesTo().forEach { connection ->
+        watchers.forEach { connection ->
             when(connection) {
                 is JavaConnection -> for (packet in javaPackets) connection.sendPacket(packet)
                 is BedrockConnection -> NeedsBedrock()
@@ -108,10 +107,49 @@ open class Entity(
         this.rotation = rotation
     }
 
-    open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
+    // watchers (those who receive updates about this entity)
+    private val watchers = mutableListOf<IConnection<*>>()
 
+    fun getWatchers(): List<IConnection<*>> = watchers
+
+    fun addWatcher(conn: IConnection<*>) {
+        // if connection does not pass filter, cancel
+        if (!watcherFilter(conn)) return
+
+        // add the watcher
+        watchers.add(conn)
+
+        // spawn the entity
+        val javaPackets = getSpawnJavaPackets()
+        when(conn) {
+            is JavaConnection -> for (packet in javaPackets) conn.sendPacket(packet)
+            is BedrockConnection -> NeedsBedrock()
+        }
+    }
+
+    fun removeWatcher(conn: IConnection<*>) {
+        // remove watcher
+        watchers.remove(conn)
+
+        // send despawn packet
+        val javaPacket = JavaRemoveEntitiesPacket(listOf(id))
+        when(conn) {
+            is JavaConnection -> conn.sendPacket(javaPacket)
+            is BedrockConnection -> NeedsBedrock()
+        }
+    }
+
+    // overridable functions for spawn packets and a watcher filter
+    open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
+    open var watcherFilter: (connection: IConnection<*>) -> Boolean = { true }
+
+    // function to despawn an entity
     open fun despawn() {
+        // despawn event
         EventBus.callEvent(EntityDespawnEvent(this))
+
+        // remove all watchers
+        watchers.forEach { removeWatcher(it) }
     }
 }
 

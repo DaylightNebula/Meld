@@ -54,7 +54,7 @@ class Player(
         private set
 
     // do not broadcast changes to self
-    override fun broadcastPositionUpdatesTo() = Meld.connections.filter { it != connection }
+    override var watcherFilter: (connection: IConnection<*>) -> Boolean = { other -> other != connection }
 
     // teleports the player to the given position and rotation
     fun teleport(position: Vector3f = this.position, rotation: Vector2f = this.rotation) {

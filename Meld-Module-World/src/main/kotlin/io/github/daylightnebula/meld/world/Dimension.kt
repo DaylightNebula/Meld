@@ -26,15 +26,20 @@ class Dimension(
     val loadedChunks: HashMap<Vector2i, Chunk> = hashMapOf()
 ) {
     // unload a chunk and its entities for the player
-    internal fun unloadChunkForPlayer(player: Player, chunk: Chunk) =
-        when (val connection = player.connection) {
+    internal fun unloadChunkForPlayer(player: Player, chunk: Chunk) {
+        val connection = player.connection
+
+        // unload chunk
+        when (connection) {
             is JavaConnection -> {
                 connection.sendPacket(JavaUnloadChunkPacket(chunk.position))
-                connection.sendPacket(JavaRemoveEntitiesPacket(chunk.entities.filter { it != player }.map { it.id }))
             }
             is BedrockConnection -> NeedsBedrock()
-            else -> throw UnsupportedOperationException()
         }
+
+        // remove player as watcher of all entities
+        chunk.entities.forEach { e -> e.removeWatcher(player.connection) }
+    }
 
     internal fun loadChunkForPlayer(player: Player, chunk: Chunk) {
         // send packet based on connection type
@@ -55,13 +60,7 @@ class Dimension(
         }
 
         // spawn entities
-        when(player.connection) {
-            is JavaConnection -> chunk.entities.forEach { e -> e.getSpawnJavaPackets().forEach {
-                if (e != player)
-                    (player.connection as JavaConnection).sendPacket(it)
-            }}
-            is BedrockConnection -> NeedsBedrock()
-        }
+        chunk.entities.forEach { e -> e.addWatcher(player.connection) }
 
         // broadcast sent chunk event
         EventBus.callEvent(PlayerLoadChunkEvent(player, chunk))
