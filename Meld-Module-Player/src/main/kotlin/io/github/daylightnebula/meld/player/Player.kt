@@ -3,7 +3,6 @@ package io.github.daylightnebula.meld.player
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
 import io.github.daylightnebula.meld.entities.EntityController
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
@@ -20,9 +19,7 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.protocol.bedrock.data.GameType
-import java.lang.Thread.sleep
 import java.util.*
-import kotlin.concurrent.thread
 
 // TODO declare recipes packet + crafting data packet
 // TODO tags packet (may need more integration)
@@ -37,7 +34,10 @@ class Player(
     velocity: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
     rotation: Vector2f = Vector2f.from(0.0, 0.0),
     startHeadYaw: Float = 0f,
-    health: Health = Health(20.0)
+    health: Health = Health(20.0),
+    val infoActions: MutableList<PlayerInfoAction> = mutableListOf(
+        PlayerInfoAction.AddPlayer("player")
+    )
 ): LivingEntity(
     uid, id, EntityType.SKELETON, dimensionID, position, velocity, rotation, startHeadYaw, health
 ) {
@@ -66,10 +66,10 @@ class Player(
         }
     }
 
-//    override fun getSpawnJavaPackets(): List<JavaPacket> = listOf(
-//        JavaPlayerInfoUpdatePacket(uid, listOf(PlayerInfoAction.AddPlayer("player"))),
-//        JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO)
-//    )
+    override fun getSpawnJavaPackets(): List<JavaPacket> = listOf(
+        JavaPlayerInfoUpdatePacket(uid, infoActions),
+        JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO)
+    )
 }
 
 // events

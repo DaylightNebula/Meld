@@ -4,7 +4,9 @@
 [ ] broadcast animations to nearby players
 [ ] set held item function that alerts nearby players
 [x] spawn players with player info
-[ ] sync player rotation
-[ ] make not skeletons
-[ ] make info actions easy to edit
-[ ] fix head yaw
+[x] sync player rotation
+[x] make not skeletons
+[x] make info actions easy to edit
+[x] fix head yaw
+[x] fix erroneous random connection aborted
+[x] fix player names being incorrect

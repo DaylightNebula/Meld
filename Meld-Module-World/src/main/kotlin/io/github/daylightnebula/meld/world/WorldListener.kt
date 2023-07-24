@@ -4,7 +4,6 @@ import io.github.daylightnebula.meld.entities.EntityDespawnEvent
 import io.github.daylightnebula.meld.entities.EntityMoveEvent
 import io.github.daylightnebula.meld.entities.EntitySpawnEvent
 import io.github.daylightnebula.meld.entities.packets.JavaRemoveEntitiesPacket
-import io.github.daylightnebula.meld.entities.packets.JavaSpawnEntityPacket
 import io.github.daylightnebula.meld.player.JoinEvent
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.PlayerMoveEvent
@@ -16,7 +15,6 @@ import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.world.chunks.Chunk
-import org.json.XMLTokener.entity
 
 class WorldListener: EventListener {
     @EventHandler

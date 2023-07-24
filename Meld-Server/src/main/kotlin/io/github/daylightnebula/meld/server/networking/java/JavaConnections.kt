@@ -8,6 +8,7 @@ import io.github.daylightnebula.meld.server.networking.common.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
+import java.io.IOException
 
 class JavaConnection(
     val socket: Socket,
@@ -31,7 +32,7 @@ class JavaConnection(
             // if write fails, the connection is aborted
             try {
                 write.writeFully(bytes, 0, bytes.size)
-            } catch (ex: Exception) {
+            } catch (ex: IOException) {
                 if (state == JavaConnectionState.IN_GAME) println("Connection $me aborted")
                 EventBus.callEvent(ConnectionAbortedEvent(me))
                 Meld.connections.remove(me as IConnection<*>)
