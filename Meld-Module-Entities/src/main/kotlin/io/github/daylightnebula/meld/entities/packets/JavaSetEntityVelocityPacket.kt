@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.entities.packets
 
+import io.github.daylightnebula.meld.server.extensions.toVelocityStep
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket

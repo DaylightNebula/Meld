@@ -5,3 +5,6 @@
 [ ] set held item function that alerts nearby players
 [x] spawn players with player info
 [ ] sync player rotation
+[ ] make not skeletons
+[ ] make info actions easy to edit
+[ ] fix head yaw

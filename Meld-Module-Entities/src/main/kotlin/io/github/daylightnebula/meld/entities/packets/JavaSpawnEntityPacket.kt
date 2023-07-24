@@ -2,6 +2,8 @@ package io.github.daylightnebula.meld.entities.packets
 
 import io.github.daylightnebula.meld.entities.Entity
 import io.github.daylightnebula.meld.entities.LivingEntity
+import io.github.daylightnebula.meld.server.extensions.toAngleByte
+import io.github.daylightnebula.meld.server.extensions.toVelocityStep
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -45,6 +47,3 @@ class JavaSpawnEntityPacket(
         writer.writeShort(velocity.z.toVelocityStep())
     }
 }
-
-fun Float.toAngleByte(): Byte = ((this.coerceIn(-180f, 180f) / 180f) * 256f).toInt().toByte()
-fun Float.toVelocityStep(): Short = (this * 8000f).toInt().toShort()

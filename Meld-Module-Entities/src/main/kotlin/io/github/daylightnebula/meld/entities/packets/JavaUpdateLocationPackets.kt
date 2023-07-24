@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.entities.packets
 
+import io.github.daylightnebula.meld.server.extensions.toAngleByte
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -54,5 +55,17 @@ data class JavaUpdateEntityRotationPacket(
         writer.writeByte(rotation.x.toAngleByte())
         writer.writeByte(rotation.y.toAngleByte())
         writer.writeBoolean(onGround)
+    }
+}
+
+data class JavaUpdateHeadYawPacket(
+    var entityID: Int = 0,
+    var yaw: Float = 0f
+): JavaPacket {
+    override val id: Int = 0x42
+    override fun decode(reader: AbstractReader) = noDecode()
+    override fun encode(writer: ByteWriter) {
+        writer.writeVarInt(entityID)
+        writer.writeByte(yaw.toAngleByte())
     }
 }

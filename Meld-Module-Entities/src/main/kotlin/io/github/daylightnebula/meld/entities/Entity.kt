@@ -91,12 +91,13 @@ open class Entity(
 
     open fun setRotation(rotation: Vector2f) {
         // broadcast changes
-        val javaPacket = JavaUpdateEntityRotationPacket(id, rotation, true)
+        val javaPackets = listOf(
+            JavaUpdateHeadYawPacket(id, rotation.x),
+            JavaUpdateEntityRotationPacket(id, rotation, true)
+        )
         broadcastPositionUpdatesTo().forEach { connection ->
             when(connection) {
-                is JavaConnection -> {
-                    connection.sendPacket(javaPacket)
-                }
+                is JavaConnection -> for (packet in javaPackets) connection.sendPacket(packet)
                 is BedrockConnection -> NeedsBedrock()
             }
         }
