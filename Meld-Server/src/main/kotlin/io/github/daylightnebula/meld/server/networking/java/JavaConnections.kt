@@ -9,6 +9,7 @@ import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
+import java.lang.IllegalStateException
 
 class JavaConnection(
     val socket: Socket,
@@ -36,7 +37,7 @@ class JavaConnection(
                 if (state == JavaConnectionState.IN_GAME) println("Connection $me aborted")
                 EventBus.callEvent(ConnectionAbortedEvent(me))
                 Meld.connections.remove(me as IConnection<*>)
-            }
+            } catch (ex: IllegalStateException) {} // FIXME
         }
     }
 
