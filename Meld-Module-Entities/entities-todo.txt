@@ -5,7 +5,7 @@
 - [x] entity velocity change event
 [x] spawn on chunk load
 [x] despawn on chunk unload
-[ ] move to watchers system
+[x] move to watchers system
 - [x] only send updates to watchers
 - [x] on add, spawn entity
 - [x] on remove, despawn entity
