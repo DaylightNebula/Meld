@@ -33,7 +33,9 @@ class PlayerListener: EventListener {
     // on disconnect
     @EventHandler
     fun onConnectionAborted(event: ConnectionAbortedEvent) {
-        event.connection.player.despawn()
+        try {
+            event.connection.player.despawn()
+        } catch (_: Exception) {}
     }
 
     // on login

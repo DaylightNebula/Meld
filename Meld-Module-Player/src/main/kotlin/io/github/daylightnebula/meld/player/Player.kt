@@ -39,7 +39,7 @@ class Player(
     startHeadYaw: Float = 0f,
     health: Health = Health(20.0)
 ): LivingEntity(
-    uid, id, EntityType.PLAYER, dimensionID, position, velocity, rotation, startHeadYaw, health
+    uid, id, EntityType.SKELETON, dimensionID, position, velocity, rotation, startHeadYaw, health
 ) {
     // marks if the player has been sent their join packets
     var joinSent = false
@@ -66,10 +66,10 @@ class Player(
         }
     }
 
-    override fun getSpawnJavaPackets(): List<JavaPacket> = listOf(
-        JavaPlayerInfoUpdatePacket(uid, listOf(PlayerInfoAction.AddPlayer("player"))),
-        JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO)
-    )
+//    override fun getSpawnJavaPackets(): List<JavaPacket> = listOf(
+//        JavaPlayerInfoUpdatePacket(uid, listOf(PlayerInfoAction.AddPlayer("player"))),
+//        JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO)
+//    )
 }
 
 // events
