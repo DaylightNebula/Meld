@@ -2,7 +2,6 @@
 - [x] If any above event is cancelled, synchronize to old position and rotation
 [x] Teleport functionality (do entity teleport first)
 [x] broadcast animations to nearby players
-[ ] player sneaking
 [x] spawn players with player info
 [x] sync player rotation
 [x] make not skeletons

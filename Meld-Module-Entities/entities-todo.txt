@@ -11,3 +11,6 @@
 - [x] on remove, despawn entity
 - [x] have world system update watchers automatically
 [x] make entity changes reflect watchers
+[ ] entity metadata (as objects that can be abstracted or interfaced)
+[ ] add functions for changing metadata easily (auto broadcast changes)
+[ ] have players bundle update metadata for sneaking and such
