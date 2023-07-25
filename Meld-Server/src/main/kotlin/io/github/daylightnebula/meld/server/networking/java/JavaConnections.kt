@@ -37,7 +37,7 @@ class JavaConnection(
                 if (state == JavaConnectionState.IN_GAME) println("Connection $me aborted")
                 EventBus.callEvent(ConnectionAbortedEvent(me))
                 Meld.connections.remove(me as IConnection<*>)
-            } catch (ex: IllegalStateException) {} // FIXME
+            } catch (ex: IllegalStateException) { println("Fix parallel write issues!") } // FIXME
         }
     }
 
@@ -46,8 +46,10 @@ class JavaConnection(
     }
 }
 
+// the connection state of a java connection
 enum class JavaConnectionState { HANDSHAKE, STATUS, LOGIN, IN_GAME }
 
+// representation of a java packet that can be sent too and from users
 interface JavaPacket {
     val id: Int
     fun decode(reader: AbstractReader)

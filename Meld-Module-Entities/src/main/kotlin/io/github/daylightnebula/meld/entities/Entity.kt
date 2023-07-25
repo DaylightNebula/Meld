@@ -3,6 +3,7 @@ package io.github.daylightnebula.meld.entities
 import io.github.daylightnebula.meld.entities.packets.*
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.NeedsBedrock
+import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
@@ -143,6 +144,24 @@ open class Entity(
     open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
     open var watcherFilter: (connection: IConnection<*>) -> Boolean = { true }
 
+    // handle animations
+    fun playAnimation(animation: EntityAnimation) {
+        // send out animation event
+        val event = EntityPlayAnimationEvent(this, animation)
+        EventBus.callEvent(event)
+
+        // stop here if event cancelled
+        if (event.cancelled) return
+
+        // broadcast animation to all players
+        val javaPacket = JavaEntityAnimationPacket(id, animation)
+        getWatchers().forEach { watcher ->
+            when(watcher) {
+                is JavaConnection -> watcher.sendPacket(javaPacket)
+            }
+        }
+    }
+
     // function to despawn an entity
     open fun despawn() {
         // despawn event
@@ -160,3 +179,4 @@ data class EntityRotateEvent(val entity: Entity, val oldRotation: Vector2f, val 
 data class EntityVelocityChangeEvent(val entity: Entity, val oldVelocity: Vector3f, val velocity: Vector3f): Event
 data class EntitySpawnEvent(val entity: Entity): Event
 data class EntityDespawnEvent(val entity: Entity): Event
+data class EntityPlayAnimationEvent(val entity: Entity, var animation: EntityAnimation, override var cancelled: Boolean = false): CancellableEvent

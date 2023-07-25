@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.player
 
 import io.github.daylightnebula.meld.entities.EntityAnimation
+import io.github.daylightnebula.meld.entities.packets.JavaEntityAnimationPacket
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
@@ -9,8 +10,10 @@ import io.github.daylightnebula.meld.player.packets.join.JavaClientInfoPacket
 import io.github.daylightnebula.meld.player.packets.join.JavaPluginMessagePacket
 import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.*
+import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.javaGamePacket
 import io.github.daylightnebula.meld.server.javaPackets
+import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import org.cloudburstmc.math.vector.Vector3i
@@ -169,7 +172,7 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
         JavaSwingArmPacket::class.java.name to { connection, packet ->
             packet as JavaSwingArmPacket
-            EventBus.callEvent(PlayerAnimationEvent(connection.player, EntityAnimation.SWING_ARM))
+            connection.player.playAnimation(EntityAnimation.SWING_ARM)
         },
 
         JavaEntityInteractPacket::class.java.name to { connection, packet ->
@@ -197,4 +200,4 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
 data class PlayerActionEvent(val player: Player, val action: PlayerCommandAction, val entityID: Int, val jumpBoost: Int): Event
 data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Vector3i, val face: BlockFace): Event
-data class PlayerAnimationEvent(val player: Player, val animation: EntityAnimation): Event
+data class PlayerAnimationEvent(val player: Player, val animation: EntityAnimation, override var cancelled: Boolean = false): CancellableEvent
