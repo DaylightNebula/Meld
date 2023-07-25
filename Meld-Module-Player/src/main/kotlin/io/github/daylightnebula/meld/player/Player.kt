@@ -27,14 +27,11 @@ import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.protocol.bedrock.data.GameType
 import java.util.*
 
-// TODO declare recipes packet + crafting data packet
-// TODO tags packet (may need more integration)
-// TODO update view distance packets
-// TODO simulation distance packets
 class Player(
     val connection: IConnection<*>,
     uid: UUID,
     id: Int = EntityController.nextID(),
+    entityType: EntityType = EntityType.PLAYER,
     metadata: EntityMetadata = entityMetadata(),
     dimensionID: String = "overworld",
     position: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
@@ -44,7 +41,7 @@ class Player(
     health: Health = Health(20.0),
     val infoActions: MutableList<PlayerInfoAction> = mutableListOf(PlayerInfoAction.AddPlayer("player"))
 ): LivingEntity(
-    uid, id, EntityType.PLAYER, metadata, dimensionID, position, velocity, rotation, startHeadYaw, health
+    uid, id, entityType, metadata, dimensionID, position, velocity, rotation, startHeadYaw, health
 ) {
     // marks if the player has been sent their join packets
     var joinSent = false
@@ -77,11 +74,15 @@ class Player(
         }
     }
 
-    override fun getSpawnJavaPackets(): List<JavaPacket> = listOf(
-        JavaPlayerInfoUpdatePacket(uid, infoActions),
-        JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO),
-        JavaEntityMetadataPacket(id, metadata)
-    )
+    // use player spawn packets only if type is set too player
+    override fun getSpawnJavaPackets(): List<JavaPacket> =
+        if (type == EntityType.PLAYER)
+            listOf(
+                JavaPlayerInfoUpdatePacket(uid, infoActions),
+                JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO),
+                JavaEntityMetadataPacket(id, metadata)
+            )
+        else super.getSpawnJavaPackets()
 }
 
 // events
