@@ -13,72 +13,73 @@ import java.util.*
 
 // all metadata objects listed in https://wiki.vg/Entity_metadata#Entity_Metadata_Format
 
-fun metaByte(index: Int, value: Byte) = metaObject(index, 0) { it.writeByte(value) }
-fun metaVarInt(index: Int, value: Int) = metaObject(index, 1) { it.writeVarInt(value) }
-fun metaVarLong(index: Int, value: Long) = metaObject(index, 2) { it.writeVarLong(value) }
-fun metaFloat(index: Int, value: Float) = metaObject(index, 3) { it.writeFloat(value) }
-fun metaString(index: Int, value: String) = metaObject(index, 4) { it.writeString(value) }
-fun metaChat(index: Int, value: JSONObject) = metaObject(index, 5) { it.writeString(value.toString(0)) }
-fun metaOptChat(index: Int, value: JSONObject?) = metaObject(index, 6) {
+fun metaByte(index: Int, value: Byte) = metaObject<Byte>(index, 0, value) { it.writeByte(value) }
+fun metaVarInt(index: Int, value: Int) = metaObject<Int>(index, 1, value) { it.writeVarInt(value) }
+fun metaVarLong(index: Int, value: Long) = metaObject<Long>(index, 2, value) { it.writeVarLong(value) }
+fun metaFloat(index: Int, value: Float) = metaObject<Float>(index, 3, value) { it.writeFloat(value) }
+fun metaString(index: Int, value: String) = metaObject<String>(index, 4, value) { it.writeString(value) }
+fun metaChat(index: Int, value: JSONObject) = metaObject<JSONObject>(index, 5, value) { it.writeString(value.toString(0)) }
+fun metaOptChat(index: Int, value: JSONObject?) = metaObject<JSONObject?>(index, 6, value) {
     it.writeBoolean(value != null)
     if (value != null) it.writeString(value.toString(0))
 }
 // TODO fun metaSlot
-fun metaBoolean(index: Int, value: Boolean) = metaObject(index, 8) { it.writeBoolean(value) }
-fun metaRotation(index: Int, value: Vector3f) = metaObject(index, 9) {
+fun metaBoolean(index: Int, value: Boolean) = metaObject<Boolean>(index, 8, value) { it.writeBoolean(value) }
+fun metaRotation(index: Int, value: Vector3f) = metaObject<Vector3f>(index, 9, value) {
     it.writeFloat(value.x)
     it.writeFloat(value.y)
     it.writeFloat(value.z)
 }
-fun metaBlockPosition(index: Int, value: Vector3i) = metaObject(index, 10) { it.writeBlockPosition(value) }
-fun metaOptBlockPosition(index: Int, value: Vector3i?) = metaObject(index, 11) {
+fun metaBlockPosition(index: Int, value: Vector3i) = metaObject<Vector3i>(index, 10, value) { it.writeBlockPosition(value) }
+fun metaOptBlockPosition(index: Int, value: Vector3i?) = metaObject<Vector3i?>(index, 11, value) {
     it.writeBoolean(value != null)
     if (value != null) it.writeBlockPosition(value)
 }
-fun metaDirection(index: Int, direction: Direction) = metaObject(index, 12) { it.writeVarInt(direction.ordinal) }
-fun metaOptUUID(index: Int, value: UUID?) = metaObject(index, 13) {
+fun metaDirection(index: Int, direction: Direction) = metaObject<Direction>(index, 12, direction) { it.writeVarInt(direction.ordinal) }
+fun metaOptUUID(index: Int, value: UUID?) = metaObject<UUID?>(index, 13, value) {
     it.writeBoolean(value != null)
     if (value != null) {
         it.writeLong(value.mostSignificantBits)
         it.writeLong(value.leastSignificantBits)
     }
 }
-fun metaBlockID(index: Int, blockID: Int) = metaObject(index, 14) { it.writeVarInt(blockID) }
-fun metaOptBlockID(index: Int, blockID: Int?) = metaObject(index, 15) {
+fun metaBlockID(index: Int, blockID: Int) = metaObject<Int>(index, 14, blockID) { it.writeVarInt(blockID) }
+fun metaOptBlockID(index: Int, blockID: Int?) = metaObject<Int?>(index, 15, blockID) {
     it.writeBoolean(blockID != null)
     if (blockID != null) it.writeVarInt(blockID)
 }
-fun metaNBT(index: Int, value: NBTCompound) = metaObject(index, 16) { it.writeNBT(value) }
+fun metaNBT(index: Int, value: NBTCompound) = metaObject<NBTCompound>(index, 16, value) { it.writeNBT(value) }
 // TODO fun metaParticle
-fun metaVillagerData(index: Int, type: Int, profession: Int, level: Int) = metaObject(index, 18) {
-    it.writeVarInt(type)
-    it.writeVarInt(profession)
-    it.writeVarInt(level)
+data class VillagerData(val type: Int, val profession: Int, val level: Int)
+fun metaVillagerData(index: Int, data: VillagerData) = metaObject<VillagerData>(index, 18, data) {
+    it.writeVarInt(data.type)
+    it.writeVarInt(data.profession)
+    it.writeVarInt(data.level)
 }
-fun metaOptVarInt(index: Int, value: Int?) = metaObject(index, 19) {
+fun metaOptVarInt(index: Int, value: Int?) = metaObject<Int?>(index, 19, value) {
     it.writeBoolean(value != null)
     if (value != null) it.writeVarInt(value)
 }
-fun metaPose(index: Int, value: Pose) = metaObject(index, 20) {
+fun metaPose(index: Int, value: Pose) = metaObject<Pose>(index, 20, value) {
     it.writeVarInt(value.ordinal)
 }
-fun metaCatVariant(index: Int, variant: Int) = metaObject(index, 21) { it.writeVarInt(variant) }
-fun metaFrogVariant(index: Int, variant: Int) = metaObject(index, 22) { it.writeVarInt(variant) }
-fun metaOptGlobalPosition(index: Int, position: GlobalPosition?) = metaObject(index, 23) {
+fun metaCatVariant(index: Int, variant: Int) = metaObject<Int>(index, 21, variant) { it.writeVarInt(variant) }
+fun metaFrogVariant(index: Int, variant: Int) = metaObject<Int>(index, 22, variant) { it.writeVarInt(variant) }
+fun metaOptGlobalPosition(index: Int, position: GlobalPosition?) = metaObject<GlobalPosition?>(index, 23, position) {
     it.writeBoolean(position != null)
     if (position != null) {
         it.writeString(position.dimension)
         it.writeBlockPosition(position.position)
     }
 }
-fun metaPaintingVariant(index: Int, variant: Int) = metaObject(index, 24) { it.writeVarInt(variant) }
-fun metaSnifferState(index: Int, state: SnifferState) = metaObject(index, 25) { it.writeVarInt(state.ordinal) }
-fun metaVec3(index: Int, value: Vector3f) = metaObject(index, 26) {
+fun metaPaintingVariant(index: Int, variant: Int) = metaObject<Int>(index, 24, variant) { it.writeVarInt(variant) }
+fun metaSnifferState(index: Int, state: SnifferState) = metaObject<SnifferState>(index, 25, state) { it.writeVarInt(state.ordinal) }
+fun metaVec3(index: Int, value: Vector3f) = metaObject<Vector3f>(index, 26, value) {
     it.writeFloat(value.x)
     it.writeFloat(value.y)
     it.writeFloat(value.z)
 }
-fun metaVec4(index: Int, value: Vector4f) = metaObject(index, 27) {
+fun metaVec4(index: Int, value: Vector4f) = metaObject<Vector4f>(index, 27, value) {
     it.writeFloat(value.x)
     it.writeFloat(value.y)
     it.writeFloat(value.z)

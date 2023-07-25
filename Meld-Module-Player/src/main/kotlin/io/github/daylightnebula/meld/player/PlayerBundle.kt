@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.player
 
 import io.github.daylightnebula.meld.entities.EntityAnimation
+import io.github.daylightnebula.meld.entities.metadata.metaPose
 import io.github.daylightnebula.meld.entities.packets.JavaEntityAnimationPacket
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
@@ -16,6 +17,7 @@ import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
 import io.github.daylightnebula.meld.server.utils.BlockFace
+import io.github.daylightnebula.meld.server.utils.Pose
 import org.cloudburstmc.math.vector.Vector3i
 import org.cloudburstmc.protocol.bedrock.packet.AnimatePacket
 import org.cloudburstmc.protocol.bedrock.packet.ChunkRadiusUpdatedPacket
@@ -149,8 +151,8 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
             // handle base functions
             when (packet.action) {
-                PlayerCommandAction.START_SNEAKING -> connection.player.sneaking = true
-                PlayerCommandAction.STOP_SNEAKING -> connection.player.sneaking = false
+                PlayerCommandAction.START_SNEAKING -> connection.player.replaceMetadataAtIndex(6, metaPose(6, Pose.SNEAKING))  //sneaking = true
+                PlayerCommandAction.STOP_SNEAKING -> connection.player.replaceMetadataAtIndex(6, metaPose(6, Pose.STANDING))  //.sneaking = false
                 PlayerCommandAction.START_SPRINTING -> connection.player.sprinting = true
                 PlayerCommandAction.STOP_SPRINTING -> connection.player.sprinting = false
                 else -> {}

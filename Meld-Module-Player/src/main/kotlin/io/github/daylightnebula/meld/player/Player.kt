@@ -8,7 +8,9 @@ import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
 import io.github.daylightnebula.meld.entities.LivingEntity
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
+import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
 import io.github.daylightnebula.meld.entities.metadata.entityMetadata
+import io.github.daylightnebula.meld.entities.metadata.metaPose
 import io.github.daylightnebula.meld.entities.packets.JavaEntityMetadataPacket
 import io.github.daylightnebula.meld.player.packets.JavaPlayerInfoUpdatePacket
 import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
@@ -19,6 +21,7 @@ import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import io.github.daylightnebula.meld.server.utils.Pose
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.protocol.bedrock.data.GameType
@@ -39,9 +42,7 @@ class Player(
     rotation: Vector2f = Vector2f.from(0.0, 0.0),
     startHeadYaw: Float = 0f,
     health: Health = Health(20.0),
-    val infoActions: MutableList<PlayerInfoAction> = mutableListOf(
-        PlayerInfoAction.AddPlayer("player")
-    )
+    val infoActions: MutableList<PlayerInfoAction> = mutableListOf(PlayerInfoAction.AddPlayer("player"))
 ): LivingEntity(
     uid, id, EntityType.PLAYER, metadata, dimensionID, position, velocity, rotation, startHeadYaw, health
 ) {
@@ -49,8 +50,14 @@ class Player(
     var joinSent = false
         internal set
 
+    // handle sneaking
+    fun setSneaking(sneaking: Boolean) {
+        if ((isSneaking() && !sneaking) || (!isSneaking() && sneaking))
+            replaceMetadataAtIndex(6, metaPose(6, if (sneaking) Pose.SNEAKING else Pose.STANDING))
+    }
+    fun isSneaking() = getMetadataAtIndex<Pose>(6)?.value == Pose.SNEAKING
+
     // TODO on set, broadcast packet
-    var sneaking = false
     var sprinting = false
 
     // TODO on set, broadcast packet

@@ -5,7 +5,6 @@ import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
 import io.github.daylightnebula.meld.entities.metadata.IEntityMetadataParent
 import io.github.daylightnebula.meld.entities.metadata.entityMetadata
 import io.github.daylightnebula.meld.entities.packets.*
-import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.Event
@@ -169,8 +168,8 @@ open class Entity(
     }
 
     // when metadata is changed, call event and broadcast changes
-    override fun replaceAtIndex(index: Int, obj: EntityMetadataObject) {
-        metadata.replaceAtIndex(index, obj)
+    override fun replaceMetadataAtIndex(index: Int, obj: EntityMetadataObject<*>) {
+        metadata.replaceMetadataAtIndex(index, obj)
         EventBus.callEvent(EntityMetadataUpdateEvent(this, metadata))
         val javaPacket = JavaEntityMetadataPacket(id, metadata)
         watchers.forEach {
@@ -179,6 +178,10 @@ open class Entity(
                 is BedrockConnection -> NeedsBedrock()
             }
         }
+    }
+
+    override fun <T> getMetadataAtIndex(index: Int): EntityMetadataObject<T>? {
+        return metadata.getMetadataAtIndex(index)
     }
 
     // function to despawn an entity
