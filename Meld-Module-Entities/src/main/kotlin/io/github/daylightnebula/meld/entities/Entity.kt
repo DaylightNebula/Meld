@@ -1,5 +1,9 @@
 package io.github.daylightnebula.meld.entities
 
+import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
+import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
+import io.github.daylightnebula.meld.entities.metadata.IEntityMetadataParent
+import io.github.daylightnebula.meld.entities.metadata.entityMetadata
 import io.github.daylightnebula.meld.entities.packets.*
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.NeedsBedrock
@@ -20,11 +24,12 @@ open class Entity(
     val uid: UUID = UUID.randomUUID(),
     val id: Int = EntityController.nextID(),
     val type: EntityType = EntityType.ARROW,
+    val metadata: EntityMetadata = entityMetadata(),
     var dimensionID: String = "overworld",
     startPosition: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
     startVelocity: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
     startRotation: Vector2f = Vector2f.ZERO
-) {
+): IEntityMetadataParent {
 
     init {
         thread { sleep(1); EventBus.callEvent(EntitySpawnEvent(this)) }
@@ -141,7 +146,8 @@ open class Entity(
     }
 
     // overridable functions for spawn packets and a watcher filter
-    open fun getSpawnJavaPackets(): List<JavaPacket> = listOf(JavaSpawnEntityPacket(this))
+    open fun getSpawnJavaPackets(): List<JavaPacket> =
+        listOf(JavaSpawnEntityPacket(this), JavaEntityMetadataPacket(id, metadata))
     open var watcherFilter: (connection: IConnection<*>) -> Boolean = { true }
 
     // handle animations
@@ -158,6 +164,19 @@ open class Entity(
         getWatchers().forEach { watcher ->
             when(watcher) {
                 is JavaConnection -> watcher.sendPacket(javaPacket)
+            }
+        }
+    }
+
+    // when metadata is changed, call event and broadcast changes
+    override fun replaceAtIndex(index: Int, obj: EntityMetadataObject) {
+        metadata.replaceAtIndex(index, obj)
+        EventBus.callEvent(EntityMetadataUpdateEvent(this, metadata))
+        val javaPacket = JavaEntityMetadataPacket(id, metadata)
+        watchers.forEach {
+            when (it) {
+                is JavaConnection -> it.sendPacket(javaPacket)
+                is BedrockConnection -> NeedsBedrock()
             }
         }
     }
@@ -180,3 +199,4 @@ data class EntityVelocityChangeEvent(val entity: Entity, val oldVelocity: Vector
 data class EntitySpawnEvent(val entity: Entity): Event
 data class EntityDespawnEvent(val entity: Entity): Event
 data class EntityPlayAnimationEvent(val entity: Entity, var animation: EntityAnimation, override var cancelled: Boolean = false): CancellableEvent
+data class EntityMetadataUpdateEvent(val entity: Entity, val metadata: EntityMetadata): Event

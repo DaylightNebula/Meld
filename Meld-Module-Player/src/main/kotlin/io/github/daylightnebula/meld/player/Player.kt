@@ -7,6 +7,9 @@ import io.github.daylightnebula.meld.entities.EntityController
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
 import io.github.daylightnebula.meld.entities.LivingEntity
+import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
+import io.github.daylightnebula.meld.entities.metadata.entityMetadata
+import io.github.daylightnebula.meld.entities.packets.JavaEntityMetadataPacket
 import io.github.daylightnebula.meld.player.packets.JavaPlayerInfoUpdatePacket
 import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
 import io.github.daylightnebula.meld.player.packets.JavaSpawnPlayerPacket
@@ -29,6 +32,7 @@ class Player(
     val connection: IConnection<*>,
     uid: UUID,
     id: Int = EntityController.nextID(),
+    metadata: EntityMetadata = entityMetadata(),
     dimensionID: String = "overworld",
     position: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
     velocity: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
@@ -39,7 +43,7 @@ class Player(
         PlayerInfoAction.AddPlayer("player")
     )
 ): LivingEntity(
-    uid, id, EntityType.SKELETON, dimensionID, position, velocity, rotation, startHeadYaw, health
+    uid, id, EntityType.PLAYER, metadata, dimensionID, position, velocity, rotation, startHeadYaw, health
 ) {
     // marks if the player has been sent their join packets
     var joinSent = false
@@ -68,7 +72,8 @@ class Player(
 
     override fun getSpawnJavaPackets(): List<JavaPacket> = listOf(
         JavaPlayerInfoUpdatePacket(uid, infoActions),
-        JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO)
+        JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO),
+        JavaEntityMetadataPacket(id, metadata)
     )
 }
 

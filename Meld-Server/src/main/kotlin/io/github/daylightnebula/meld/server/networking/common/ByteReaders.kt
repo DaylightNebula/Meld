@@ -5,9 +5,9 @@ import io.ktor.utils.io.core.*
 import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import kotlinx.coroutines.runBlocking
 import org.cloudburstmc.math.vector.Vector3i
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.experimental.and
 import kotlin.text.String
 
 abstract class AbstractReader {
@@ -35,6 +35,21 @@ abstract class AbstractReader {
             if (currentByte.toInt() and CONTINUE_BIT == 0) break
             position += 7
             if (position >= 32) throw RuntimeException("VarInt is too big")
+        }
+        return value
+    }
+
+    // read var long
+    open fun readVarLong(): Long {
+        var value: Long = 0
+        var position = 0
+        var currentByte: Byte
+        while (true) {
+            currentByte = readByte()
+            value = value or ((currentByte and SEGMENT_BITS.toByte()).toLong() shl position)
+            if (currentByte.toInt() and CONTINUE_BIT == 0) break
+            position += 7
+            if (position >= 64) throw java.lang.RuntimeException("VarLong is too big")
         }
         return value
     }

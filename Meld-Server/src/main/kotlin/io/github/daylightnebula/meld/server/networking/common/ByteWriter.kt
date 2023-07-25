@@ -10,13 +10,14 @@ import org.json.JSONObject
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
+
 open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     private val data = mutableListOf<ByteArray>()
 
     // add just a byte array
     fun writeByteArray(array: ByteArray) = data.add(array)
 
-    // write varint
+    // write var int
     fun writeVarInt(v: Int) = writeByteArray(convertVarInt(v))
     fun convertVarInt(v: Int): ByteArray {
         val output = mutableListOf<Byte>()
@@ -27,6 +28,23 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
                 return output.toByteArray()
             }
             output.add((value and SEGMENT_BITS or CONTINUE_BIT).toByte())
+
+            // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
+            value = value ushr 7
+        }
+    }
+
+    // write var long
+    fun writeVarLong(value: Long) = writeByteArray(convertVarLong(value))
+    fun convertVarLong(value: Long): ByteArray {
+        val output = mutableListOf<Byte>()
+        var value = value
+        while (true) {
+            if (value and SEGMENT_BITS.toLong().inv() == 0L) {
+                output.add(value.toByte())
+                return output.toByteArray()
+            }
+            output.add((value and SEGMENT_BITS.toLong() or CONTINUE_BIT.toLong()).toByte())
 
             // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
             value = value ushr 7
