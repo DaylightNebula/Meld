@@ -119,7 +119,6 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
         JavaClientInfoPacket::class.java.name to { connection, packet ->
             packet as JavaClientInfoPacket
-            println("TODO handle client info packet")
         },
 
         JavaPluginMessagePacket::class.java.name to { connection, packet ->
@@ -135,12 +134,12 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
         JavaConfirmTeleportPacket::class.java.name to { connection, packet ->
             packet as JavaConfirmTeleportPacket
-            println("Teleport ${packet.teleportID} confirmed")
+            EventBus.callEvent(PlayerConfirmTeleportEvent(connection.player, packet.teleportID))
         },
 
         JavaReceivePlayerAbilitiesPacket::class.java.name to { connection, packet ->
             packet as JavaReceivePlayerAbilitiesPacket
-            println("Received player abilities ${packet.flags}")
+            EventBus.callEvent(PlayerAbilitiesReceivedEvent(connection.player, packet.flags))
         },
 
         JavaPlayerCommandPacket::class.java.name to { connection, packet ->
@@ -202,4 +201,5 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
 data class PlayerActionEvent(val player: Player, val action: PlayerCommandAction, val entityID: Int, val jumpBoost: Int): Event
 data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Vector3i, val face: BlockFace): Event
-data class PlayerAnimationEvent(val player: Player, val animation: EntityAnimation, override var cancelled: Boolean = false): CancellableEvent
+data class PlayerConfirmTeleportEvent(val player: Player, val teleportID: Int): Event
+data class PlayerAbilitiesReceivedEvent(val player: Player, val abilities: Byte): Event
