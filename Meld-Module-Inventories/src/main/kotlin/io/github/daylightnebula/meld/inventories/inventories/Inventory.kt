@@ -1,6 +1,6 @@
 package io.github.daylightnebula.meld.inventories.inventories
 
-import io.github.daylightnebula.meld.inventories.ItemContainer
+import io.github.daylightnebula.meld.server.utils.ItemContainer
 
 interface Inventory {
     val slots: Array<ItemContainer?>

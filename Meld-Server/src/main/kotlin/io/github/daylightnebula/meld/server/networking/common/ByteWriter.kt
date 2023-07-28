@@ -2,6 +2,7 @@ package io.github.daylightnebula.meld.server.networking.common
 
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.SEGMENT_BITS
+import io.github.daylightnebula.meld.server.utils.ItemContainer
 import org.cloudburstmc.math.vector.Vector3i
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -48,6 +49,21 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
 
             // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
             value = value ushr 7
+        }
+    }
+
+    // write item to output
+    fun writeItem(item: ItemContainer?) {
+        // write if present
+        writeBoolean(item != null)
+        if (item != null) {
+            // write basic info
+            writeVarInt(item.id)
+            writeByte(item.count)
+
+            // write nbt if present otherwise a 0
+            if (item.nbt != null) writeNBT(item.nbt)
+            else writeByte(0x00)
         }
     }
 

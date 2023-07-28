@@ -1,12 +1,11 @@
 package io.github.daylightnebula.meld.inventories.packets
 
 import io.github.daylightnebula.meld.inventories.EquipmentSlot
-import io.github.daylightnebula.meld.inventories.ItemContainer
-import io.github.daylightnebula.meld.inventories.writeItem
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
+import io.github.daylightnebula.meld.server.utils.ItemContainer
 
 class JavaSetEquipmentPacket(
     var entityID: Int = 0,

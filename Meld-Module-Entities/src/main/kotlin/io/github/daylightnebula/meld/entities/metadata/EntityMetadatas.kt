@@ -1,6 +1,6 @@
 package io.github.daylightnebula.meld.entities.metadata
 
-import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadata
+import io.github.daylightnebula.meld.server.utils.ItemContainer
 import io.github.daylightnebula.meld.server.utils.Pose
 import org.json.JSONObject
 
@@ -22,4 +22,11 @@ fun entityMetadata(
     metaBoolean(5, hasNoGravity),
     metaPose(6, pose),
     metaVarInt(7, frozenTick)
+)
+
+fun itemMetadata(
+    entityMetadata: EntityMetadata = entityMetadata(),
+    item: ItemContainer? = null
+) = metadata(
+
 )

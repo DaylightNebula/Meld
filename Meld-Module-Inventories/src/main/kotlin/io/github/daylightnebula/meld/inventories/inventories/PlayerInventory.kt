@@ -1,25 +1,20 @@
 package io.github.daylightnebula.meld.inventories.inventories
 
 import io.github.daylightnebula.meld.inventories.EquipmentSlot
-import io.github.daylightnebula.meld.inventories.ItemContainer
-import io.github.daylightnebula.meld.inventories.packets.JavaSetEquipmentPacket
-import io.github.daylightnebula.meld.server.events.Event
-import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.player.Player
-import io.github.daylightnebula.meld.server.NeedsBedrock
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaConnection
+import io.github.daylightnebula.meld.server.utils.ItemContainer
 
 class PlayerInventory(
     override val entity: Player,
     override val slots: Array<ItemContainer?> = arrayOfNulls(46)
 ): EquippedInventory {
+    override val id: UByte = 0u
     var selectedSlot: Int = 0 // offset 36
         set(value) {
             field = value
 
             // set equipment in main hand accordingly
-            broadcastSetItem(EquipmentSlot.MAIN_HAND)
+            broadcastEquipmentChange(EquipmentSlot.MAIN_HAND)
         }
 
     override fun getIndexForEquipmentSlot(slot: EquipmentSlot) = when (slot) {

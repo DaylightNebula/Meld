@@ -1,7 +1,7 @@
 [x] broadcast player inventory slot selected state
 [x] move selected slot functionality to player with an event on change
 [x] make inventory that entity implementations can import to add an inventory to themselves of any size
-[ ] set item packets
+[x] set item packets
 [ ] drop item stuffs
 - [ ] only drop item if not cancelled or not marked as no drop
 - [ ] pickup nearby dropped entities

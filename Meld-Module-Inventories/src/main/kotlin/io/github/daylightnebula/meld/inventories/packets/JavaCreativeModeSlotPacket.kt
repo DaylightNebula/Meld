@@ -1,10 +1,10 @@
 package io.github.daylightnebula.meld.inventories.packets
 
-import io.github.daylightnebula.meld.inventories.ItemContainer
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noEncode
+import io.github.daylightnebula.meld.server.utils.ItemContainer
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTReader

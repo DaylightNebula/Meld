@@ -3,6 +3,7 @@ package io.github.daylightnebula.meld.entities.metadata
 import io.github.daylightnebula.meld.entities.enums.SnifferState
 import io.github.daylightnebula.meld.server.utils.Direction
 import io.github.daylightnebula.meld.server.utils.GlobalPosition
+import io.github.daylightnebula.meld.server.utils.ItemContainer
 import io.github.daylightnebula.meld.server.utils.Pose
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
@@ -23,7 +24,7 @@ fun metaOptChat(index: Int, value: JSONObject?) = metaObject<JSONObject?>(index,
     it.writeBoolean(value != null)
     if (value != null) it.writeString(value.toString(0))
 }
-// TODO fun metaSlot
+fun metaItem(index: Int, value: ItemContainer?) = metaObject<ItemContainer?>(index, 7, value) { it.writeItem(value) }
 fun metaBoolean(index: Int, value: Boolean) = metaObject<Boolean>(index, 8, value) { it.writeBoolean(value) }
 fun metaRotation(index: Int, value: Vector3f) = metaObject<Vector3f>(index, 9, value) {
     it.writeFloat(value.x)
