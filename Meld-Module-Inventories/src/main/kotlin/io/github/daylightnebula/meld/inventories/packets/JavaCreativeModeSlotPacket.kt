@@ -1,6 +1,6 @@
 package io.github.daylightnebula.meld.inventories.packets
 
-import io.github.daylightnebula.meld.inventories.Item
+import io.github.daylightnebula.meld.inventories.ItemContainer
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -11,7 +11,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTReader
 
 class JavaCreativeModeSlotPacket(
     var slot: Int = 0,
-    var item: Item? = null
+    var itemContainer: ItemContainer? = null
 ): JavaPacket {
     override val id: Int = 0x2B
     override fun encode(writer: ByteWriter) = noEncode()
@@ -19,9 +19,9 @@ class JavaCreativeModeSlotPacket(
         slot = reader.readShort().toInt()
 
         val present = reader.readBoolean()
-        item = when(present) {
+        itemContainer = when(present) {
             false -> null
-            true -> Item(
+            true -> ItemContainer(
                 reader.readVarInt(),
                 reader.readByte(),
                 readOptionalNBT(reader)

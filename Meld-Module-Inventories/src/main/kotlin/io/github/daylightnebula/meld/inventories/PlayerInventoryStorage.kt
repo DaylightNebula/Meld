@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.inventories
 
+import io.github.daylightnebula.meld.inventories.inventories.PlayerInventory
 import io.github.daylightnebula.meld.player.Player
 
 // storage for all active player inventories

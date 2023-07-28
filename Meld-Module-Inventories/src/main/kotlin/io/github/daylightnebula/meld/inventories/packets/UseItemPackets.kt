@@ -11,6 +11,18 @@ import org.cloudburstmc.math.vector.Vector3i
 
 class JavaUseItemPacket(
     var hand: PlayerHand = PlayerHand.MAIN,
+    var sequence: Int = 0
+): JavaPacket {
+    override val id: Int = 0x32
+    override fun encode(writer: ByteWriter) = noEncode()
+    override fun decode(reader: AbstractReader) {
+        hand = PlayerHand.values()[reader.readVarInt()]
+        sequence = reader.readVarInt()
+    }
+}
+
+class JavaUseItemOnPacket(
+    var hand: PlayerHand = PlayerHand.MAIN,
     var location: Vector3i = Vector3i.from(0, 0, 0),
     var face: BlockFace = BlockFace.BOTTOM,
     var cursorPosition: Vector3f = Vector3f.ZERO,
