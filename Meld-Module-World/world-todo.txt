@@ -28,3 +28,4 @@
 [ ] load from java worlds if no normal format
 [ ] load from local storage on enable
 [ ] save to local storage on disable
+[ ] extension for int to get an entity from an entity id
