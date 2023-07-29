@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.inventories
 
+import io.github.daylightnebula.meld.inventories.utils.inventory
 import io.github.daylightnebula.meld.player.*
 import io.github.daylightnebula.meld.server.events.*
 import io.github.daylightnebula.meld.server.utils.ItemContainer
@@ -17,10 +18,7 @@ class InventoryListener: EventListener {
         EventBus.callEvent(dropEvent)
 
         // if cancelled, add item back and stop here
-        if (!dropEvent.allowRemove) {
-            inventory.setItem(inventory.selectedSlot + 36, dropEvent.item)
-            return
-        }
+        if (!dropEvent.allowRemove) inventory.setItem(inventory.selectedSlot + 36, dropEvent.item)
         // otherwise remove item
         else inventory.setItem(inventory.selectedSlot + 36, null)
     }

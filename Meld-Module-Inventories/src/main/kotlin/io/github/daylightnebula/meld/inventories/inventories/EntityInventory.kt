@@ -13,7 +13,7 @@ import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 
-interface EntityInventory: Inventory {
+interface EntityInventory: BaseInventory {
     val entity: Entity
     val id: UByte
 

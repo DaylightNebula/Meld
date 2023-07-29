@@ -9,6 +9,7 @@ class PlayerInventory(
     override val slots: Array<ItemContainer?> = arrayOfNulls(46)
 ): EntityInventory {
     override val id: UByte = 0u
+    var openInventory: Inventory? = null
     var selectedSlot: Int = 0 // offset 36
         set(value) {
             field = value

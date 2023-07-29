@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.inventories
+package io.github.daylightnebula.meld.inventories.utils
 
 import io.github.daylightnebula.meld.inventories.inventories.PlayerInventory
 import io.github.daylightnebula.meld.player.Player

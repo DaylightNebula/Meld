@@ -8,8 +8,12 @@ import io.github.daylightnebula.meld.server.noEncode
 class JavaCloseInventoryPacket(
     var inventoryID: UByte = 0u
 ): JavaPacket {
-    override val id: Int = 0x0C
-    override fun encode(writer: ByteWriter) = noEncode()
+    override val id: Int = 0x11
+
+    override fun encode(writer: ByteWriter) {
+        writer.writeUByte(inventoryID)
+    }
+
     override fun decode(reader: AbstractReader) {
         inventoryID = reader.readUByte()
     }

@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.inventories
 
 import io.github.daylightnebula.meld.inventories.packets.*
+import io.github.daylightnebula.meld.inventories.utils.inventory
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
