@@ -8,7 +8,6 @@ import kotlin.concurrent.thread
 class EntityModule: MeldModule {
     override fun onEnable() {
         EventBus.register(EntityListener())
-        updatablesThread.start()
     }
     override fun onDisable() {
         updatablesThread.join(60)

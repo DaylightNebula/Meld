@@ -6,6 +6,7 @@ import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.extensions.inc16IfNegative
+import io.github.daylightnebula.meld.server.extensions.toChunkPosition
 import io.github.daylightnebula.meld.server.extensions.toSectionID
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
@@ -13,6 +14,7 @@ import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3i
 import kotlin.math.floor
+import kotlin.text.Typography.section
 
 data class Chunk(
     var position: Vector2i = Vector2i.from(0, 0),
@@ -44,13 +46,23 @@ data class Chunk(
         return result
     }
 
-    fun setBlock(player: Player, position: Vector3i, blockID: Int) {
+    fun fill(from: Vector3i, to: Vector3i, blockID: Int) {
+        // loop through all sections
+        (from.y.toSectionID() .. to.y.toSectionID()).forEach { section ->
+            // get lowest and highest y
+            val lowY = if (from.y.toSectionID() == section) from.y.toSectionPosition() else 0
+            val highY = if (to.y.toSectionID() == section) to.y.toSectionPosition() else 15
+
+            // call fill on section
+            sections[section].blockPalette.fill(Vector3i.from(from.x, lowY, from.z), Vector3i.from(to.x, highY, to.z), blockID)
+        }
+    }
+
+    fun clear(from: Vector3i, to: Vector3i) = fill(from, to, 0)
+
+    fun setBlock(position: Vector3i, blockID: Int) {
         // get chunk location
-        val chunkLocation = Vector3i.from(
-            floor((position.x % 16).inc16IfNegative().toDouble()).toInt(),
-            floor((position.y % 16).inc16IfNegative().toDouble()).toInt(),
-            floor((position.z % 16).inc16IfNegative().toDouble()).toInt(),
-        )
+        val chunkLocation = position.toSectionPosition()
 
         // call setting block event
         val settingEvent = SettingBlockEvent(this, position, chunkLocation)
@@ -66,23 +78,13 @@ data class Chunk(
         val palette = section.blockPalette
         palette.set(chunkLocation, blockID)
 
-        // send update packets
-        when (player.connection) {
-            is JavaConnection -> (player.connection as JavaConnection).sendPacket(JavaChunkPacket(this))
-            else -> NeedsBedrock()
-        }
-
         // call set event
         EventBus.callEvent(SetBlockEvent(this, position, chunkLocation))
     }
 
     fun getBlock(position: Vector3i): Int {
         // get chunk location
-        val chunkLocation = Vector3i.from(
-            floor((position.x % 16).inc16IfNegative().toDouble()).toInt(),
-            floor((position.y % 16).inc16IfNegative().toDouble()).toInt(),
-            floor((position.z % 16).inc16IfNegative().toDouble()).toInt(),
-        )
+        val chunkLocation = position.toSectionPosition()
 
         // get section
         val section = sections[position.y.toSectionID()]
@@ -91,6 +93,14 @@ data class Chunk(
         return section.blockPalette.get(chunkLocation)
     }
 }
+
+fun Vector3i.toSectionPosition() = Vector3i.from(
+    x.toSectionPosition(),
+    y.toSectionPosition(),
+    z.toSectionPosition(),
+)
+
+fun Int.toSectionPosition() = floor((this % 16).inc16IfNegative().toDouble()).toInt()
 
 data class SettingBlockEvent(val chunk: Chunk, val location: Vector3i, val chunkLocation: Vector3i, var isCancelled: Boolean = false): Event
 data class SetBlockEvent(val chunk: Chunk, val location: Vector3i, val chunkLocation: Vector3i): Event

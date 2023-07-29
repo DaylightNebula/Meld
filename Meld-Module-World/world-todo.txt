@@ -1,10 +1,14 @@
 [x] Automatic send new chunks to players on move
 [x] Automatic unload old chunks to players on move
 [x] Automatic send update center packet when player moves between chunks
+[ ] Loader events to allow external modules to act as world loaders / generators
+- [ ] Call whenever a new chunk is needed but not present
+- [ ] Default a blank chunk (or the current test chunk for now)
 [ ] Finish chunks
- - [ ] Fill blocks function
- - [ ] Clear blocks function
- - [ ] Broadcast block changes to all players
+- [x] Fill blocks function
+- [x] Clear blocks function
+- [ ] Broadcast block changes to all players
+[ ] Ghost sections (sections that simply reference another section somewhere else in the world)
 [ ] block entities implementation
  - [ ] Allow custom nbt to be added to blocks that is removed when the block is removed or cleared
  - [ ] Send custom nbt as block entity data in chunk data packet

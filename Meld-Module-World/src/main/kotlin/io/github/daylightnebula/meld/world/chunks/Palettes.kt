@@ -43,12 +43,32 @@ class FlexiblePalette(
         writer.writeByteArray(blockReferences)
     }
 
+    fun fill(from: Vector3i, to: Vector3i, newID: Int) {
+        // range check
+        if (from.x !in 0..15 || from.y !in 0 .. 15 || from.z !in 0 .. 15)
+            throw IllegalArgumentException("Section fill call out of range in from $from")
+        if (to.x !in 0..15 || to.y !in 0 .. 15 || to.z !in 0 .. 15)
+            throw IllegalArgumentException("Section fill call out of range in to $to")
+
+        // fill blocks
+        (from.x .. to.x).forEach { x ->
+            (from.y .. to.y).forEach { y ->
+                (from.z .. to.z).forEach { z ->
+                    uncheckedSet(Vector3i.from(x, y, z), newID)
+                }
+            }
+        }
+    }
+
     fun set(position: Vector3i, newID: Int) {
-        println("Setting block at $position to $newID")
         // range check
         if (position.x !in 0..15 || position.y !in 0 .. 15 || position.z !in 0 .. 15)
             throw IllegalArgumentException("Section set call out of range $position")
 
+        uncheckedSet(position, newID)
+    }
+
+    fun uncheckedSet(position: Vector3i, newID: Int) {
         // get ref index
         val refIndex = locationToRefIndex(position)
 

@@ -12,7 +12,7 @@ var currentTick: ULong = 0u
 
 // updatables stuff
 val updatables = mutableListOf<Updatable>()
-val updatablesThread = thread(start = false) {
+val updatablesThread = thread {
     // run ticks until stop
     while(true) {
         // get start time
