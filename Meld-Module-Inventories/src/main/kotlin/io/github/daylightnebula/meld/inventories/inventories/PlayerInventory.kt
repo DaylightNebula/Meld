@@ -7,7 +7,7 @@ import io.github.daylightnebula.meld.server.utils.ItemContainer
 class PlayerInventory(
     override val entity: Player,
     override val slots: Array<ItemContainer?> = arrayOfNulls(46)
-): EquippedInventory {
+): EntityInventory {
     override val id: UByte = 0u
     var selectedSlot: Int = 0 // offset 36
         set(value) {

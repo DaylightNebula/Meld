@@ -13,14 +13,14 @@ import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 
-interface EquippedInventory: Inventory {
+interface EntityInventory: Inventory {
     val entity: Entity
     val id: UByte
 
     // when the inventory changes, call an event and update equipment slot
     override fun onInventoryChange(changedSlot: Int, changedItemContainer: ItemContainer?, filled: Boolean) {
         // call event
-        EventBus.callEvent(EquippedInventoryChangeEvent(entity, this, changedSlot, changedItemContainer, filled))
+        EventBus.callEvent(EntityInventoryChangeEvent(entity, this, changedSlot, changedItemContainer, filled))
 
         // if an equipment slot can be found for the slot index, broadcast change
         getEquipmentSlotForIndex(changedSlot)?.let { broadcastEquipmentChange(it) }
@@ -62,11 +62,9 @@ interface EquippedInventory: Inventory {
     }
 }
 
-
-
-data class EquippedInventoryChangeEvent(
+data class EntityInventoryChangeEvent(
     val player: Entity,
-    val inventory: EquippedInventory,
+    val inventory: EntityInventory,
     val changedSlot: Int,
     val changedItemContainer: ItemContainer?,
     val fill: Boolean
