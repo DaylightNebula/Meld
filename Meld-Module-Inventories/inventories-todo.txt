@@ -10,4 +10,4 @@
 [x] registrable item handlers
 - [x] allow for custom model ids to be optionally specified
 - [x] allow to execute on actions after events are called (only if events are not cancelled)
-[ ] populate all inventory types
+[x] populate all inventory types
