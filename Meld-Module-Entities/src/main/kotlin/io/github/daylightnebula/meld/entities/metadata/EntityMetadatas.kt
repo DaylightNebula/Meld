@@ -28,5 +28,6 @@ fun itemMetadata(
     entityMetadata: EntityMetadata = entityMetadata(),
     item: ItemContainer? = null
 ) = metadata(
-
+    entityMetadata,
+    metaItem(8, item)
 )
