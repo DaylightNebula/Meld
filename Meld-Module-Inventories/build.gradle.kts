@@ -33,3 +33,7 @@ tasks {
         destinationDirectory.set(file("$rootDir/modules/"))
     }
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+}

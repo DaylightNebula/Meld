@@ -91,3 +91,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+}
