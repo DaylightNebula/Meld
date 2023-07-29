@@ -13,12 +13,14 @@ import io.github.daylightnebula.meld.world.chunks.getChunkPosition
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.extensions.toChunkPosition
+import io.github.daylightnebula.meld.world.chunks.toSectionPosition
 import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
 import io.github.daylightnebula.meld.world.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.meld.world.packets.JavaUnloadChunkPacket
 import io.netty.buffer.Unpooled
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3f
+import org.cloudburstmc.math.vector.Vector3i
 import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
 
 class Dimension(
@@ -106,6 +108,32 @@ class Dimension(
         // response
         return ChunkDiffs(toRemove.map { oldChunks[it] }, toAdd.map { newChunks[it] })
     }
+
+    // get and set block functions
+    fun getBlock(position: Vector3i) = loadedChunks[position.toChunkPosition()]?.getBlock(position)
+    fun setBlock(position: Vector3i, blockID: Int) = loadedChunks[position.toChunkPosition()]?.setBlock(position, blockID)
+
+    // fill function
+    fun fillBlocks(from: Vector3i, to: Vector3i, blockID: Int) {
+        // get to and from chunk position
+        val fromChunk = from.toChunkPosition()
+        val toChunk = to.toChunkPosition()
+
+        // loop through all chunks in fill
+        (fromChunk.x .. toChunk.x).forEach { x ->
+            (fromChunk.y .. toChunk.y).forEach { y ->
+                // get highest and lowest x and z positions relative to chunk
+                val lowX = if (fromChunk.x == x) from.x.toSectionPosition() else 0
+                val highX = if (toChunk.x == x) to.x.toSectionPosition() else 16
+                val lowZ = if (fromChunk.y == y) from.y.toSectionPosition() else 0
+                val highZ = if (toChunk.y == y) to.y.toSectionPosition() else 16
+
+                // call fill function on chunk
+                loadedChunks[Vector2i.from(x, y)]?.fill(Vector3i.from(lowX, from.y, lowZ), Vector3i.from(highX, to.y, highZ), blockID)
+            }
+        }
+    }
+    fun clearBlocks(from: Vector3i, to: Vector3i) = fillBlocks(from, to, 0)
 }
 
 fun dimension(

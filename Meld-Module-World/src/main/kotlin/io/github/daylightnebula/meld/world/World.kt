@@ -35,5 +35,14 @@ object World {
         )
     )
 
+    fun getBlock(dimension: String, position: Vector3i) = dimensions[dimension]?.getBlock(position)
+    fun setBlock(dimension: String, position: Vector3i, blockID: Int) = dimensions[dimension]?.setBlock(position, blockID)
+    fun fillBlocks(dimension: String, from: Vector3i, to: Vector3i, blockID: Int) = dimensions[dimension]?.fillBlocks(from, to, blockID)
+    fun clearBlocks(dimension: String, from: Vector3i, to: Vector3i) = dimensions[dimension]?.clearBlocks(from, to)
+    fun getBlock(dimension: Dimension, position: Vector3i) = dimension.getBlock(position)
+    fun setBlock(dimension: Dimension, position: Vector3i, blockID: Int) = dimension.setBlock(position, blockID)
+    fun fillBlocks(dimension: Dimension, from: Vector3i, to: Vector3i, blockID: Int) = dimension.fillBlocks(from, to, blockID)
+    fun clearBlocks(dimension: Dimension, from: Vector3i, to: Vector3i) = dimension.clearBlocks(from, to)
+
     fun init() {}
 }
