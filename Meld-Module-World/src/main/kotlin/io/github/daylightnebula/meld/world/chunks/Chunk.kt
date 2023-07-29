@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.world.chunks
 
 import io.github.daylightnebula.meld.entities.Entity
+import io.github.daylightnebula.meld.entities.currentTick
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.Event
@@ -8,8 +9,12 @@ import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.extensions.inc16IfNegative
 import io.github.daylightnebula.meld.server.extensions.toChunkPosition
 import io.github.daylightnebula.meld.server.extensions.toSectionID
+import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
+import io.github.daylightnebula.meld.world.Dimension
+import io.github.daylightnebula.meld.world.World
+import io.github.daylightnebula.meld.world.WorldModule
 import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
 import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3i
@@ -17,6 +22,7 @@ import kotlin.math.floor
 import kotlin.text.Typography.section
 
 data class Chunk(
+    var dimensionRef: String = "",
     var position: Vector2i = Vector2i.from(0, 0),
     var sections: Array<Section> = Array(24) { Section() },
     var entities: MutableList<Entity> = mutableListOf()
@@ -46,6 +52,24 @@ data class Chunk(
         return result
     }
 
+    private fun broadcastChanges() {
+        if (!WorldModule.module.broadcastEnabled) return
+
+        // get all players in view distance
+        val dimension = World.dimensions[dimensionRef] ?: return
+        val players = dimension.getChunksInViewDistanceOfChunk(position)
+            .flatMap { entities.filterIsInstance<Player>() }
+
+        // send changes
+        val javaPacket = JavaChunkPacket(this)
+        players.forEach {
+            when (val connection = it.connection) {
+                is JavaConnection -> connection.sendPacket(javaPacket)
+                is BedrockConnection -> NeedsBedrock()
+            }
+        }
+    }
+
     fun fill(from: Vector3i, to: Vector3i, blockID: Int) {
         // loop through all sections
         (from.y.toSectionID() .. to.y.toSectionID()).forEach { section ->
@@ -56,8 +80,9 @@ data class Chunk(
             // call fill on section
             sections[section].blockPalette.fill(Vector3i.from(from.x, lowY, from.z), Vector3i.from(to.x, highY, to.z), blockID)
         }
-    }
 
+        broadcastChanges()
+    }
     fun clear(from: Vector3i, to: Vector3i) = fill(from, to, 0)
 
     fun setBlock(position: Vector3i, blockID: Int) {
@@ -80,6 +105,8 @@ data class Chunk(
 
         // call set event
         EventBus.callEvent(SetBlockEvent(this, position, chunkLocation))
+
+        broadcastChanges()
     }
 
     fun getBlock(position: Vector3i): Int {

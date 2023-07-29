@@ -11,8 +11,14 @@ class WorldModule: MeldModule {
     private val testEntities = false
     private val numTestEntitiesPerChunk = 16
     private val testEntitiesHeight = 33f
+    var broadcastEnabled = false
+
+    companion object {
+        lateinit var module: WorldModule
+    }
 
     override fun onEnable() {
+        module = this
         EventBus.register(WorldListener())
         println("Initializing world...")
         World.init()
@@ -40,6 +46,8 @@ class WorldModule: MeldModule {
 
             println("Created test entities!")
         }
+
+        broadcastEnabled = true
     }
 
     override fun onDisable() {}
