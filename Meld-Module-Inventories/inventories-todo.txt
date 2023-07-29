@@ -7,7 +7,7 @@
 [x] open and close inventory functionality
 - [x] watchable inventories
 - [x] code to build inventories
-[ ] registrable item handlers
-- [ ] allow for custom model ids to be optionally specified
-- [ ] allow to execute on actions after events are called (only if events are not cancelled)
+[x] registrable item handlers
+- [x] allow for custom model ids to be optionally specified
+- [x] allow to execute on actions after events are called (only if events are not cancelled)
 [ ] populate all inventory types

@@ -1,11 +1,15 @@
 package io.github.daylightnebula.meld.inventories.inventories
 
+import io.github.daylightnebula.meld.server.events.Event
+import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 
 interface BaseInventory {
     val slots: Array<ItemContainer?>
 
-    fun onInventoryChange(changedSlot: Int, changedItemContainer: ItemContainer?, filled: Boolean)
+    fun onInventoryChange(changedSlot: Int, changedItemContainer: ItemContainer?, filled: Boolean) {
+        EventBus.callEvent(InventoryChangeEvent(changedSlot, changedItemContainer, filled))
+    }
 
     fun getItem(index: Int): ItemContainer? {
         if (!slots.indices.contains(index))
@@ -30,3 +34,5 @@ interface BaseInventory {
         onInventoryChange(0, itemContainer, true)
     }
 }
+
+data class InventoryChangeEvent(val changedSlot: Int, val changedItemContainer: ItemContainer?, val filled: Boolean): Event

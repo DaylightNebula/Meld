@@ -18,6 +18,7 @@ import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import io.github.daylightnebula.meld.server.utils.Pose
+import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
 import org.cloudburstmc.protocol.bedrock.packet.AnimatePacket
 import org.cloudburstmc.protocol.bedrock.packet.ChunkRadiusUpdatedPacket
@@ -168,7 +169,6 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
                     packet.face
                 )
             )
-//            connection.player.handleBlockAction(packet.action, packet.blockPosition, packet.face)
         },
 
         JavaSwingArmPacket::class.java.name to { connection, packet ->
@@ -178,7 +178,7 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
         JavaEntityInteractPacket::class.java.name to { connection, packet ->
             packet as JavaEntityInteractPacket
-            println("Interact packet $packet")
+            EventBus.callEvent(PlayerEntityInteractEvent(connection.player, packet.type, packet.entityID, packet.sneaking, packet.targetPosition))
         }
     )
 ) {
@@ -203,3 +203,4 @@ data class PlayerActionEvent(val player: Player, val action: PlayerCommandAction
 data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Vector3i, val face: BlockFace): Event
 data class PlayerConfirmTeleportEvent(val player: Player, val teleportID: Int): Event
 data class PlayerAbilitiesReceivedEvent(val player: Player, val abilities: Byte): Event
+data class PlayerEntityInteractEvent(val player: Player, val type: PlayerInteractType, val entityID: Int, val sneaking: Boolean, val targetPosition: Vector3f?): Event

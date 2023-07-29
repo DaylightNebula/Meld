@@ -79,6 +79,8 @@ class Inventory(
     }
 
     override fun onInventoryChange(changedSlot: Int, changedItemContainer: ItemContainer?, filled: Boolean) {
+        super.onInventoryChange(changedSlot, changedItemContainer, filled)
+
         // tell all watchers about the change
         val javaPacket =
             if (filled) JavaSetInventoryContentPacket(1u, 0, slots, null)

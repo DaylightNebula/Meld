@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.inventories
 
+import io.github.daylightnebula.meld.inventories.handlers.handler
 import io.github.daylightnebula.meld.inventories.utils.inventory
 import io.github.daylightnebula.meld.player.*
 import io.github.daylightnebula.meld.server.events.*
@@ -21,6 +22,20 @@ class InventoryListener: EventListener {
         if (!dropEvent.allowRemove) inventory.setItem(inventory.selectedSlot + 36, dropEvent.item)
         // otherwise remove item
         else inventory.setItem(inventory.selectedSlot + 36, null)
+    }
+
+    @EventHandler
+    fun onBlockAction(event: PlayerBlockActionEvent) {
+        val inventory = event.player.inventory
+        inventory.getItem(inventory.selectedSlot + 36)
+            ?.handler?.onBlockAction(event.action, event.face, event.blockPosition)
+    }
+
+    @EventHandler
+    fun onInteract(event: PlayerEntityInteractEvent) {
+        val inventory = event.player.inventory
+        inventory.getItem(inventory.selectedSlot + 36)
+            ?.handler?.onEntityInteract(event.type, event.entityID, event.sneaking, event.targetPosition)
     }
 }
 

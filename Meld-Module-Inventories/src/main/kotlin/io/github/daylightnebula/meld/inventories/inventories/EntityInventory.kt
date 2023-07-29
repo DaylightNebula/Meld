@@ -19,8 +19,7 @@ interface EntityInventory: BaseInventory {
 
     // when the inventory changes, call an event and update equipment slot
     override fun onInventoryChange(changedSlot: Int, changedItemContainer: ItemContainer?, filled: Boolean) {
-        // call event
-        EventBus.callEvent(EntityInventoryChangeEvent(entity, this, changedSlot, changedItemContainer, filled))
+        super.onInventoryChange(changedSlot, changedItemContainer, filled)
 
         // if an equipment slot can be found for the slot index, broadcast change
         getEquipmentSlotForIndex(changedSlot)?.let { broadcastEquipmentChange(it) }
@@ -61,11 +60,3 @@ interface EntityInventory: BaseInventory {
         }
     }
 }
-
-data class EntityInventoryChangeEvent(
-    val player: Entity,
-    val inventory: EntityInventory,
-    val changedSlot: Int,
-    val changedItemContainer: ItemContainer?,
-    val fill: Boolean
-): Event
