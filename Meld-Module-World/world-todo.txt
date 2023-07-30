@@ -10,7 +10,7 @@
 - [x] Broadcast block changes to all players
 [x] Dimension set, get, fill, clear blocks functions
 [x] World set, get, fill, clear blocks functions
-[ ] Ghost sections (sections that simply reference another section somewhere else in the world)
+[x] Ghost sections (sections that simply reference another section somewhere else in the world)
 [ ] block entities implementation
  - [ ] Allow custom nbt to be added to blocks that is removed when the block is removed or cleared
  - [ ] Send custom nbt as block entity data in chunk data packet

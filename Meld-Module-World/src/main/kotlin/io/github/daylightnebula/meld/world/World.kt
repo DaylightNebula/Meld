@@ -3,6 +3,7 @@ package io.github.daylightnebula.meld.world
 import io.github.daylightnebula.meld.entities.Entity
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.server.events.EventBus
+import io.github.daylightnebula.meld.world.chunks.FilledSection
 import io.github.daylightnebula.meld.world.chunks.FlexiblePalette
 import io.github.daylightnebula.meld.world.chunks.Section
 import io.github.daylightnebula.meld.world.chunks.chunk
@@ -22,7 +23,7 @@ object World {
                     y - 50,
                     "overworld",
                     Array(24) { idx ->
-                        Section(if (idx < 6) FlexiblePalette.filled(79) else FlexiblePalette.filled())
+                        FilledSection(if (idx < 6) FlexiblePalette.filled(79) else FlexiblePalette.filled())
                     }
                 )
 //                chunk.second.clear(Vector3i.from(1, -63, 1), Vector3i.from(14, 40, 14))

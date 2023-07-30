@@ -24,7 +24,7 @@ import kotlin.text.Typography.section
 data class Chunk(
     var dimensionRef: String = "",
     var position: Vector2i = Vector2i.from(0, 0),
-    var sections: Array<Section> = Array(24) { Section() },
+    var sections: Array<Section> = Array(24) { FilledSection() },
     var entities: MutableList<Entity> = mutableListOf()
 ) {
     fun writeJava(writer: ByteWriter) {
@@ -78,7 +78,7 @@ data class Chunk(
             val highY = if (to.y.toSectionID() == section) to.y.toSectionPosition() else 15
 
             // call fill on section
-            sections[section].blockPalette.fill(Vector3i.from(from.x, lowY, from.z), Vector3i.from(to.x, highY, to.z), blockID)
+            sections[section].blockPalette?.fill(Vector3i.from(from.x, lowY, from.z), Vector3i.from(to.x, highY, to.z), blockID)
         }
 
         broadcastChanges()
@@ -101,7 +101,7 @@ data class Chunk(
 
         // update palette
         val palette = section.blockPalette
-        palette.set(chunkLocation, blockID)
+        palette?.set(chunkLocation, blockID)
 
         // call set event
         EventBus.callEvent(SetBlockEvent(this, position, chunkLocation))
@@ -117,7 +117,7 @@ data class Chunk(
         val section = sections[position.y.toSectionID()]
 
         // get block and return
-        return section.blockPalette.get(chunkLocation)
+        return section.blockPalette?.get(chunkLocation) ?: 0
     }
 }
 

@@ -11,7 +11,7 @@ import kotlin.math.floor
 
 fun chunk(
     chunkX: Int = 0, chunkY: Int = 0, dimension: String,
-    sections: Array<Section> = Array(24) { Section() }
+    sections: Array<Section> = Array(24) { FilledSection() }
 ) = Vector2i.from(chunkX, chunkY) to Chunk(dimension, Vector2i.from(chunkX, chunkY), sections)
 
 fun Player.getChunkPosition(): Vector2i =
