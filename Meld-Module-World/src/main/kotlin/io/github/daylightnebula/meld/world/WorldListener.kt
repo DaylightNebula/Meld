@@ -25,12 +25,12 @@ class WorldListener: EventListener {
         val dimension = World.dimensions[entity.dimensionID] ?: return
 
         // add entity to its chunk
-        val chunk = dimension.loadedChunks[entity.position.toChunkPosition()] ?: return
+        val chunk = dimension.getChunk(entity.position.toChunkPosition())
         chunk.entities.add(entity)
 
         // add all nearby players as watchers
-        dimension.getChunksInViewDistanceOfChunk(chunk.position).forEach { chunk ->
-            chunk.entities.filterIsInstance<Player>().forEach {
+        dimension.getChunksInViewDistanceOfChunk(chunk.position).forEach { view ->
+            view.entities.filterIsInstance<Player>().forEach {
                 entity.addWatcher(it.connection)
             }
         }
@@ -42,7 +42,7 @@ class WorldListener: EventListener {
 
         // get dimension and chunk
         val dimension = World.dimensions[entity.dimensionID] ?: return
-        val chunk = dimension.loadedChunks[entity.position.toChunkPosition()] ?: return
+        val chunk = dimension.getChunk(entity.position.toChunkPosition())
 
         // remove from chunk
         chunk.entities.remove(entity)
@@ -92,8 +92,8 @@ class WorldListener: EventListener {
         val newChunkPos = event.newPosition.toChunkPosition()
 
         // move entity to new chunk
-        dimension.loadedChunks[oldChunkPos]?.entities?.remove(event.entity)
-        dimension.loadedChunks[newChunkPos]?.entities?.add(event.entity)
+        dimension.getChunk(oldChunkPos).entities.remove(event.entity)
+        dimension.getChunk(newChunkPos).entities.add(event.entity)
 
         // get chunk diffs
         val chunkDiffs =

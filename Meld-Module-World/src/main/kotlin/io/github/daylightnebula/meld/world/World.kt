@@ -26,9 +26,6 @@ object World {
                         FilledSection(if (idx < 6) FlexiblePalette.filled(79) else FlexiblePalette.filled())
                     }
                 )
-//                chunk.second.clear(Vector3i.from(1, -63, 1), Vector3i.from(14, 40, 14))
-//                val chunk = chunk(x - 50, y - 50, Array(24) { Section(FlexiblePalette.filled()) })
-//                chunk.second.fill(Vector3i.from(0, -64, 0), Vector3i.from(15, 30, 15), 11)
 
                 // return chunk
                 chunk

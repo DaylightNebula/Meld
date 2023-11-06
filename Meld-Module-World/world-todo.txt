@@ -1,9 +1,9 @@
 [x] Automatic send new chunks to players on move
 [x] Automatic unload old chunks to players on move
 [x] Automatic send update center packet when player moves between chunks
-[ ] Loader events to allow external modules to act as world loaders / generators
-- [ ] Call whenever a new chunk is needed but not present
-- [ ] Default a blank chunk (or the current test chunk for now)
+[x] Loader events to allow external modules to act as world loaders / generators
+- [x] Call whenever a new chunk is needed but not present
+- [x] Default a blank chunk (or the current test chunk for now)
 [x] Finish chunks
 - [x] Fill blocks function
 - [x] Clear blocks function

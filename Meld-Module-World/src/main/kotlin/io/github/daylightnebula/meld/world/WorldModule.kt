@@ -29,8 +29,7 @@ class WorldModule: MeldModule {
             println("Creating test entities...")
 
             World.dimensions.forEach { dimension ->
-                dimension.value.loadedChunks.forEach {
-                    val chunk = it.value
+                dimension.value.getChunks().forEach { chunk ->
                     (0 until numTestEntitiesPerChunk).forEach { _ ->
                         Entity(
                             type = EntityType.values().random(),

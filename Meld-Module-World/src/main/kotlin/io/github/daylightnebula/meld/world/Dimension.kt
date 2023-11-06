@@ -25,8 +25,26 @@ import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
 
 class Dimension(
     val id: String,
-    val loadedChunks: HashMap<Vector2i, Chunk> = hashMapOf()
+    private val loadedChunks: HashMap<Vector2i, Chunk> = hashMapOf()
 ) {
+    fun getChunk(position: Vector2i): Chunk {
+        // attempt to get a chunk
+        var chunk = loadedChunks[position]
+
+        // if no chunk found, create one
+        if (chunk == null) {
+            val event = ChunkCreateEvent(Chunk())
+            EventBus.callEvent(event)
+            chunk = event.chunk
+            loadedChunks[position] = chunk
+        }
+
+        // return chunk
+        return chunk
+    }
+
+    fun getChunks(): Collection<Chunk> = loadedChunks.values
+
     // unload a chunk and its entities for the player
     internal fun unloadChunkForPlayer(player: Player, chunk: Chunk) {
         val connection = player.connection
@@ -86,7 +104,7 @@ class Dimension(
         val output = mutableListOf<Chunk>()
         (chunkPos.x - Meld.viewDistance .. chunkPos.x + Meld.viewDistance).forEach { x ->
             (chunkPos.y - Meld.viewDistance .. chunkPos.y + Meld.viewDistance).forEach { y ->
-                loadedChunks[Vector2i.from(x, y)]?.let { output.add(it) }
+                output.add(getChunk(Vector2i.from(x, y)))
             }
         }
         return output
@@ -110,8 +128,8 @@ class Dimension(
     }
 
     // get and set block functions
-    fun getBlock(position: Vector3i) = loadedChunks[position.toChunkPosition()]?.getBlock(position)
-    fun setBlock(position: Vector3i, blockID: Int) = loadedChunks[position.toChunkPosition()]?.setBlock(position, blockID)
+    fun getBlock(position: Vector3i) = getChunk(position.toChunkPosition()).getBlock(position)
+    fun setBlock(position: Vector3i, blockID: Int) = getChunk(position.toChunkPosition()).setBlock(position, blockID)
 
     // fill function
     fun fillBlocks(from: Vector3i, to: Vector3i, blockID: Int) {
@@ -129,7 +147,8 @@ class Dimension(
                 val highZ = if (toChunk.y == y) to.y.toSectionPosition() else 16
 
                 // call fill function on chunk
-                loadedChunks[Vector2i.from(x, y)]?.fill(Vector3i.from(lowX, from.y, lowZ), Vector3i.from(highX, to.y, highZ), blockID)
+                getChunk(Vector2i.from(x, y))
+                    .fill(Vector3i.from(lowX, from.y, lowZ), Vector3i.from(highX, to.y, highZ), blockID)
             }
         }
     }
@@ -143,3 +162,4 @@ fun dimension(
 
 data class PlayerLoadChunkEvent(val player: Player, val chunk: Chunk): Event
 data class PlayerUnloadChunkEvent(val player: Player, val chunk: Chunk): Event
+data class ChunkCreateEvent(val chunk: Chunk): Event

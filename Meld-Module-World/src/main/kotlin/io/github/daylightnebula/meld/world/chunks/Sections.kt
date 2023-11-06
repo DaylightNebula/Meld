@@ -31,11 +31,11 @@ class GhostSection(
     var sectionIndex: Int = 0
 ): Section {
     override var blockPalette: FlexiblePalette? = null
-        get() = World.dimensions[dimensionRef]?.loadedChunks?.get(chunkPos)?.sections?.get(sectionIndex)?.blockPalette
+        get() = World.dimensions[dimensionRef]?.getChunk(chunkPos)?.sections?.get(sectionIndex)?.blockPalette
 
     override fun writeJava(writer: ByteWriter) {
         // get section and write it to output
-        val section = World.dimensions[dimensionRef]?.loadedChunks?.get(chunkPos)?.sections?.get(sectionIndex)
+        val section = World.dimensions[dimensionRef]?.getChunk(chunkPos)?.sections?.get(sectionIndex)
         section?.writeJava(writer)
 
         // if no section was found, write blank chunk
