@@ -2,7 +2,15 @@
 A custom bare-bones Kotlin Minecraft server implementation with the goal of being light-weight, fast and 
 cross-platform.  Meld is designed with the goal of allowing for completely custom games using Minecraft as their 
 engine.  Therefore, everything is customizable and the server itself just serves as an interface between the modules 
-and the clients.
+and the clients, and does not add even basic functionality.
+
+To add basic functionality to the servers, it is recommended to use the following standard modules unless you really 
+know what you are doing:
+ - Meld-Module-Entities
+ - Meld-Module-Inventories
+ - Meld-Module-Login
+ - Meld-Module-Player
+ - Meld-Module-World
 
 ## Goals
 1. Cross platform
