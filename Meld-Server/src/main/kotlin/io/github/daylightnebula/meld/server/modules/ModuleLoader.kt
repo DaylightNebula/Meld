@@ -33,7 +33,7 @@ object ModuleLoader {
 
             // get main class and its constructor
             val constructor = Class.forName(mainClass, true, loader).getDeclaredConstructor()
-            constructor.trySetAccessible()
+//            constructor.trySetAccessible()
 
             // create new module
             val module = constructor.newInstance() as? MeldModule
