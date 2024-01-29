@@ -118,11 +118,11 @@ object RegistryCodec {
     )
 
     var nbt: NBTCompound = NBTCompound(
-        Map.of(
-            "minecraft:chat_type", chatRegistry,
-            "minecraft:dimension_type", dimensionType,
-            "minecraft:worldgen/biome", defaultBiome,
-            "minecraft:damage_type", damageTypes
+        mapOf(
+            "minecraft:chat_type" to chatRegistry,
+            "minecraft:dimension_type" to dimensionType,
+            "minecraft:worldgen/biome" to defaultBiome,
+            "minecraft:damage_type" to damageTypes
         )
     )
 
