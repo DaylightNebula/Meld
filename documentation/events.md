@@ -38,4 +38,8 @@ class ExampleListener: EventListener {
 }
 ```
 
-This function will automatically be called when a `ExampleEvent` is broadcast.
+This function will automatically be called when a `ExampleEvent` is broadcast.  However, the `EventListener` need to be registered for the `EventBus` to know about your `EventListener`.  You can do this by calling this:
+
+```kotlin
+EventBus.register(ExampleListener())
+```
