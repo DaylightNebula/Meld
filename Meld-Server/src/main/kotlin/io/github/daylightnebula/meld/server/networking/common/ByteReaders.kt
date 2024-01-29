@@ -1,8 +1,8 @@
 package io.github.daylightnebula.meld.server.networking.common
 
+import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
-import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import kotlinx.coroutines.runBlocking
 import org.cloudburstmc.math.vector.Vector3i
 import java.nio.ByteBuffer

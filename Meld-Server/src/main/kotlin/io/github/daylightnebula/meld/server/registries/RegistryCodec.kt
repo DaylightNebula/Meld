@@ -1,6 +1,6 @@
 package io.github.daylightnebula.meld.server.registries
 
-import jdk.jshell.spi.ExecutionControl.NotImplementedException
+import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import org.jglrxavpok.hephaistos.nbt.*
 import org.jglrxavpok.hephaistos.parser.SNBTParser
 import org.json.JSONObject

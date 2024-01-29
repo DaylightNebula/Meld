@@ -6,7 +6,7 @@ import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
-import jdk.jshell.spi.ExecutionControl.NotImplementedException
+import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket
 
 val JavaPacketRegistry = hashMapOf<Pair<Int, JavaConnectionState>, () -> JavaPacket>()

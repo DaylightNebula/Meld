@@ -4,7 +4,7 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
-import jdk.jshell.spi.ExecutionControl.NotImplementedException
+import io.github.daylightnebula.meld.server.utils.NotImplementedException
 
 class JavaHandshakePacket(
     var version: Int = 0,
