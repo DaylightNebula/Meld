@@ -1,8 +1,10 @@
 package io.github.daylightnebula.meld.login
 
-import io.github.daylightnebula.meld.login.packets.*
+import io.github.daylightnebula.meld.login.packets.login.*
+import io.github.daylightnebula.meld.server.bedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
+import io.github.daylightnebula.meld.server.java
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
@@ -11,7 +13,7 @@ import org.cloudburstmc.protocol.bedrock.packet.*
 import java.util.*
 
 class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
-    io.github.daylightnebula.meld.server.bedrock(
+    bedrock(
         RequestNetworkSettingsPacket::class.java.name to { connection, _ ->
             // send back network settings
             connection.sendPacket(NetworkSettingsPacket().apply {
@@ -39,7 +41,6 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
             // process depending on the status given in the input packet
             when (status) {
                 ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS -> {
-                    println("Resource pack have all packs")
                     connection.sendPacket(ResourcePackStackPacket().apply {
                         isForcedToAccept = false
                         isExperimentsPreviouslyToggled = false
@@ -50,8 +51,6 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
                 ResourcePackClientResponsePacket.Status.COMPLETED -> {
                     // call login event
                     println("Resource pack completed")
-                    TODO("Fix login event")
-//                    EventBus.callEvent(LoginEvent(connection, UUID))
                     // https://wiki.vg/Bedrock_Protocol#Start_Game
                 }
 
@@ -65,7 +64,7 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
         }
     ),
 
-    io.github.daylightnebula.meld.server.java(
+    java(
         JavaHandshakePacket::class.java.name to { connection, packet ->
             packet as JavaHandshakePacket
             when (packet.nextState) {
@@ -97,10 +96,12 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
                     username = packet.username
                 )
             )
-            connection.state = JavaConnectionState.IN_GAME
+            connection.state = JavaConnectionState.CONFIG
+
+            println("Connection $connection has moved to config state")
 
             // call login event
-            EventBus.callEvent(LoginEvent(connection, packet.uuid ?: UUID.randomUUID()))
+//            EventBus.callEvent(LoginEvent(connection, packet.uuid ?: UUID.randomUUID()))
         }
     )
 ) {
@@ -109,20 +110,25 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
             JavaHandshakePacket.ID,
             JavaHandshakePacket.TYPE
         ) to { JavaHandshakePacket() },
+
         io.github.daylightnebula.meld.server.javaPacketID(
             JavaStatusStatusPacket.ID,
             JavaStatusStatusPacket.TYPE
         ) to { JavaStatusStatusPacket() },
+
         io.github.daylightnebula.meld.server.javaPacketID(
             JavaStatusPingPacket.ID,
             JavaStatusPingPacket.TYPE
         ) to { JavaStatusPingPacket() },
+
         io.github.daylightnebula.meld.server.javaPacketID(
             JavaInitiateLoginPacket.ID,
             JavaInitiateLoginPacket.TYPE
         ) to { JavaInitiateLoginPacket() }
     )
 }
+
+
 
 class LoginEvent(
     val connection: IConnection<*>,

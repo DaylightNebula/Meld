@@ -47,7 +47,7 @@ class JavaConnection(
 }
 
 // the connection state of a java connection
-enum class JavaConnectionState { HANDSHAKE, STATUS, LOGIN, IN_GAME }
+enum class JavaConnectionState { HANDSHAKE, STATUS, LOGIN, CONFIG, IN_GAME }
 
 // representation of a java packet that can be sent too and from users
 interface JavaPacket {

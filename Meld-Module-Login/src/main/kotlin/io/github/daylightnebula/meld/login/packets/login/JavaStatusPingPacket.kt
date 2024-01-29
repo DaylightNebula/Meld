@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.login.packets
+package io.github.daylightnebula.meld.login.packets.login
 
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter

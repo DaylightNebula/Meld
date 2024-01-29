@@ -1,10 +1,11 @@
-package io.github.daylightnebula.meld.login.packets
+package io.github.daylightnebula.meld.login.packets.login
 
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
-import io.github.daylightnebula.meld.server.utils.NotImplementedException
+import io.github.daylightnebula.meld.server.noDecode
+import io.github.daylightnebula.meld.server.noEncode
 import java.util.*
 
 class JavaInitiateLoginPacket(
@@ -18,15 +19,10 @@ class JavaInitiateLoginPacket(
     }
 
     override val id: Int = ID
-
-    override fun encode(writer: ByteWriter) {
-        throw NotImplementedException("This packet can only be received!")
-    }
-
+    override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         username = reader.readVarString()
-        hasUUID = reader.readBoolean()
-        if (hasUUID) uuid = reader.readUUID()
+        uuid = reader.readUUID()
     }
 }
 
@@ -48,7 +44,5 @@ class JavaLoginSuccessPacket(
         writer.writeVarInt(0)
     }
 
-    override fun decode(reader: AbstractReader) {
-        throw NotImplementedException("This packet can only be sent!")
-    }
+    override fun decode(reader: AbstractReader) = noDecode()
 }
