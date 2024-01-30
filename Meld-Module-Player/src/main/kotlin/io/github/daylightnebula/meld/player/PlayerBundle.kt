@@ -168,10 +168,10 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 ) {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
         javaPackets(
-            javaGamePacket(0x12) to { JavaPlayKeepAlivePacket() },
-            javaGamePacket(0x14) to { JavaReceivePlayerPositionPacket() },
-            javaGamePacket(0x16) to { JavaReceivePlayerRotationPacket() },
-            javaGamePacket(0x15) to { JavaReceivePlayerPositionAndRotationPacket() },
+            javaGamePacket(0x15) to { JavaPlayKeepAlivePacket() },
+            javaGamePacket(0x17) to { JavaReceivePlayerPositionPacket() },
+            javaGamePacket(0x19) to { JavaReceivePlayerRotationPacket() },
+            javaGamePacket(0x18) to { JavaReceivePlayerPositionAndRotationPacket() },
             javaGamePacket(0x0D) to { JavaPluginMessagePacket() },
             javaGamePacket(0x00) to { JavaConfirmTeleportPacket() },
             javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },

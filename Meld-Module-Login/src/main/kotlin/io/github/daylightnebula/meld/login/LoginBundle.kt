@@ -8,7 +8,6 @@ import io.github.daylightnebula.meld.server.bedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.java
-import io.github.daylightnebula.meld.server.javaGamePacket
 import io.github.daylightnebula.meld.server.javaPacketID
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConfigKeepAlivePacket
@@ -18,6 +17,7 @@ import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
 import org.cloudburstmc.protocol.bedrock.packet.*
 import java.util.*
 
+private val tempUIDStorage = mutableMapOf<IConnection<*>, UUID>()
 class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
     bedrock(
         RequestNetworkSettingsPacket::class.java.name to { connection, _ ->
@@ -94,20 +94,18 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
         // on initiate login, send back success
         JavaInitiateLoginPacket::class.java.name to { connection, packet ->
             packet as JavaInitiateLoginPacket
+            tempUIDStorage[connection] = packet.uuid ?: UUID.randomUUID()
 
             // respond
             connection.sendPacket(
                 JavaLoginSuccessPacket(
-                    uuid = packet.uuid ?: UUID.randomUUID(),
+                    uuid = tempUIDStorage[connection]!!,
                     username = packet.username
                 )
             )
+
+            // move to config state
             connection.state = JavaConnectionState.CONFIG
-
-            println("Connection $connection has moved to config state")
-
-            // call login event
-//            EventBus.callEvent(LoginEvent(connection, packet.uuid ?: UUID.randomUUID()))
         },
 
         JavaConfigKeepAlivePacket::class.java.name to { connection, packet -> },
@@ -116,7 +114,12 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
             connection.sendPacket(JavaFinishConfigPacket())
         },
 
-        JavaFinishConfigPacket::class.java.name to { connection, packet -> connection.state = JavaConnectionState.IN_GAME },
+        JavaFinishConfigPacket::class.java.name to { connection, packet ->
+            connection.state = JavaConnectionState.IN_GAME
+
+            // call login event
+            EventBus.callEvent(LoginEvent(connection, tempUIDStorage.remove(connection)!!))
+        },
 
         JavaConfigMessagePacket::class.java.name to { connection, packet ->
             packet as JavaConfigMessagePacket

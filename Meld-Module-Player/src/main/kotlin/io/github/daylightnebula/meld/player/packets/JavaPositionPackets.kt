@@ -10,21 +10,6 @@ import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
 
-class JavaReceivePlayerPositionPacket(
-//    var x: Double = 0.0,
-//    var y: Double = 0.0,
-//    var z: Double = 0.0,
-    var position: Vector3f = Vector3f.ZERO,
-    var onGround: Boolean = false
-): JavaPacket {
-    override val id: Int = 0x14
-    override fun encode(writer: ByteWriter) = noEncode()
-    override fun decode(reader: AbstractReader) {
-        position = Vector3f.from(reader.readDouble().toFloat(), reader.readDouble().toFloat(), reader.readDouble().toFloat())
-        onGround = reader.readBoolean()
-    }
-}
-
 class JavaConfirmTeleportPacket(
     var teleportID: Int = 0
 ): JavaPacket {
@@ -35,12 +20,27 @@ class JavaConfirmTeleportPacket(
     }
 }
 
+class JavaReceivePlayerPositionPacket(
+    var position: Vector3f = Vector3f.ZERO,
+    var onGround: Boolean = false
+): JavaPacket {
+    override val id: Int = 0x17
+    override fun encode(writer: ByteWriter) = noEncode()
+    override fun decode(reader: AbstractReader) {
+        position = Vector3f.from(reader.readDouble().toFloat(), reader.readDouble().toFloat(), reader.readDouble().toFloat())
+        onGround = reader.readBoolean()
+    }
+}
+
 class JavaReceivePlayerPositionAndRotationPacket(
     var position: Vector3f = Vector3f.ZERO,
     var rotation: Vector2f = Vector2f.ZERO,
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x15
+    companion object {
+        const val ID = 0x18
+    }
+    override val id: Int = ID
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         position = Vector3f.from(reader.readDouble().toFloat(), reader.readDouble().toFloat(), reader.readDouble().toFloat())
@@ -53,7 +53,7 @@ class JavaReceivePlayerRotationPacket(
     var rotation: Vector2f = Vector2f.ZERO,
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x16
+    override val id: Int = 0x19
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         rotation = Vector2f.from(reader.readFloat(), reader.readFloat())
