@@ -16,6 +16,7 @@ import io.github.daylightnebula.meld.player.packets.login.JavaFeatureFlagsPacket
 import io.github.daylightnebula.meld.player.packets.join.JavaJoinPacket
 import io.github.daylightnebula.meld.server.registries.BedrockRegistries
 import io.github.daylightnebula.meld.player.extensions.JavaEntityStatusPacket
+import io.github.daylightnebula.meld.player.extensions.hasPlayer
 import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
@@ -34,7 +35,7 @@ class PlayerListener: EventListener {
     @EventHandler
     fun onConnectionAborted(event: ConnectionAbortedEvent) {
         try {
-            event.connection.player.despawn()
+            if (event.connection.hasPlayer) event.connection.player.despawn()
         } catch (_: Exception) {}
     }
 

@@ -1,11 +1,17 @@
 package io.github.daylightnebula.meld.login
 
+import io.github.daylightnebula.meld.login.packets.config.JavaClientInfoPacket
+import io.github.daylightnebula.meld.login.packets.config.JavaConfigMessagePacket
+import io.github.daylightnebula.meld.login.packets.config.JavaFinishConfigPacket
 import io.github.daylightnebula.meld.login.packets.login.*
 import io.github.daylightnebula.meld.server.bedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.java
+import io.github.daylightnebula.meld.server.javaGamePacket
+import io.github.daylightnebula.meld.server.javaPacketID
 import io.github.daylightnebula.meld.server.networking.common.IConnection
+import io.github.daylightnebula.meld.server.networking.java.JavaConfigKeepAlivePacket
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
 import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
@@ -102,29 +108,61 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
             // call login event
 //            EventBus.callEvent(LoginEvent(connection, packet.uuid ?: UUID.randomUUID()))
-        }
+        },
+
+        JavaConfigKeepAlivePacket::class.java.name to { connection, packet -> },
+
+        JavaClientInfoPacket::class.java.name to { connection, packet ->
+            connection.sendPacket(JavaFinishConfigPacket())
+        },
+
+        JavaFinishConfigPacket::class.java.name to { connection, packet -> connection.state = JavaConnectionState.IN_GAME },
+
+        JavaConfigMessagePacket::class.java.name to { connection, packet ->
+            packet as JavaConfigMessagePacket
+            when (packet.channel) {
+                "minecraft:brand" -> {
+                    connection.sendPacket(JavaConfigMessagePacket("minecraft:brand", packet.data))
+                }
+
+                else -> println("Unknown plugin message channel ${packet.channel}")
+            }
+        },
     )
 ) {
     override fun registerJavaPackets() = io.github.daylightnebula.meld.server.javaPackets(
-        io.github.daylightnebula.meld.server.javaPacketID(
+        javaPacketID(
             JavaHandshakePacket.ID,
             JavaHandshakePacket.TYPE
         ) to { JavaHandshakePacket() },
 
-        io.github.daylightnebula.meld.server.javaPacketID(
+        javaPacketID(
             JavaStatusStatusPacket.ID,
             JavaStatusStatusPacket.TYPE
         ) to { JavaStatusStatusPacket() },
 
-        io.github.daylightnebula.meld.server.javaPacketID(
+        javaPacketID(
             JavaStatusPingPacket.ID,
             JavaStatusPingPacket.TYPE
         ) to { JavaStatusPingPacket() },
 
-        io.github.daylightnebula.meld.server.javaPacketID(
+        javaPacketID(
             JavaInitiateLoginPacket.ID,
             JavaInitiateLoginPacket.TYPE
-        ) to { JavaInitiateLoginPacket() }
+        ) to { JavaInitiateLoginPacket() },
+
+        javaPacketID(
+            JavaConfigKeepAlivePacket.ID,
+            JavaConfigKeepAlivePacket.TYPE
+        ) to { JavaConfigKeepAlivePacket() },
+
+        javaPacketID(
+            JavaClientInfoPacket.ID,
+            JavaClientInfoPacket.TYPE
+        ) to { JavaClientInfoPacket() },
+
+        javaPacketID(0x01, JavaConnectionState.CONFIG) to { JavaConfigMessagePacket() },
+        javaPacketID(0x02, JavaConnectionState.CONFIG) to { JavaFinishConfigPacket() }
     )
 }
 

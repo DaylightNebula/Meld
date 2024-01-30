@@ -2,33 +2,21 @@ package io.github.daylightnebula.meld.player
 
 import io.github.daylightnebula.meld.entities.EntityAnimation
 import io.github.daylightnebula.meld.entities.metadata.metaPose
-import io.github.daylightnebula.meld.entities.packets.JavaEntityAnimationPacket
-import io.github.daylightnebula.meld.server.events.Event
-import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
-import io.github.daylightnebula.meld.server.networking.java.JavaPacket
-import io.github.daylightnebula.meld.player.packets.join.JavaClientInfoPacket
-import io.github.daylightnebula.meld.player.packets.join.JavaPluginMessagePacket
 import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.*
-import io.github.daylightnebula.meld.server.events.CancellableEvent
+import io.github.daylightnebula.meld.player.packets.join.JavaPluginMessagePacket
+import io.github.daylightnebula.meld.server.events.Event
+import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.javaGamePacket
 import io.github.daylightnebula.meld.server.javaPackets
-import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
+import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
+import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import io.github.daylightnebula.meld.server.networking.java.JavaPlayKeepAlivePacket
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import io.github.daylightnebula.meld.server.utils.Pose
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
-import org.cloudburstmc.protocol.bedrock.packet.AnimatePacket
-import org.cloudburstmc.protocol.bedrock.packet.ChunkRadiusUpdatedPacket
-import org.cloudburstmc.protocol.bedrock.packet.EmoteListPacket
-import org.cloudburstmc.protocol.bedrock.packet.InteractPacket
-import org.cloudburstmc.protocol.bedrock.packet.LevelSoundEventPacket
-import org.cloudburstmc.protocol.bedrock.packet.MovePlayerPacket
-import org.cloudburstmc.protocol.bedrock.packet.RequestChunkRadiusPacket
-import org.cloudburstmc.protocol.bedrock.packet.SetLocalPlayerAsInitializedPacket
-import org.cloudburstmc.protocol.bedrock.packet.TickSyncPacket
+import org.cloudburstmc.protocol.bedrock.packet.*
 
 class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
     io.github.daylightnebula.meld.server.bedrock(
@@ -68,7 +56,7 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
         }
     ),
     io.github.daylightnebula.meld.server.java(
-        JavaKeepAlivePacket::class.java.name to { connection, packet -> },
+        JavaPlayKeepAlivePacket::class.java.name to { connection, packet -> },
 
         JavaReceivePlayerPositionPacket::class.java.name to { connection, packet ->
             packet as JavaReceivePlayerPositionPacket
@@ -116,10 +104,6 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
             // if cancelled, send sync packet, otherwise, set rotation
             if (event.cancelled) player.teleport()
             else player.setRotation(packet.rotation)
-        },
-
-        JavaClientInfoPacket::class.java.name to { connection, packet ->
-            packet as JavaClientInfoPacket
         },
 
         JavaPluginMessagePacket::class.java.name to { connection, packet ->
@@ -184,11 +168,10 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
 ) {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
         javaPackets(
-            javaGamePacket(0x12) to { JavaKeepAlivePacket() },
+            javaGamePacket(0x12) to { JavaPlayKeepAlivePacket() },
             javaGamePacket(0x14) to { JavaReceivePlayerPositionPacket() },
             javaGamePacket(0x16) to { JavaReceivePlayerRotationPacket() },
             javaGamePacket(0x15) to { JavaReceivePlayerPositionAndRotationPacket() },
-            javaGamePacket(0x08) to { JavaClientInfoPacket() },
             javaGamePacket(0x0D) to { JavaPluginMessagePacket() },
             javaGamePacket(0x00) to { JavaConfirmTeleportPacket() },
             javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },

@@ -1,31 +1,35 @@
-package io.github.daylightnebula.meld.player.packets.join
+package io.github.daylightnebula.meld.login.packets.config
 
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
+import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noEncode
-import io.github.daylightnebula.meld.player.PlayerChatMode
-import io.github.daylightnebula.meld.player.PlayerMainHand
 
 class JavaClientInfoPacket(
     var locale: String = "en_us",
     var viewDistance: Int = 0,
-    var chatMode: PlayerChatMode = PlayerChatMode.ENABLED,
+    var chatMode: Int = 0,
     var chatColorsEnabled: Boolean = true,
     var skinParts: Byte = 0x00,
-    var mainHand: PlayerMainHand = PlayerMainHand.RIGHT,
+    var mainHand: Int = 1,
     var textFilterEnabled: Boolean = false,
     var allowServerListings: Boolean = true
 ): JavaPacket {
-    override val id: Int = 0x08
+    companion object {
+        val ID = 0x00
+        val TYPE = JavaConnectionState.CONFIG
+    }
+
+    override val id: Int = ID
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         locale = reader.readVarString()
         viewDistance = reader.readByte().toInt()
-        chatMode = PlayerChatMode.values()[reader.readVarInt()]
+        chatMode = reader.readVarInt()
         chatColorsEnabled = reader.readBoolean()
         skinParts = reader.readByte()
-        mainHand = PlayerMainHand.values()[reader.readVarInt()]
+        mainHand = reader.readVarInt()
         textFilterEnabled = reader.readBoolean()
         allowServerListings = reader.readBoolean()
     }

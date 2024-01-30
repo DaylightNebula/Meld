@@ -3,9 +3,7 @@ package io.github.daylightnebula.meld.server
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.modules.ModuleLoader
 import io.github.daylightnebula.meld.server.networking.common.IConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaKeepAlivePacket
-import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
+import io.github.daylightnebula.meld.server.networking.java.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
@@ -19,8 +17,8 @@ import kotlin.concurrent.thread
 data class MeldConfig (
     // java specific
     val javaPort: Int = 25565,
-    val javaProtocol: Int = 763,
-    val javaVersion: String = "1.20.1",
+    val javaProtocol: Int = 765,
+    val javaVersion: String = "1.20.4",
 
     // bedrock specific
     val bedrockPort: Int = 19132,
@@ -66,7 +64,17 @@ val keepAliveThread = thread {
         sleep(1000)
         try {
             Meld.connections
-                .forEach { if (it is JavaConnection) it.sendPacket(JavaKeepAlivePacket()) }
+                .forEach {
+                    if (it is JavaConnection) {
+                        when (it.state) {
+                            JavaConnectionState.HANDSHAKE -> {}
+                            JavaConnectionState.STATUS -> {}
+                            JavaConnectionState.LOGIN -> {}
+                            JavaConnectionState.CONFIG -> it.sendPacket(JavaConfigKeepAlivePacket())
+                            JavaConnectionState.IN_GAME -> it.sendPacket(JavaPlayKeepAlivePacket())
+                        }
+                    }
+                }
         } catch (_: ConcurrentModificationException) {}
     }
 }

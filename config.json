@@ -1,7 +1,7 @@
 {
     "javaPort": 25565,
-    "javaProtocol": 763,
-    "javaVersion": "1.20.1",
+    "javaProtocol": 765,
+    "javaVersion": "1.20.4",
     "bedrockPort": 19132,
     "bedrockPortv6": 19133,
     "raknetProtocol": 11,
