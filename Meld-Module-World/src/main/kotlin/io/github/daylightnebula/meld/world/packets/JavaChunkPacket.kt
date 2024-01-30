@@ -14,7 +14,7 @@ class JavaChunkPacket(
     var heightmaps: NBTCompound = ChunkRegistry.defaultHeightmap
 ): JavaPacket {
 
-    override val id: Int = 0x24
+    override val id: Int = 0x25
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         // serialize chunk
@@ -29,8 +29,10 @@ class JavaChunkPacket(
         writer.writeVarInt(data.size)
         writer.writeByteArray(data)
 
+        // block entities
         writer.writeVarInt(0)
 
+        // lights
         writer.writeVarInt(2)
         writer.writeLong(0)
         writer.writeLong(0)

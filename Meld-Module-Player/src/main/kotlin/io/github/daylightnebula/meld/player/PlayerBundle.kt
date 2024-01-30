@@ -174,7 +174,7 @@ class PlayerBundle: io.github.daylightnebula.meld.server.PacketBundle(
             javaGamePacket(0x18) to { JavaReceivePlayerPositionAndRotationPacket() },
             javaGamePacket(0x0D) to { JavaPluginMessagePacket() },
             javaGamePacket(0x00) to { JavaConfirmTeleportPacket() },
-            javaGamePacket(0x1C) to { JavaReceivePlayerAbilitiesPacket() },
+            javaGamePacket(0x20) to { JavaReceivePlayerAbilitiesPacket() },
             javaGamePacket(0x1E) to { JavaPlayerCommandPacket() },
             javaGamePacket(0x2F) to { JavaSwingArmPacket() },
             javaGamePacket(0x1D) to { JavaBlockActionPacket() },

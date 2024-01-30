@@ -1,18 +1,16 @@
-package io.github.daylightnebula.meld.player.packets
+package io.github.daylightnebula.meld.login.packets.config
 
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
 
-class JavaDifficultyPacket(
-    var difficulty: UByte = 2u,
-    var locked: Boolean = true
-): JavaPacket {
-    override val id: Int = 0x0B
+class JavaFeatureFlagsPacket(var features: Array<String> = arrayOf("minecraft:vanilla")): JavaPacket {
+    override val id: Int = 0x08
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
-        writer.writeUByte(difficulty)
-        writer.writeBoolean(locked)
+        println("Sending ${features.toList()}")
+        writer.writeVarInt(features.size)
+        features.forEach { writer.writeString(it) }
     }
 }

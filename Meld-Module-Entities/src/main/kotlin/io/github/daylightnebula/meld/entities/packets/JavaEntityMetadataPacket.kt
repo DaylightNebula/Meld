@@ -11,7 +11,7 @@ class JavaEntityMetadataPacket(
     var entityID: Int = 0,
     var metadata: EntityMetadata = entityMetadata()
 ): JavaPacket {
-    override val id: Int = 0x52
+    override val id: Int = 0x56
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)

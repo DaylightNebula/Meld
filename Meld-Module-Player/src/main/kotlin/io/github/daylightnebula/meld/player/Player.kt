@@ -79,7 +79,7 @@ class Player(
         if (type == EntityType.PLAYER)
             listOf(
                 JavaPlayerInfoUpdatePacket(uid, infoActions),
-                JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO),
+//                JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO),
                 JavaEntityMetadataPacket(id, metadata)
             )
         else super.getSpawnJavaPackets()

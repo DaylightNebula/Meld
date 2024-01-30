@@ -2,6 +2,7 @@ package io.github.daylightnebula.meld.login
 
 import io.github.daylightnebula.meld.login.packets.config.JavaClientInfoPacket
 import io.github.daylightnebula.meld.login.packets.config.JavaConfigMessagePacket
+import io.github.daylightnebula.meld.login.packets.config.JavaFeatureFlagsPacket
 import io.github.daylightnebula.meld.login.packets.config.JavaFinishConfigPacket
 import io.github.daylightnebula.meld.login.packets.login.*
 import io.github.daylightnebula.meld.server.bedrock
@@ -111,6 +112,7 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
         JavaConfigKeepAlivePacket::class.java.name to { connection, packet -> },
 
         JavaClientInfoPacket::class.java.name to { connection, packet ->
+//            connection.sendPacket(JavaFeatureFlagsPacket())
             connection.sendPacket(JavaFinishConfigPacket())
         },
 

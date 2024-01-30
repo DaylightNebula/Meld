@@ -1,23 +1,22 @@
 package io.github.daylightnebula.meld.player
 
+import io.github.daylightnebula.meld.login.LoginEvent
+import io.github.daylightnebula.meld.player.extensions.JavaEntityStatusPacket
+import io.github.daylightnebula.meld.player.extensions.hasPlayer
 import io.github.daylightnebula.meld.player.extensions.player
+import io.github.daylightnebula.meld.player.packets.JavaDifficultyPacket
+import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
+import io.github.daylightnebula.meld.player.packets.JavaSetSpawnPositionPacket
+import io.github.daylightnebula.meld.player.packets.join.JavaJoinPacket
+import io.github.daylightnebula.meld.player.packets.login.JavaAbilitiesPacket
+import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.events.EventHandler
 import io.github.daylightnebula.meld.server.events.EventListener
-import io.github.daylightnebula.meld.login.LoginEvent
-import io.github.daylightnebula.meld.player.packets.JavaDifficultyPacket
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
-import io.github.daylightnebula.meld.player.packets.JavaSetSpawnPositionPacket
-import io.github.daylightnebula.meld.player.packets.login.JavaAbilitiesPacket
-import io.github.daylightnebula.meld.player.packets.login.JavaFeatureFlagsPacket
-import io.github.daylightnebula.meld.player.packets.join.JavaJoinPacket
 import io.github.daylightnebula.meld.server.registries.BedrockRegistries
-import io.github.daylightnebula.meld.player.extensions.JavaEntityStatusPacket
-import io.github.daylightnebula.meld.player.extensions.hasPlayer
-import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
 import org.cloudburstmc.math.vector.Vector2f
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
@@ -55,13 +54,12 @@ class PlayerListener: EventListener {
 
                 // send join packets
                 connection.sendPacket(JavaJoinPacket(player))
-                connection.sendPacket(JavaFeatureFlagsPacket())
                 connection.sendPacket(JavaAbilitiesPacket())
                 connection.sendPacket(JavaEntityStatusPacket(player))
                 connection.sendPacket(JavaDifficultyPacket())
 
                 // send positions
-                connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))
+//                connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))
                 connection.sendPacket(JavaSetPlayerPositionPacket(Vector3f.from(0f, 60f, 0f), Vector2f.from(0f, 0f)))
             }
 

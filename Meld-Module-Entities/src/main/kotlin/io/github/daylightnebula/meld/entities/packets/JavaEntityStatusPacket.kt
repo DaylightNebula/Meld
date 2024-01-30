@@ -8,7 +8,7 @@ class JavaEntityStatusPacket(
     var entityID: Int = 0,
     var status: Byte = 0
 ) : JavaPacket {
-    override val id: Int = 0x1C
+    override val id: Int = 0x1D
     override fun decode(reader: AbstractReader) = io.github.daylightnebula.meld.server.noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeInt(entityID)

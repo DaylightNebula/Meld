@@ -9,7 +9,7 @@ class JavaPluginMessagePacket(
     var channel: String = "",
     var data: ByteArray = byteArrayOf()
 ): JavaPacket {
-    override val id: Int = 0x17 // id used to send to client
+    override val id: Int = 0x18 // id used to send to client
     override fun encode(writer: ByteWriter) {
         writer.writeString(channel)
         writer.writeByteArray(data)

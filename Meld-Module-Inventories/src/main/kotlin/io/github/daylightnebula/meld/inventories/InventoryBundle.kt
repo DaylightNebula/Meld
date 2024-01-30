@@ -47,7 +47,7 @@ class InventoryBundle: io.github.daylightnebula.meld.server.PacketBundle(
             io.github.daylightnebula.meld.server.javaGamePacket(0x32) to { JavaUseItemPacket() },
             io.github.daylightnebula.meld.server.javaGamePacket(0x31) to { JavaUseItemOnPacket() },
             io.github.daylightnebula.meld.server.javaGamePacket(0x28) to { JavaSetSelectedSlotPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x0C) to { JavaCloseInventoryPacket() },
+            io.github.daylightnebula.meld.server.javaGamePacket(0x12) to { JavaCloseInventoryPacket() },
             io.github.daylightnebula.meld.server.javaGamePacket(0x2B) to { JavaCreativeModeSlotPacket() }
         )
 }

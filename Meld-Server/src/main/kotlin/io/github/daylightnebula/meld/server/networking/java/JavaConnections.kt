@@ -20,6 +20,8 @@ class JavaConnection(
 ): IConnection<JavaPacket> {
 
     override fun sendPacket(packet: JavaPacket) {
+        if (!packet::class.java.name.contains("Chunk")) println("Sending $packet")
+
         // create writer
         val writer = ByteWriter(packet.id, DataPacketMode.JAVA)
 
@@ -34,7 +36,7 @@ class JavaConnection(
             try {
                 write.writeFully(bytes, 0, bytes.size)
             } catch (ex: IOException) {
-                if (state == JavaConnectionState.IN_GAME) println("Connection $me aborted")
+//                if (state == JavaConnectionState.IN_GAME) println("Connection $me aborted")
                 EventBus.callEvent(ConnectionAbortedEvent(me))
                 Meld.connections.remove(me as IConnection<*>)
             } catch (ex: IllegalStateException) { println("Fix parallel write issues!") } // FIXME

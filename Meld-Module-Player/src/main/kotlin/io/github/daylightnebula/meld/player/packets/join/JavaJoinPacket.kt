@@ -29,6 +29,7 @@ class JavaJoinPacket(
     val simDistance: Int = Meld.simDistance,
     val reducedDebugInfo: Boolean = false,
     val enableRespawnScreen: Boolean = true,
+    val doLimitedCrafting: Boolean = false,
     val isDebug: Boolean = false,
     val isFlat: Boolean = Meld.isFlatWorld,
     val portalCooldown: Int = Meld.portalCooldown
@@ -40,25 +41,26 @@ class JavaJoinPacket(
         gameMode = player.gameMode
     )
 
-    companion object { val ID = 0x28 }
+    companion object { val ID = 0x29 }
     override val id: Int = ID
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
+        // header
         writer.writeInt(playerID)
         writer.writeBoolean(isHardcore)
-        writer.writeUByte(gameMode.ordinal.toUByte())
-        writer.writeByte(previousGameMode)
         writer.writeVarInt(dimensionCount)
         dimensionNames.forEach { writer.writeString(it) }
-        writer.writeNBT(registryCodec)
-        writer.writeString(dimensionType)
-        writer.writeString(dimensionName)
-        writer.writeLong(seed)
         writer.writeVarInt(maxPlayers)
         writer.writeVarInt(viewDistance)
         writer.writeVarInt(simDistance)
         writer.writeBoolean(reducedDebugInfo)
         writer.writeBoolean(enableRespawnScreen)
+        writer.writeBoolean(doLimitedCrafting)
+        writer.writeString(dimensionType)
+        writer.writeString(dimensionName)
+        writer.writeLong(0) // hashed seed
+        writer.writeUByte(gameMode.ordinal.toUByte())
+        writer.writeByte(previousGameMode)
         writer.writeBoolean(isDebug)
         writer.writeBoolean(isFlat)
         writer.writeBoolean(false)

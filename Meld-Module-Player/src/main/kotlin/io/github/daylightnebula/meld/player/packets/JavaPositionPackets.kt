@@ -61,13 +61,13 @@ class JavaReceivePlayerRotationPacket(
     }
 }
 
-class JavaSetPlayerPositionPacket(
+class JavaSetPlayerPositionPacket( // AKA sync player position
     var position: Vector3f = Vector3f.ZERO,
     var rotation: Vector2f = Vector2f.ZERO,
     var flags: Byte = 0x00,
     var teleportID: Int = TeleportCounter.nextID()
 ): JavaPacket {
-    override val id: Int = 0x3C
+    override val id: Int = 0x3E
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeDouble(position.x.toDouble())
@@ -84,7 +84,7 @@ class JavaSetSpawnPositionPacket(
     var blockPosition: Vector3i,
     var rotation: Float
 ): JavaPacket {
-    override val id: Int = 0x50
+    override val id: Int = 0x54
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeBlockPosition(blockPosition)

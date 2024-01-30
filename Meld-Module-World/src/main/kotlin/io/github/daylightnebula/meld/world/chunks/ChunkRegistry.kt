@@ -10,7 +10,8 @@ object ChunkRegistry {
     val defaultHeightmap: NBTCompound = NBT.Compound(
         mapOf<String, NBTLongArray>(
             "MOTION_BLOCKING" to NBT.LongArray(*LongArray(37) { 0x100804020100804 }),
-//                "WORLD_SURFACE" to NBT.LongArray(*net.minestom.server.instance.DynamicChunk.encodeBlocks(worldSurface, bitsForHeight))
+            "WORLD_SURFACE" to NBT.LongArray(*LongArray(37) { 0x100804020100804 }),
+//            "WORLD_SURFACE" to NBT.LongArray(*net.minestom.server.instance.DynamicChunk.encodeBlocks(worldSurface, bitsForHeight))
         )
     )
 

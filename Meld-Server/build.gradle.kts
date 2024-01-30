@@ -76,9 +76,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     // nbt
-    implementation("io.github.jglrxavpok.hephaistos:common:2.5.3")
-    implementation("io.github.jglrxavpok.hephaistos:antlr:2.5.3")
-    implementation("io.github.jglrxavpok.hephaistos:gson:2.5.3")
+    implementation("io.github.jglrxavpok.hephaistos:common:2.6.1")
+    implementation("io.github.jglrxavpok.hephaistos:antlr:2.6.1")
+    implementation("io.github.jglrxavpok.hephaistos:gson:2.6.1")
 
     // protocols
     implementation(libs.bundles.fastutil)
