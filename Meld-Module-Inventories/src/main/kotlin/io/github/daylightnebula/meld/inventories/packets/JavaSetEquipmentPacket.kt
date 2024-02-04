@@ -12,7 +12,7 @@ class JavaSetEquipmentPacket(
     var slot: EquipmentSlot,
     var item: ItemContainer?
 ): JavaPacket {
-    override val id: Int = 0x55
+    override val id: Int = 0x59
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)

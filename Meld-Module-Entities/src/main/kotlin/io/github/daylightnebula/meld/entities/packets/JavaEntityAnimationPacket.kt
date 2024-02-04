@@ -10,7 +10,7 @@ class JavaEntityAnimationPacket(
     var entityID: Int = 0,
     var animation: EntityAnimation = EntityAnimation.SWING_ARM
 ): JavaPacket {
-    override val id: Int = 0x04
+    override val id: Int = 0x03
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)

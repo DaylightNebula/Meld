@@ -9,7 +9,7 @@ import org.cloudburstmc.math.vector.Vector2i
 class JavaUnloadChunkPacket(
     var chunkPos: Vector2i = Vector2i.ZERO
 ): JavaPacket {
-    override val id: Int = 0x1E
+    override val id: Int = 0x1F
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeInt(chunkPos.x)

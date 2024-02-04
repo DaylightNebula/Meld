@@ -8,7 +8,7 @@ import io.github.daylightnebula.meld.server.noEncode
 class JavaSetSelectedSlotPacket(
     var slot: Int = 0
 ): JavaPacket {
-    override val id: Int = 0x4D // id when going to clients, 0x28 when being received
+    override val id: Int = 0x51 // id when going to clients, 0x28 when being received
     override fun encode(writer: ByteWriter) {
         writer.writeShort(slot.toShort())
     }

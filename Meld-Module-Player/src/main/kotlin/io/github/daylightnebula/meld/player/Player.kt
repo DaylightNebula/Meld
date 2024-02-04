@@ -8,16 +8,13 @@ import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
 import io.github.daylightnebula.meld.entities.LivingEntity
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
-import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
 import io.github.daylightnebula.meld.entities.metadata.entityMetadata
 import io.github.daylightnebula.meld.entities.metadata.metaPose
 import io.github.daylightnebula.meld.entities.packets.JavaEntityMetadataPacket
 import io.github.daylightnebula.meld.entities.packets.JavaSpawnEntityPacket
 import io.github.daylightnebula.meld.player.packets.JavaPlayerInfoUpdatePacket
 import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
-import io.github.daylightnebula.meld.player.packets.JavaSpawnPlayerPacket
 import io.github.daylightnebula.meld.player.packets.PlayerInfoAction
-import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection

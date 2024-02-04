@@ -8,7 +8,7 @@ import io.github.daylightnebula.meld.server.noDecode
 class JavaRemoveEntitiesPacket(
     val entityIDs: Collection<Int> = listOf<Int>()
 ): JavaPacket {
-    override val id: Int = 0x3E
+    override val id: Int = 0x40
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityIDs.size)

@@ -9,7 +9,7 @@ import io.github.daylightnebula.meld.player.PlayerHand
 class JavaSwingArmPacket(
     var hand: PlayerHand = PlayerHand.MAIN
 ): JavaPacket {
-    override val id: Int = 0x2F
+    override val id: Int = 0x33
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         hand = PlayerHand.values()[reader.readVarInt()]

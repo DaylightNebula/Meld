@@ -12,7 +12,7 @@ class JavaOpenInventoryPacket(
     var windowType: InventoryType = InventoryType.GENERIC_9x1,
     var title: JSONObject = JSONObject().put("text", "")
 ): JavaPacket {
-    override val id: Int = 0x30
+    override val id: Int = 0x31
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(windowID)

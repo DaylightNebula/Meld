@@ -9,6 +9,8 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.PlayerHand
 import io.github.daylightnebula.meld.player.extensions.player
+import io.github.daylightnebula.meld.server.javaGamePacket
+import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
@@ -43,12 +45,12 @@ class InventoryBundle: io.github.daylightnebula.meld.server.PacketBundle(
     )
 ) {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
-        io.github.daylightnebula.meld.server.javaPackets(
-            io.github.daylightnebula.meld.server.javaGamePacket(0x32) to { JavaUseItemPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x31) to { JavaUseItemOnPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x28) to { JavaSetSelectedSlotPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x12) to { JavaCloseInventoryPacket() },
-            io.github.daylightnebula.meld.server.javaGamePacket(0x2B) to { JavaCreativeModeSlotPacket() }
+        javaPackets(
+            javaGamePacket(0x36) to { JavaUseItemPacket() },
+            javaGamePacket(0x35) to { JavaUseItemOnPacket() },
+            javaGamePacket(0x2C) to { JavaSetSelectedSlotPacket() },
+            javaGamePacket(0x0E) to { JavaCloseInventoryPacket() },
+            javaGamePacket(0x2F) to { JavaCreativeModeSlotPacket() }
         )
 }
 

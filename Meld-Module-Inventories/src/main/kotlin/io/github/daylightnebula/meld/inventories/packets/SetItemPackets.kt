@@ -12,7 +12,7 @@ class JavaSetItemPacket(
     var slotIndex: Short = 0,
     var item: ItemContainer? = null
 ): JavaPacket {
-    override val id: Int = 0x14
+    override val id: Int = 0x15
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeByte(windowID)
@@ -28,7 +28,7 @@ class JavaSetInventoryContentPacket(
     var items: Array<ItemContainer?> = arrayOf(),
     var carriedItem: ItemContainer? = null
 ): JavaPacket {
-    override val id: Int = 0x12
+    override val id: Int = 0x13
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeUByte(windowID)
