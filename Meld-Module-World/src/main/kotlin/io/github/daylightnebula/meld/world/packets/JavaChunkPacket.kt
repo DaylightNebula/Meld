@@ -7,7 +7,10 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
 import io.github.daylightnebula.meld.world.chunks.Chunk
 import io.github.daylightnebula.meld.world.chunks.ChunkRegistry
+import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import org.jglrxavpok.hephaistos.nbt.NBTWriter
+import java.io.OutputStream
 
 class JavaChunkPacket(
     var chunk: Chunk = Chunk(),
@@ -26,6 +29,7 @@ class JavaChunkPacket(
         writer.writeInt(chunk.position.x)
         writer.writeInt(chunk.position.y)
         writer.writeNBT(heightmaps)
+
         writer.writeVarInt(data.size)
         writer.writeByteArray(data)
 

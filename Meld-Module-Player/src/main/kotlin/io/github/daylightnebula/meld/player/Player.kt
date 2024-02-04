@@ -12,6 +12,7 @@ import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
 import io.github.daylightnebula.meld.entities.metadata.entityMetadata
 import io.github.daylightnebula.meld.entities.metadata.metaPose
 import io.github.daylightnebula.meld.entities.packets.JavaEntityMetadataPacket
+import io.github.daylightnebula.meld.entities.packets.JavaSpawnEntityPacket
 import io.github.daylightnebula.meld.player.packets.JavaPlayerInfoUpdatePacket
 import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
 import io.github.daylightnebula.meld.player.packets.JavaSpawnPlayerPacket
@@ -79,7 +80,10 @@ class Player(
         if (type == EntityType.PLAYER)
             listOf(
                 JavaPlayerInfoUpdatePacket(uid, infoActions),
-//                JavaSpawnPlayerPacket(id, uid, position ?: Vector3f.ZERO, rotation ?: Vector2f.ZERO),
+                JavaSpawnEntityPacket(
+                    id, uid, EntityType.PLAYER.mcID,
+                    position = position, rotation = rotation
+                ),
                 JavaEntityMetadataPacket(id, metadata)
             )
         else super.getSpawnJavaPackets()

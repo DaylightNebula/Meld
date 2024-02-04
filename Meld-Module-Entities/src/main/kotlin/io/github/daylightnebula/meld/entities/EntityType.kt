@@ -1,7 +1,6 @@
 package io.github.daylightnebula.meld.entities
 
 enum class EntityType(val mcID: Int, val identifier: String, val mcName: String) {
-    PLAYER(Integer.MAX_VALUE, "REPLACE", "Player"),
     ALLAY(0, "minecraft:allay", "Allay"),
     AREA_EFFECT_CLOUD(1, "minecraft:area_effect_cloud", "Area Effect Cloud"),
     ARMOR_STAND(2, "minecraft:armor_stand", "Armor Stand"),
@@ -122,4 +121,6 @@ enum class EntityType(val mcID: Int, val identifier: String, val mcName: String)
     ZOMBIE_HORSE(119, "minecraft:zombie_horse", "Zombie Horse"),
     ZOMBIE_VILLAGER(120, "minecraft:zombie_villager", "Zombie Villager"),
     ZOMBIFIED_PIGLIN(121, "minecraft:zombified_piglin", "Zombified Piglin"),
+    PLAYER(122, "minecraft:player", "Player"),
+    FISHING_BOBBER(123, "minecraft:fishing_bobber", "Fishing Bobber")
 }

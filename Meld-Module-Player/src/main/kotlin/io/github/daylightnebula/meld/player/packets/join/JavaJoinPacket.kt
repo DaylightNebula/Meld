@@ -20,7 +20,6 @@ class JavaJoinPacket(
     val previousGameMode: Byte = -1,
     val dimensionCount: Int = 1,
     val dimensionNames: List<String> = listOf("minecraft:overworld"),
-    val registryCodec: NBTCompound = RegistryCodec.nbt,
     val dimensionType: String = "minecraft:overworld",
     val dimensionName: String = "minecraft:overworld",
     val seed: Long = 0L,

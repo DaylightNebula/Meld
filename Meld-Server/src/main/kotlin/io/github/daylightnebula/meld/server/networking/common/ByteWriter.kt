@@ -90,17 +90,23 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     // NBT
     fun writeNBT(compound: NBTCompound) {
         val buffer = ByteWriter(id, mode)
+        buffer.writeByte(0x0A)
         val writer = NBTWriter(object : OutputStream() {
             override fun write(b: Int) {
                 buffer.writeByte(b.toByte())
             }
         }, CompressedProcesser.NONE)
-        writer.writeNamed("", compound)
+        writer.writeRaw(compound)
         data.add(buffer.getRawData())
     }
 
     // write complex objects
-    fun writeString(string: String) { if (mode == DataPacketMode.BEDROCK) writeShort(string.length.toShort()) else writeVarInt(string.length); data.add(string.toByteArray()) }
+    fun writeString(string: String) {
+        val bytes = string.toByteArray()
+        if (mode == DataPacketMode.BEDROCK) writeShort(string.length.toShort())
+        else writeVarInt(string.length)
+        data.add(bytes)
+    }
     fun writeJSON(json: JSONObject) = writeString(json.toString(0))
 
     fun getRawData(): ByteArray {

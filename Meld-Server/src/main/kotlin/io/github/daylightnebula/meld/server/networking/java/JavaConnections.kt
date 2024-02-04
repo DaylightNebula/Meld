@@ -20,8 +20,6 @@ class JavaConnection(
 ): IConnection<JavaPacket> {
 
     override fun sendPacket(packet: JavaPacket) {
-        if (!packet::class.java.name.contains("Chunk")) println("Sending $packet")
-
         // create writer
         val writer = ByteWriter(packet.id, DataPacketMode.JAVA)
 

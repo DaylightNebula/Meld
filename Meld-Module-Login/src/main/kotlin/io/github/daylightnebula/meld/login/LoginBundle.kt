@@ -1,9 +1,6 @@
 package io.github.daylightnebula.meld.login
 
-import io.github.daylightnebula.meld.login.packets.config.JavaClientInfoPacket
-import io.github.daylightnebula.meld.login.packets.config.JavaConfigMessagePacket
-import io.github.daylightnebula.meld.login.packets.config.JavaFeatureFlagsPacket
-import io.github.daylightnebula.meld.login.packets.config.JavaFinishConfigPacket
+import io.github.daylightnebula.meld.login.packets.config.*
 import io.github.daylightnebula.meld.login.packets.login.*
 import io.github.daylightnebula.meld.server.bedrock
 import io.github.daylightnebula.meld.server.events.Event
@@ -113,6 +110,7 @@ class LoginBundle: io.github.daylightnebula.meld.server.PacketBundle(
 
         JavaClientInfoPacket::class.java.name to { connection, packet ->
 //            connection.sendPacket(JavaFeatureFlagsPacket())
+            connection.sendPacket(JavaRegistryDataPacket())
             connection.sendPacket(JavaFinishConfigPacket())
         },
 

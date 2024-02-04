@@ -77,7 +77,7 @@ class WorldListener: EventListener {
         chunkDiffs.newOnly.forEach { dimension.loadChunkForPlayer(event.player, it) }
 
         // send center packet
-        dimension.centerPacket(event.player)
+        if (chunkDiffs.oldOnly.isNotEmpty()) dimension.centerPacket(event.player)
     }
 
     @EventHandler

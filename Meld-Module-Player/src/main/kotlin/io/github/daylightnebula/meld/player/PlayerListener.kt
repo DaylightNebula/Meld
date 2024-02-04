@@ -59,7 +59,7 @@ class PlayerListener: EventListener {
                 connection.sendPacket(JavaDifficultyPacket())
 
                 // send positions
-//                connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))
+                connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))
                 connection.sendPacket(JavaSetPlayerPositionPacket(Vector3f.from(0f, 60f, 0f), Vector2f.from(0f, 0f)))
             }
 

@@ -12,7 +12,7 @@ class JavaPlayerInfoUpdatePacket(
     var uuid: UUID = UUID.randomUUID(),
     var actions: Collection<PlayerInfoAction> = listOf()
 ): JavaPacket {
-    override val id: Int = 0x3A
+    override val id: Int = 0x3C
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         // create and write bit set
