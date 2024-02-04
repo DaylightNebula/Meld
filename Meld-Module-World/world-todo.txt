@@ -35,3 +35,4 @@
 [ ] load from local storage on enable
 [ ] save to local storage on disable
 [ ] extension for int to get an entity from an entity id
+[ ] fix double sending chunks at log in
