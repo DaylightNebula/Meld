@@ -1,11 +1,10 @@
 package io.github.daylightnebula.meld.server.networking.java
 
 import io.github.daylightnebula.meld.server.Meld
-import io.github.daylightnebula.meld.server.PacketHandler
+import io.github.daylightnebula.meld.server.PacketManager
 import io.github.daylightnebula.meld.server.networking.common.*
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
-import io.ktor.utils.io.*
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -49,7 +48,7 @@ object JavaNetworkController: INetworkController {
                     // try catch due to packet 122 in status state
                     val data = ByteArrayReader(read.readArray(length - 1))
 
-                    PacketHandler.handleJavaPacket(connection, packetID, data)
+                    PacketManager.handleJavaPacket(connection, packetID, data)
                 }
             }
 

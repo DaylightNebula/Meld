@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.server
 
+import io.github.daylightnebula.meld.server.events.EventHandler
 import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.IConnection
@@ -8,14 +9,20 @@ import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
+import kotlin.reflect.KType
+import kotlin.reflect.full.*
+
+annotation class PacketHandler
 
 val JavaPacketRegistry = hashMapOf<Pair<Int, JavaConnectionState>, () -> JavaPacket>()
 
 // singleton to handle incoming packets
-object PacketHandler {
+object PacketManager {
     // global list of all registered packet handlers
-    private val bedrockHandlers = hashMapOf<String, (connection: BedrockConnection, packet: BedrockPacket) -> Unit>()
-    private val javaHandlers = hashMapOf<String, (connection: JavaConnection, packet: JavaPacket) -> Unit>()
+    private val packetListeners = hashMapOf<KType, MutableList<Pair<PacketBundle, KFunction<*>>>>()
 
     // handle incoming java packets
     fun handleJavaPacket(connection: JavaConnection, packetID: Int, reader: AbstractReader) {
@@ -34,45 +41,54 @@ object PacketHandler {
     }
 
     // handle an incoming packet
-    fun <T: Any> handlePacket(connection: IConnection<T>, packet: T) {
-        when(connection) {
-            is BedrockConnection -> bedrockHandlers[packet.javaClass.name]?.let { it(connection, packet as BedrockPacket) }
-                ?: println("WARN no bedrock packet registered for name ${packet.javaClass.name}")
-
-            is JavaConnection -> javaHandlers[packet.javaClass.name]?.let { it(connection, packet as JavaPacket) }
-                ?: println("WARN no java packet registered for name ${packet.javaClass.name}")
-        }
-    }
+    fun <T: Any> handlePacket(connection: IConnection<T>, packet: T) =
+        packetListeners[packet::class.starProjectedType]?.forEach { it.second.call(it.first, connection, packet) }
+            ?: println("WARN not handling packet $packet")
 
     // add the given bundle to the list of handlers
     fun register(bundle: PacketBundle) {
-        // save packet handlers
-        bedrockHandlers.putAll(bundle.bedrock)
-        javaHandlers.putAll(bundle.java)
-
         // register java packets
         JavaPacketRegistry.putAll(bundle.registerJavaPackets())
 
+        // load all packet handler functions from the given listener
+        bundle::class.declaredMemberFunctions
+            .filter { it.findAnnotation<PacketHandler>() != null }
+            .forEach { func ->
+                // only 1 parameter
+                if (func.valueParameters.size != 2) return@forEach
+
+                // make sure that parameter is an event
+                if (!checkParameterInheritance(func.valueParameters[0], JavaConnection::class)) return@forEach
+                if (!checkParameterInheritance(func.valueParameters[1], JavaPacket::class) && !checkParameterInheritance(func.valueParameters[1], BedrockPacket::class)) return@forEach
+
+                // get list of functions for the given param type
+                val param = func.valueParameters[1]
+                var list = packetListeners[param.type]
+                if (list == null) {
+                    list = mutableListOf()
+                    packetListeners[param.type] = list
+                }
+
+                // save event
+                list.add(bundle to func)
+            }
+
         println("Registered packet bundle: $bundle")
     }
+
+    // function to check if a parameter inherits from the given class
+    private fun checkParameterInheritance(parameter: KParameter, className: KClass<*>) =
+        parameter.type.classifier?.let { it as? KClass<*> }?.isSubclassOf(className) ?: false
 }
 
 // class to represent packet bundles
-abstract class PacketBundle(
-    val bedrock: HashMap<String, (connection: BedrockConnection, packet: BedrockPacket) -> Unit> = hashMapOf(),
-    val java: HashMap<String, (connection: JavaConnection, packet: JavaPacket) -> Unit> = hashMapOf()
-) {
-    abstract fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, ()  -> JavaPacket>
+interface PacketBundle {
+    fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, ()  -> JavaPacket>
 }
 
 // helper functions to make some packets as no encode or decode
-fun noEncode() {
-    throw NotImplementedException("Function marked no encode!")
-}
-
-fun noDecode() {
-    throw NotImplementedException("Function marked no decode!")
-}
+fun noEncode(): Unit = throw NotImplementedException("Function marked no encode!")
+fun noDecode(): Unit = throw NotImplementedException("Function marked no decode!")
 
 // functions to make making bundles easier
 fun bedrock(

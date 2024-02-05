@@ -48,7 +48,6 @@ object EventBus {
     fun callEvent(event: Event) {
         listenerMap[event::class.starProjectedType]?.forEach { it.second.call(it.first, event) }
     }
-            //?: println("WARN no event listeners registered for event ${event.javaClass}")
 
     // function to check if a parameter inherits from the given class
     private fun checkParameterInheritance(parameter: KParameter, className: KClass<*>) =
