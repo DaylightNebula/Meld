@@ -3,18 +3,21 @@ package io.github.daylightnebula.meld.world
 import io.github.daylightnebula.meld.entities.Entity
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.server.events.EventBus
+import io.github.daylightnebula.meld.world.anvil.loadRegionFiles
 import io.github.daylightnebula.meld.world.chunks.FilledSection
 import io.github.daylightnebula.meld.world.chunks.FlexiblePalette
 import io.github.daylightnebula.meld.world.chunks.Section
 import io.github.daylightnebula.meld.world.chunks.chunk
+import org.cloudburstmc.math.vector.Vector2i
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.math.vector.Vector3i
+import java.io.File
 
 object World {
     val dimensions = hashMapOf(
-        dimension(
+        "overworld" to Dimension(
             "overworld",
-            *(0..10000).map { index ->
+            (0..10000).associate { index ->
                 // create chunk
                 val x = index / 100
                 val y = index % 100
@@ -29,7 +32,7 @@ object World {
 
                 // return chunk
                 chunk
-            }.toTypedArray()
+            }.toMutableMap()
         )
     )
 

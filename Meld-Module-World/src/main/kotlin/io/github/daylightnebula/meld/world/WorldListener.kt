@@ -3,18 +3,12 @@ package io.github.daylightnebula.meld.world
 import io.github.daylightnebula.meld.entities.EntityDespawnEvent
 import io.github.daylightnebula.meld.entities.EntityMoveEvent
 import io.github.daylightnebula.meld.entities.EntitySpawnEvent
-import io.github.daylightnebula.meld.entities.packets.JavaRemoveEntitiesPacket
 import io.github.daylightnebula.meld.player.JoinEvent
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.PlayerMoveEvent
-import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.EventHandler
 import io.github.daylightnebula.meld.server.events.EventListener
 import io.github.daylightnebula.meld.server.extensions.toChunkPosition
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaPacket
-import io.github.daylightnebula.meld.world.chunks.Chunk
 
 class WorldListener: EventListener {
     @EventHandler

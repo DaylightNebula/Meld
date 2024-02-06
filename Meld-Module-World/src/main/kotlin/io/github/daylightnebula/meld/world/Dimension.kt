@@ -25,7 +25,7 @@ import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
 
 class Dimension(
     val id: String,
-    private val loadedChunks: HashMap<Vector2i, Chunk> = hashMapOf()
+    private val loadedChunks: MutableMap<Vector2i, Chunk> = hashMapOf()
 ) {
     fun getChunk(position: Vector2i): Chunk {
         // attempt to get a chunk

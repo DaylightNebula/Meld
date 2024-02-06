@@ -4,6 +4,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 /modules
+/test-world
 
 ### STS ###
 .apt_generated
