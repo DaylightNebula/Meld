@@ -15,13 +15,17 @@ class JavaConnection(
     val socket: Socket,
     val read: ChannelReader,
     val write: ByteWriteChannel,
-    var state: JavaConnectionState =
-        JavaConnectionState.HANDSHAKE
 ): IConnection<JavaPacket> {
+    var state: JavaConnectionState = JavaConnectionState.HANDSHAKE
+        set(value) {
+            println("New connection state $value")
+            field = value
+        }
 
     override fun sendPacket(packet: JavaPacket) {
         // create writer
         val writer = ByteWriter(packet.id, DataPacketMode.JAVA)
+        println("Sending ${packet.id}")
 
         // encode packet
         packet.encode(writer)

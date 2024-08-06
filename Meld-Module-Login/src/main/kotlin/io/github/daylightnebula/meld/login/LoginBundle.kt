@@ -48,8 +48,8 @@ class LoginBundle: PacketBundle {
             JavaClientInfoPacket.TYPE
         ) to { JavaClientInfoPacket() },
 
-        javaPacketID(0x01, JavaConnectionState.CONFIG) to { JavaConfigMessagePacket() },
-        javaPacketID(0x02, JavaConnectionState.CONFIG) to { JavaFinishConfigPacket() }
+        javaPacketID(0x02, JavaConnectionState.CONFIG) to { JavaConfigMessagePacket() },
+        javaPacketID(0x03, JavaConnectionState.CONFIG) to { JavaFinishConfigPacket() }
     )
 
     @PacketHandler

@@ -43,6 +43,7 @@ object JavaNetworkController: INetworkController {
                 runBlocking {
                     val length = read.readVarInt()
                     val packetID = read.readVarInt()
+                    println("Received $packetID")
 //                    println("Got packet $packetID with length $length on state ${connection.state}")
 
                     // try catch due to packet 122 in status state

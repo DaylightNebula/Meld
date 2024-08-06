@@ -20,7 +20,7 @@ class JavaConfigKeepAlivePacket(
     var randomID: Long = Random.nextLong()
 ): JavaPacket {
     companion object {
-        val ID = 0x03
+        val ID = 0x05
         val TYPE = JavaConnectionState.CONFIG
     }
 

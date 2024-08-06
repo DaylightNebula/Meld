@@ -10,7 +10,6 @@ import java.util.*
 
 class JavaInitiateLoginPacket(
     var username: String = "",
-    var hasUUID: Boolean = false,
     var uuid: UUID? = null
 ): JavaPacket {
     companion object {
@@ -28,7 +27,8 @@ class JavaInitiateLoginPacket(
 
 class JavaLoginSuccessPacket(
     val uuid: UUID = UUID.randomUUID(),
-    val username: String = ""
+    val username: String = "",
+    val strictErrorHandling: Boolean = false
 ): JavaPacket {
     companion object {
         val ID = 0x02
@@ -42,6 +42,7 @@ class JavaLoginSuccessPacket(
         writer.writeLong(uuid.leastSignificantBits)
         writer.writeString(username)
         writer.writeVarInt(0)
+        writer.writeBoolean(strictErrorHandling)
     }
 
     override fun decode(reader: AbstractReader) = noDecode()

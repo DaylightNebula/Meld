@@ -10,7 +10,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 class JavaRegistryDataPacket(
     val registryCodec: NBTCompound = RegistryCodec.nbt
 ): JavaPacket {
-    override val id: Int = 0x05
+    override val id: Int = 0x07
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeNBT(registryCodec)

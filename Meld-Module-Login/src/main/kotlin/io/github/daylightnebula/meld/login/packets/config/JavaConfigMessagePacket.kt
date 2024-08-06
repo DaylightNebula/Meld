@@ -8,7 +8,7 @@ class JavaConfigMessagePacket(
     var channel: String = "",
     var data: ByteArray = byteArrayOf()
 ): JavaPacket {
-    override val id: Int = 0x00
+    override val id: Int = 0x01
     override fun encode(writer: ByteWriter) {
         writer.writeString(channel)
         writer.writeByteArray(data)
