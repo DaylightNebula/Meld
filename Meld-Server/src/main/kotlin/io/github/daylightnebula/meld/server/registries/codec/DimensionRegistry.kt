@@ -4,11 +4,11 @@ import io.github.daylightnebula.meld.server.registries.RegistryCodec
 import kotlinx.serialization.SerialName
 
 object DimensionRegistry: RegistryCodec.Codec {
-    override fun name() = "minecraft:chat_type"
+    override fun name() = "minecraft:dimension_type"
     override fun build() =
         listOf(
             "minecraft:overworld" to null,
-            "minecraft:overworld_cave" to null,
+            "minecraft:overworld_caves" to null,
             "minecraft:the_end" to null,
             "minecraft:the_nether" to null
         )

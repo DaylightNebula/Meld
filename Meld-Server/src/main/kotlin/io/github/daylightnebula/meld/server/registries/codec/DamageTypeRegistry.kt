@@ -3,8 +3,8 @@ package io.github.daylightnebula.meld.server.registries.codec
 import io.github.daylightnebula.meld.server.registries.RegistryCodec
 
 object DamageTypeRegistry: RegistryCodec.Codec {
-    override fun name() = TrimPatternRegistry.data.name
-    override fun build() = TrimPatternRegistry.data.entries
+    override fun name() = data.name
+    override fun build() = DamageTypeRegistry.data.entries
 
     val data = RegistryCodec.interpretSnifferData("""
         {

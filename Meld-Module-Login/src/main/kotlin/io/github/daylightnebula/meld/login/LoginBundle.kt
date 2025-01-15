@@ -100,18 +100,18 @@ class LoginBundle: PacketBundle {
 
     @PacketHandler
     fun onClientPacksLoaded(connection: JavaConnection, packet: JavaSelectKnownPackPacket) {
-//        connection.sendPacket(JavaRegistryDataPacket(BiomeRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(ChatRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(TrimPatternRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(TrimMaterialRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(BiomeRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(ChatRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(TrimPatternRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(TrimMaterialRegistry))
         connection.sendPacket(JavaRegistryDataPacket(WolfVariantRegistry))
         connection.sendPacket(JavaRegistryDataPacket(PaintingVariantRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(DimensionRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(DamageTypeRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(BannerPatternRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(DimensionRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(DamageTypeRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(BannerPatternRegistry))
         connection.sendPacket(JavaRegistryDataPacket(EnchantmentRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(JukeboxSongRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(InstrumentRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(JukeboxSongRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(InstrumentRegistry))
         connection.sendPacket(JavaUpdateTags())
         connection.sendPacket(JavaFinishConfigPacket())
     }
