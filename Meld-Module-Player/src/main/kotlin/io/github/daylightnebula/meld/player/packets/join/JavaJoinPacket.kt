@@ -44,7 +44,6 @@ class JavaJoinPacket(
         // header
         writer.writeInt(playerID)
         writer.writeBoolean(isHardcore)
-        writer.writeVarInt(0)
         writer.writeVarInt(dimensionCount)
         dimensionNames.forEach { writer.writeString(it) }
         writer.writeVarInt(maxPlayers)

@@ -1,17 +1,13 @@
 package io.github.daylightnebula.meld.server.registries
 
 import io.github.daylightnebula.meld.server.meldJson
-import io.github.daylightnebula.meld.server.meldNbt
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
-import kotlinx.serialization.serializer
 import net.benwoodworth.knbt.*
 import java.io.File
-import kotlin.reflect.full.starProjectedType
 
 object RegistryCodec {
-    val codec: JsonObject = meldJson.decodeFromString(File("codec.json").readText())
+//    val codec: JsonObject = meldJson.decodeFromString(File("codec.json").readText())
 
 
 //    val chatRegistry = meldNbt.encodeToNbtTag(ChatRegistry.default)
@@ -45,50 +41,105 @@ object RegistryCodec {
 //        }.toTypedArray())
 //    )
 
-    val nbt = StringifiedNbt.decodeFromString<NbtCompound>(File("codec.json").readText())
-
-    fun nbtCompoundList(type: String, vararg elements: NbtCompound): NbtCompound {
-        return NbtCompound(mapOf(
-            "type" to NbtString(type),
-            "value" to NbtList.invoke(elements.toList())
-        ))
+    interface Codec {
+        fun name(): String
+        fun build(): List<Pair<String, NbtCompound?>>
     }
 
-    fun nbtListElement(index: Int, name: String, element: NbtCompound): NbtCompound {
-        return NbtCompound(mapOf(
-            "id" to NbtInt(index),
-            "name" to NbtString(name),
-            "element" to element
-        ))
+    data class SnifferData(
+        val name: String,
+        val entries: List<Pair<String, NbtCompound?>>
+    )
+
+    fun interpretSnifferData(text: String): SnifferData {
+        val json = meldJson.decodeFromString<JsonObject>(text)
+        val name = json["registry"]!!.jsonObject["raw_string"]!!.jsonPrimitive.content
+        val entries = json["entries"]!!.jsonArray.map { entry ->
+            val json = entry.jsonObject
+            val id = json["id"]!!.jsonObject["raw_string"]!!.jsonPrimitive.content
+            val data =
+                if (json["data"] != null) interpretSniffer(json["data"]!!) as NbtCompound
+                else null
+            id to data
+        }
+        return SnifferData(name, entries)
     }
 
-    fun nbtCompound(vararg elements: Pair<String, NbtTag>): NbtCompound {
-        return NbtCompound(mapOf(*elements))
+    private fun interpretSniffer(json: JsonElement): NbtTag =
+        if (json is JsonPrimitive)
+            if (json.isString) NbtString(json.jsonPrimitive.content)
+            else if (json.intOrNull != null) NbtInt(json.jsonPrimitive.int)
+            else TODO("Json $json")
+        else interpretSnifferObject(json.jsonObject)
+
+    @OptIn(UnsafeNbtApi::class)
+    private fun interpretSnifferObject(json: JsonObject): NbtTag {
+        val type = json["type"]!!.jsonPrimitive.content
+        return when(type) {
+            "TagCompound" -> {
+                val map = mutableMapOf<String, NbtTag>()
+                json["content"]!!.jsonObject.forEach { (key, value) ->
+                    map[key] = interpretSniffer(value.jsonObject)
+                }
+                return NbtCompound(map)
+            }
+
+            "TagList" -> {
+                val list = mutableListOf<NbtTag>()
+                json["content"]!!.jsonArray.forEach { value ->
+                    list.add(interpretSniffer(value))
+                }
+                return NbtList(list)
+            }
+
+            "TagString" -> NbtString(json["content"]!!.jsonPrimitive.content)
+
+            else -> TODO("Type $type")
+        }
     }
 
-    fun nbtCompoundSafe(vararg elements: Pair<String, NbtTag?>): NbtCompound {
-        return nbtCompound(*((elements.filter { it.second != null } as List<Pair<String, NbtTag>>).toTypedArray()))
-    }
-
-    fun nbtDamageType(
-        index: Int,
-        name: String,
-        scaling: String,
-        messageID: String,
-        exhaustion: Float
-    ) = nbtListElement(index, name, nbtCompoundSafe(
-        "scaling" to NbtString(scaling),
-        "messageID" to NbtString(messageID),
-        "exhaustion" to NbtFloat(exhaustion)
-    ))
+//    fun nbtCompoundList(type: String, vararg elements: NbtCompound): NbtCompound {
+//        return NbtCompound(mapOf(
+//            "type" to NbtString(type),
+//            "value" to NbtList.invoke(elements.toList())
+//        ))
+//    }
+//
+//    fun nbtListElement(index: Int, name: String, element: NbtCompound): NbtCompound {
+//        return NbtCompound(mapOf(
+//            "id" to NbtInt(index),
+//            "name" to NbtString(name),
+//            "element" to element
+//        ))
+//    }
+//
+//    fun nbtCompound(vararg elements: Pair<String, NbtTag>): NbtCompound {
+//        return NbtCompound(mapOf(*elements))
+//    }
+//
+//    fun nbtCompoundSafe(vararg elements: Pair<String, NbtTag?>): NbtCompound {
+//        return nbtCompound(*((elements.filter { it.second != null } as List<Pair<String, NbtTag>>).toTypedArray()))
+//    }
+//
+//    fun nbtDamageType(
+//        index: Int,
+//        name: String,
+//        scaling: String,
+//        messageID: String,
+//        exhaustion: Float
+//    ) = nbtListElement(index, name, nbtCompoundSafe(
+//        "scaling" to NbtString(scaling),
+//        "messageID" to NbtString(messageID),
+//        "exhaustion" to NbtFloat(exhaustion)
+//    ))
 }
 
-fun JsonObject.toNBT(): NbtTag {
-    val type = get("type")!!.jsonPrimitive.content
-    val value = get("value")!!.jsonPrimitive
-    return when(type) {
-        "string" -> NbtString(value.content)
-        "float" -> NbtFloat(value.float)
-        else -> throw NotImplementedException("TODO damage type converter for type $type")
-    }
-}
+//fun JsonObject.toNBT(): NbtTag {
+//    val type = get("type")!!.jsonPrimitive.content
+//    val value = get("value")!!.jsonPrimitive
+//    return when(type) {
+//        "string" -> NbtString(value.content)
+//        "float" -> NbtFloat(value.float)
+//        else -> throw NotImplementedException("TODO damage type converter for type $type")
+//    }
+//}

@@ -7,6 +7,7 @@ import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.*
+import io.github.daylightnebula.meld.server.registries.codec.*
 import java.util.*
 
 private val tempUIDStorage = mutableMapOf<IConnection<*>, UUID>()
@@ -48,7 +49,8 @@ class LoginBundle: PacketBundle {
         ) to { JavaLoginAcknowledge() },
 
         javaPacketID(0x02, JavaConnectionState.CONFIG) to { JavaConfigMessagePacket() },
-        javaPacketID(0x03, JavaConnectionState.CONFIG) to { JavaFinishConfigPacket() }
+        javaPacketID(0x03, JavaConnectionState.CONFIG) to { JavaFinishConfigPacket() },
+        javaPacketID(0x07, JavaConnectionState.CONFIG) to { JavaSelectKnownPackPacket() }
     )
 
     @PacketHandler
@@ -92,8 +94,25 @@ class LoginBundle: PacketBundle {
 
     @PacketHandler
     fun onClientInfo(connection: JavaConnection, packet: JavaClientInfoPacket) {
-//            connection.sendPacket(JavaFeatureFlagsPacket())
-//        connection.sendPacket(JavaRegistryDataPacket())
+        connection.sendPacket(JavaFeatureFlagsPacket())
+        connection.sendPacket(JavaSelectKnownPackPacket())
+    }
+
+    @PacketHandler
+    fun onClientPacksLoaded(connection: JavaConnection, packet: JavaSelectKnownPackPacket) {
+//        connection.sendPacket(JavaRegistryDataPacket(BiomeRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(ChatRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(TrimPatternRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(TrimMaterialRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(WolfVariantRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(PaintingVariantRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(DimensionRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(DamageTypeRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(BannerPatternRegistry))
+        connection.sendPacket(JavaRegistryDataPacket(EnchantmentRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(JukeboxSongRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(InstrumentRegistry))
+        connection.sendPacket(JavaUpdateTags())
         connection.sendPacket(JavaFinishConfigPacket())
     }
 

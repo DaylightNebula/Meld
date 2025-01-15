@@ -8,12 +8,21 @@ import io.github.daylightnebula.meld.server.registries.RegistryCodec
 import net.benwoodworth.knbt.NbtCompound
 
 class JavaRegistryDataPacket(
-    val registryCodec: NbtCompound = RegistryCodec.nbt
+    val name: String,
+    val data: List<Pair<String, NbtCompound?>>
 ): JavaPacket {
+
+    constructor(codec: RegistryCodec.Codec): this(codec.name(), codec.build())
+
     override val id: Int = 0x07
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
-        // todo this is all wrong
-//        writer.writeNBT(registryCodec)
+        writer.writeString(name)
+        writer.writeVarInt(data.size)
+        data.forEach { (key, value) ->
+            writer.writeString(key)
+            writer.writeBoolean(value != null)
+            if (value != null) writer.writeNBT(value)
+        }
     }
 }

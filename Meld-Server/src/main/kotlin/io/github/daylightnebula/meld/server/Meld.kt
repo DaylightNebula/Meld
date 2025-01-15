@@ -8,10 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.benwoodworth.knbt.Nbt
-import net.benwoodworth.knbt.NbtCompound
-import net.benwoodworth.knbt.NbtCompression
-import net.benwoodworth.knbt.NbtVariant
+import net.benwoodworth.knbt.*
 import java.io.File
 import java.lang.Thread.sleep
 import java.util.ConcurrentModificationException
@@ -119,3 +116,5 @@ fun main() {
 }
 
 data class ConnectionAbortedEvent(val connection: IConnection<*>): Event
+
+fun Any.encodeToNbt(): NbtCompound = meldNbt.encodeToNbtTag(this) as NbtCompound
