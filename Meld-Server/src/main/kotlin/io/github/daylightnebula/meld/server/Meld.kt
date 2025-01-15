@@ -9,6 +9,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.benwoodworth.knbt.Nbt
+import net.benwoodworth.knbt.NbtCompound
 import net.benwoodworth.knbt.NbtCompression
 import net.benwoodworth.knbt.NbtVariant
 import java.io.File
@@ -64,7 +65,7 @@ val meldJson = Json {
 }
 
 val meldNbt = Nbt {
-    variant = NbtVariant.Java
+    variant = NbtVariant.JavaNetwork(764)
     compression = NbtCompression.None
 }
 

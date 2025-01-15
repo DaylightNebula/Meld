@@ -13,6 +13,7 @@ class JavaRegistryDataPacket(
     override val id: Int = 0x07
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
-        writer.writeNBT(registryCodec)
+        // todo this is all wrong
+//        writer.writeNBT(registryCodec)
     }
 }

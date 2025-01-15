@@ -1,15 +1,15 @@
 package io.github.daylightnebula.meld.entities.packets
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.extensions.toVelocityStep
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
-import org.cloudburstmc.math.vector.Vector3f
 
 data class JavaSetEntityVelocityPacket(
     var entityID: Int = 0,
-    var velocity: Vector3f = Vector3f.ZERO
+    var velocity: Float3 = Float3()
 ): JavaPacket {
     override val id: Int = 0x58
     override fun decode(reader: AbstractReader) = noDecode()

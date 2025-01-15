@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.player
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.entities.EntityAnimation
 import io.github.daylightnebula.meld.entities.metadata.metaPose
 import io.github.daylightnebula.meld.player.extensions.player
@@ -12,16 +13,12 @@ import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.events.EventHandler
 import io.github.daylightnebula.meld.server.javaGamePacket
 import io.github.daylightnebula.meld.server.javaPackets
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.networking.java.JavaPlayKeepAlivePacket
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import io.github.daylightnebula.meld.server.utils.Pose
-import org.cloudburstmc.math.vector.Vector3f
-import org.cloudburstmc.math.vector.Vector3i
-import org.cloudburstmc.protocol.bedrock.packet.*
 
 class PlayerBundle: PacketBundle {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
@@ -39,15 +36,15 @@ class PlayerBundle: PacketBundle {
             javaGamePacket(0x13) to { JavaEntityInteractPacket() }
         )
 
-    @PacketHandler
-    fun onBedrockRequestChunkRadius(connection: BedrockConnection, packet: RequestChunkRadiusPacket) {
-        connection.sendPacket(ChunkRadiusUpdatedPacket().apply {
-            radius = io.github.daylightnebula.meld.server.Meld.viewDistance
-        })
-    }
-
-    @PacketHandler
-    fun onBedrockEmoteListRequest(connection: BedrockConnection, packet: EmoteListPacket) = println("TODO what about emotes?")
+//    BEDROCK @PacketHandler
+//    fun onBedrockRequestChunkRadius(connection: BedrockConnection, packet: RequestChunkRadiusPacket) {
+//        connection.sendPacket(ChunkRadiusUpdatedPacket().apply {
+//            radius = io.github.daylightnebula.meld.server.Meld.viewDistance
+//        })
+//    }
+//
+//    @PacketHandler
+//    fun onBedrockEmoteListRequest(connection: BedrockConnection, packet: EmoteListPacket) = println("TODO what about emotes?")
 
     @PacketHandler
     fun onReceivePlayerPosition(connection: JavaConnection, packet: JavaReceivePlayerPositionPacket) {
@@ -152,7 +149,7 @@ class PlayerBundle: PacketBundle {
 }
 
 data class PlayerActionEvent(val player: Player, val action: PlayerCommandAction, val entityID: Int, val jumpBoost: Int): Event
-data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Vector3i, val face: BlockFace): Event
+data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Float3, val face: BlockFace): Event
 data class PlayerConfirmTeleportEvent(val player: Player, val teleportID: Int): Event
 data class PlayerAbilitiesReceivedEvent(val player: Player, val abilities: Byte): Event
-data class PlayerEntityInteractEvent(val player: Player, val type: PlayerInteractType, val entityID: Int, val sneaking: Boolean, val targetPosition: Vector3f?): Event
+data class PlayerEntityInteractEvent(val player: Player, val type: PlayerInteractType, val entityID: Int, val sneaking: Boolean, val targetPosition: Float3?): Event

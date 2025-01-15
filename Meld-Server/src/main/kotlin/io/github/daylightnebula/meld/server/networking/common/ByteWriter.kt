@@ -5,17 +5,13 @@ import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.meldNbt
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.SEGMENT_BITS
-import io.github.daylightnebula.meld.server.registries.RegistryCodec.nbt
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.serializer
-import net.benwoodworth.knbt.Nbt
-import net.benwoodworth.knbt.NbtCompression
-import net.benwoodworth.knbt.NbtVariant
-import java.io.OutputStream
+import net.benwoodworth.knbt.NbtCompound
 import java.nio.ByteBuffer
 
 
@@ -96,11 +92,9 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
                 (position.y.toLong() and 0xFFFL))
 
     // NBT
-    inline fun <reified T> writeNBT(compound: T) = writeNBT(meldNbt.serializersModule.serializer(), compound)
-    fun <T> writeNBT(serializer: SerializationStrategy<T>, compound: T) {
-        val buffer = ByteWriter(id, mode)
-        buffer.writeByte(0x0A)
-        data.add(meldNbt.encodeToByteArray(serializer, compound))
+    fun writeNBT(compound: NbtCompound) {
+        val out = meldNbt.encodeToByteArray(compound)
+        data.add(out)
 
 //        buffer.writeByte(0x0A)
 //        val writer = NBTWriter(object : OutputStream() {

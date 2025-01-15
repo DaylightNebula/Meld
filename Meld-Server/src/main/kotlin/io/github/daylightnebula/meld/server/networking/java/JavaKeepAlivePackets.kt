@@ -7,7 +7,7 @@ import kotlin.random.Random
 class JavaPlayKeepAlivePacket(
     var randomID: Long = Random.nextLong()
 ): JavaPacket {
-    override val id: Int = 0x24
+    override val id: Int = 0x27
     override fun encode(writer: ByteWriter) {
         writer.writeLong(randomID)
     }
@@ -20,7 +20,7 @@ class JavaConfigKeepAlivePacket(
     var randomID: Long = Random.nextLong()
 ): JavaPacket {
     companion object {
-        val ID = 0x05
+        val ID = 0x04
         val TYPE = JavaConnectionState.CONFIG
     }
 

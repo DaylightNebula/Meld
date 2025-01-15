@@ -2,12 +2,12 @@ package io.github.daylightnebula.meld.entities.metadata
 
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 import io.github.daylightnebula.meld.server.utils.Pose
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
 
 fun entityMetadata(
     flags: Byte = 0x00,
     airTicks: Int = 300,
-    customName: JSONObject? = null,
+    customName: JsonObject? = null,
     isCustomNameVisible: Boolean = false,
     isSilent: Boolean = false,
     hasNoGravity: Boolean = false,

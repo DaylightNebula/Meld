@@ -1,19 +1,19 @@
 package io.github.daylightnebula.meld.entities.packets
 
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.extensions.toAngleByte
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
-import org.cloudburstmc.math.vector.Vector2f
-import org.cloudburstmc.math.vector.Vector3f
 
 data class JavaUpdateEntityPositionPacket(
     var entityID: Int = 0,
-    var delta: Vector3f = Vector3f.ZERO,
+    var delta: Float3 = Float3(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x2C
+    override val id: Int = 0x2F
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)
@@ -26,11 +26,11 @@ data class JavaUpdateEntityPositionPacket(
 
 data class JavaUpdateEntityPositionAndRotationPacket(
     var entityID: Int = 0,
-    var delta: Vector3f = Vector3f.ZERO,
-    var rotation: Vector2f = Vector2f.ZERO,
+    var delta: Float3 = Float3(),
+    var rotation: Float2 = Float2(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x2D
+    override val id: Int = 0x30
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)
@@ -45,10 +45,10 @@ data class JavaUpdateEntityPositionAndRotationPacket(
 
 data class JavaUpdateEntityRotationPacket(
     var entityID: Int = 0,
-    var rotation: Vector2f = Vector2f.ZERO,
+    var rotation: Float2 = Float2(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x2E
+    override val id: Int = 0x32
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)

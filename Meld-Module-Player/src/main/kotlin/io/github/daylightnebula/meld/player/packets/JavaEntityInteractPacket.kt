@@ -1,17 +1,17 @@
 package io.github.daylightnebula.meld.player.packets
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noEncode
 import io.github.daylightnebula.meld.player.PlayerHand
 import io.github.daylightnebula.meld.player.PlayerInteractType
-import org.cloudburstmc.math.vector.Vector3f
 
 data class JavaEntityInteractPacket(
     var entityID: Int = 0,
     var type: PlayerInteractType = PlayerInteractType.INTERACT,
-    var targetPosition: Vector3f? = null,
+    var targetPosition: Float3? = null,
     var hand: PlayerHand = PlayerHand.MAIN,
     var sneaking: Boolean = false
 ): JavaPacket {
@@ -24,7 +24,7 @@ data class JavaEntityInteractPacket(
 
         // only load this if interact at
         if (type == PlayerInteractType.INTERACT_AT)
-            targetPosition = Vector3f.from(
+            targetPosition = Float3(
                 reader.readFloat(),
                 reader.readFloat(),
                 reader.readFloat()

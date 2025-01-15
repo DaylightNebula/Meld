@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.player
 
-import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.entities.EntityController
@@ -17,12 +18,8 @@ import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
 import io.github.daylightnebula.meld.player.packets.PlayerInfoAction
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.utils.Pose
-import org.cloudburstmc.math.vector.Vector2f
-import org.cloudburstmc.math.vector.Vector3f
-import org.cloudburstmc.protocol.bedrock.data.GameType
 import java.util.*
 
 class Player(
@@ -32,9 +29,9 @@ class Player(
     entityType: EntityType = EntityType.PLAYER,
     metadata: EntityMetadata = entityMetadata(),
     dimensionID: String = "overworld",
-    position: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
-    velocity: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
-    rotation: Vector2f = Vector2f.from(0.0, 0.0),
+    position: Float3 = Float3(),
+    velocity: Float3 = Float3(),
+    rotation: Float2 = Float2(),
     startHeadYaw: Float = 0f,
     health: Health = Health(20.0),
     val infoActions: MutableList<PlayerInfoAction> = mutableListOf(PlayerInfoAction.AddPlayer("player"))
@@ -56,6 +53,7 @@ class Player(
     var sprinting = false
 
     // TODO on set, broadcast packet
+    enum class GameMode { ADVENTURE, CREATIVE, SPECTATOR, SURVIVAL }
     var gameMode: GameMode = GameMode.CREATIVE
         private set
 
@@ -63,12 +61,11 @@ class Player(
     override var watcherFilter: (connection: IConnection<*>) -> Boolean = { other -> other != connection }
 
     // teleports the player to the given position and rotation
-    fun teleport(position: Vector3f = this.position, rotation: Vector2f = this.rotation) {
+    fun teleport(position: Float3 = this.position, rotation: Float2 = this.rotation) {
         setPosition(position)
         setRotation(rotation)
         when(connection) {
             is JavaConnection -> connection.sendPacket(JavaSetPlayerPositionPacket(position, rotation))
-            is BedrockConnection -> NeedsBedrock()
         }
     }
 
@@ -87,16 +84,8 @@ class Player(
 }
 
 // events
-data class PlayerMoveEvent(val player: Player, val oldPosition: Vector3f, val position: Vector3f, override var cancelled: Boolean = false): CancellableEvent
-data class PlayerRotateEvent(val player: Player, val oldRotation: Vector2f, val rotation: Vector2f, override var cancelled: Boolean = false): CancellableEvent
-
-// extensions
-fun GameMode.bedrockGameMode() = when(this) {
-    GameMode.SURVIVAL -> GameType.SURVIVAL
-    GameMode.CREATIVE -> GameType.CREATIVE
-    GameMode.ADVENTURE -> GameType.ADVENTURE
-    GameMode.SPECTATOR -> GameType.SPECTATOR
-}
+data class PlayerMoveEvent(val player: Player, val oldPosition: Float3, val position: Float3, override var cancelled: Boolean = false): CancellableEvent
+data class PlayerRotateEvent(val player: Player, val oldRotation: Float2, val rotation: Float2, override var cancelled: Boolean = false): CancellableEvent
 
 // enums
 enum class PlayerChatMode { ENABLED, COMMANDS_ONLY, HIDDEN }

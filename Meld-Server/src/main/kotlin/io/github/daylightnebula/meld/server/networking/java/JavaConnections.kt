@@ -25,7 +25,7 @@ class JavaConnection(
     override fun sendPacket(packet: JavaPacket) {
         // create writer
         val writer = ByteWriter(packet.id, DataPacketMode.JAVA)
-        println("Sending ${packet.id}")
+        println("Sending ${packet.id} - ${packet::class.simpleName}")
 
         // encode packet
         packet.encode(writer)

@@ -1,14 +1,13 @@
 package io.github.daylightnebula.meld.player.packets
 
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
 import io.github.daylightnebula.meld.server.noEncode
 import io.github.daylightnebula.meld.player.TeleportCounter
-import org.cloudburstmc.math.vector.Vector2f
-import org.cloudburstmc.math.vector.Vector3f
-import org.cloudburstmc.math.vector.Vector3i
 
 class JavaConfirmTeleportPacket(
     var teleportID: Int = 0
@@ -21,20 +20,20 @@ class JavaConfirmTeleportPacket(
 }
 
 class JavaReceivePlayerPositionPacket(
-    var position: Vector3f = Vector3f.ZERO,
+    var position: Float3 = Float3(),
     var onGround: Boolean = false
 ): JavaPacket {
     override val id: Int = 0x17
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
-        position = Vector3f.from(reader.readDouble().toFloat(), reader.readDouble().toFloat(), reader.readDouble().toFloat())
+        position = Float3(reader.readDouble().toFloat(), reader.readDouble().toFloat(), reader.readDouble().toFloat())
         onGround = reader.readBoolean()
     }
 }
 
 class JavaReceivePlayerPositionAndRotationPacket(
-    var position: Vector3f = Vector3f.ZERO,
-    var rotation: Vector2f = Vector2f.ZERO,
+    var position: Float3 = Float3(),
+    var rotation: Float2 = Float2(),
     var onGround: Boolean = false
 ): JavaPacket {
     companion object {
@@ -43,27 +42,27 @@ class JavaReceivePlayerPositionAndRotationPacket(
     override val id: Int = ID
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
-        position = Vector3f.from(reader.readDouble().toFloat(), reader.readDouble().toFloat(), reader.readDouble().toFloat())
-        rotation = Vector2f.from(reader.readFloat(), reader.readFloat())
+        position = Float3(reader.readDouble().toFloat(), reader.readDouble().toFloat(), reader.readDouble().toFloat())
+        rotation = Float2(reader.readFloat(), reader.readFloat())
         onGround = reader.readBoolean()
     }
 }
 
 class JavaReceivePlayerRotationPacket(
-    var rotation: Vector2f = Vector2f.ZERO,
+    var rotation: Float2 = Float2(),
     var onGround: Boolean = false
 ): JavaPacket {
     override val id: Int = 0x19
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
-        rotation = Vector2f.from(reader.readFloat(), reader.readFloat())
+        rotation = Float2(reader.readFloat(), reader.readFloat())
         onGround = reader.readBoolean()
     }
 }
 
 class JavaSetPlayerPositionPacket( // AKA sync player position
-    var position: Vector3f = Vector3f.ZERO,
-    var rotation: Vector2f = Vector2f.ZERO,
+    var position: Float3 = Float3(),
+    var rotation: Float2 = Float2(),
     var flags: Byte = 0x00,
     var teleportID: Int = TeleportCounter.nextID()
 ): JavaPacket {
@@ -81,7 +80,7 @@ class JavaSetPlayerPositionPacket( // AKA sync player position
 }
 
 class JavaSetSpawnPositionPacket(
-    var blockPosition: Vector3i,
+    var blockPosition: Float3,
     var rotation: Float
 ): JavaPacket {
     override val id: Int = 0x54

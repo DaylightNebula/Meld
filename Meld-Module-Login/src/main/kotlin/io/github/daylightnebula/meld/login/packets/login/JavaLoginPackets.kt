@@ -42,7 +42,6 @@ class JavaLoginSuccessPacket(
         writer.writeLong(uuid.leastSignificantBits)
         writer.writeString(username)
         writer.writeVarInt(0)
-        writer.writeBoolean(strictErrorHandling)
     }
 
     override fun decode(reader: AbstractReader) = noDecode()

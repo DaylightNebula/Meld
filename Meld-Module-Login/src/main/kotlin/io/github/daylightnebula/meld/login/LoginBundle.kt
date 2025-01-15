@@ -6,10 +6,7 @@ import io.github.daylightnebula.meld.server.*
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.IConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaConfigKeepAlivePacket
-import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
-import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
+import io.github.daylightnebula.meld.server.networking.java.*
 import java.util.*
 
 private val tempUIDStorage = mutableMapOf<IConnection<*>, UUID>()
@@ -44,6 +41,11 @@ class LoginBundle: PacketBundle {
             JavaClientInfoPacket.ID,
             JavaClientInfoPacket.TYPE
         ) to { JavaClientInfoPacket() },
+
+        javaPacketID(
+            JavaLoginAcknowledge.ID,
+            JavaLoginAcknowledge.TYPE
+        ) to { JavaLoginAcknowledge() },
 
         javaPacketID(0x02, JavaConnectionState.CONFIG) to { JavaConfigMessagePacket() },
         javaPacketID(0x03, JavaConnectionState.CONFIG) to { JavaFinishConfigPacket() }
@@ -80,7 +82,10 @@ class LoginBundle: PacketBundle {
                 username = packet.username
             )
         )
+    }
 
+    @PacketHandler
+    fun onLoginAcknowledged(connection: JavaConnection, packet: JavaLoginAcknowledge) {
         // move to config state
         connection.state = JavaConnectionState.CONFIG
     }
@@ -88,7 +93,7 @@ class LoginBundle: PacketBundle {
     @PacketHandler
     fun onClientInfo(connection: JavaConnection, packet: JavaClientInfoPacket) {
 //            connection.sendPacket(JavaFeatureFlagsPacket())
-        connection.sendPacket(JavaRegistryDataPacket())
+//        connection.sendPacket(JavaRegistryDataPacket())
         connection.sendPacket(JavaFinishConfigPacket())
     }
 

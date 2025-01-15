@@ -1,5 +1,7 @@
 package io.github.daylightnebula.meld.player
 
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.login.LoginEvent
 import io.github.daylightnebula.meld.player.extensions.JavaEntityStatusPacket
 import io.github.daylightnebula.meld.player.extensions.hasPlayer
@@ -14,19 +16,7 @@ import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.events.EventHandler
 import io.github.daylightnebula.meld.server.events.EventListener
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.server.registries.BedrockRegistries
-import org.cloudburstmc.math.vector.Vector2f
-import org.cloudburstmc.math.vector.Vector3f
-import org.cloudburstmc.math.vector.Vector3i
-import org.cloudburstmc.nbt.NbtMap
-import org.cloudburstmc.protocol.bedrock.data.*
-import org.cloudburstmc.protocol.bedrock.packet.BiomeDefinitionListPacket
-import org.cloudburstmc.protocol.bedrock.packet.CreativeContentPacket
-import org.cloudburstmc.protocol.bedrock.packet.PlayStatusPacket
-import org.cloudburstmc.protocol.bedrock.packet.StartGamePacket
-import org.cloudburstmc.protocol.common.util.OptionalBoolean
 import java.util.*
 
 class PlayerListener: EventListener {
@@ -53,89 +43,90 @@ class PlayerListener: EventListener {
                 val connection = event.connection as JavaConnection
 
                 // send join packets
+                println("Starting join...")
                 connection.sendPacket(JavaJoinPacket(player))
-                connection.sendPacket(JavaAbilitiesPacket())
-                connection.sendPacket(JavaEntityStatusPacket(player))
-                connection.sendPacket(JavaDifficultyPacket())
+//                connection.sendPacket(JavaAbilitiesPacket())
+//                connection.sendPacket(JavaEntityStatusPacket(player))
+//                connection.sendPacket(JavaDifficultyPacket())
 
                 // send positions
-                connection.sendPacket(JavaSetSpawnPositionPacket(Vector3i.from(0, 60, 0), 0f))
-                connection.sendPacket(JavaSetPlayerPositionPacket(Vector3f.from(0f, 60f, 0f), Vector2f.from(0f, 0f)))
+//                connection.sendPacket(JavaSetSpawnPositionPacket(Float3(0f, 60f, 0f), 0f))
+//                connection.sendPacket(JavaSetPlayerPositionPacket(Float3(0f, 60f, 0f), Float2(0f, 0f)))
             }
 
             // bedrock connections
-            is BedrockConnection -> {
-                //https://github.com/GeyserMC/Geyser/blob/b344e21f7f729998eb4b1b7d948bc184594b8864/core/src/main/java/org/geysermc/geyser/session/GeyserSession.java#L620
-                // send start game packet
-                (event.connection as BedrockConnection).sendPacket(StartGamePacket().apply {
-                    seed = -1L
-                    dimensionId = 0
-                    generatorId = 1
-                    playerGameType = player.gameMode.bedrockGameMode()
-                    levelGameType = player.gameMode.bedrockGameMode()
-                    difficulty = 1
-                    defaultSpawn = Vector3i.ZERO
-                    playerPosition = Vector3f.ZERO
-                    rotation = Vector2f.ZERO
-                    isAchievementsDisabled = true
-                    currentTick = -1
-                    eduEditionOffers = 0
-                    isEduFeaturesEnabled = false
-                    rainLevel = 0F
-                    lightningLevel = 1f
-                    isMultiplayerGame = true
-                    isBroadcastingToLan = true
-                    platformBroadcastMode = GamePublishSetting.PUBLIC
-                    xblBroadcastMode = GamePublishSetting.PUBLIC
-                    isCommandsEnabled = false
-                    isTexturePacksRequired = false
-                    isBonusChestEnabled = false
-                    isStartingWithMap = false
-                    isTrustingPlayers = true
-                    defaultPlayerPermission = PlayerPermission.MEMBER
-                    serverChunkTickRange = io.github.daylightnebula.meld.server.Meld.simDistance
-                    isBehaviorPackLocked = false
-                    isResourcePackLocked = false
-                    isFromLockedWorldTemplate = false
-                    isUsingMsaGamertagsOnly = false
-                    isFromWorldTemplate = false
-                    isWorldTemplateOptionLocked = false
-                    spawnBiomeType = SpawnBiomeType.DEFAULT
-                    customBiomeName = ""
-                    educationProductionId = ""
-                    forceExperimentalGameplay = OptionalBoolean.empty()
-                    levelId = io.github.daylightnebula.meld.server.Meld.serverName
-                    levelName = io.github.daylightnebula.meld.server.Meld.serverName
-                    premiumWorldTemplateId = "00000000-0000-0000-0000-000000000000"
-                    enchantmentSeed = 0
-                    multiplayerCorrelationId = ""
-                    itemDefinitions = listOf()
-                    vanillaVersion = "*"
-                    isInventoriesServerAuthoritative = true
-                    serverEngine = ""
-                    playerPropertyData = NbtMap.EMPTY
-                    worldTemplateId = UUID.randomUUID()
-                    chatRestrictionLevel = ChatRestrictionLevel.NONE
-                    authoritativeMovementMode = AuthoritativeMovementMode.CLIENT
-                    rewindHistorySize = 0
-                    isServerAuthoritativeBlockBreaking = false
-                })
-
-                // send biomes definitions
-                (event.connection as BedrockConnection).sendPacket(BiomeDefinitionListPacket().apply {
-                    definitions = BedrockRegistries.BIOMES_NBT.get()
-                })
-
-                // send creative content
-                (event.connection as BedrockConnection).sendPacket(CreativeContentPacket().apply {
-                    contents = arrayOf()
-                })
-
-                // send player spawn status packet
-                (event.connection as BedrockConnection).sendPacket(PlayStatusPacket().apply {
-                    status = PlayStatusPacket.Status.PLAYER_SPAWN
-                })
-            }
+//            is BedrockConnection -> {
+//                //https://github.com/GeyserMC/Geyser/blob/b344e21f7f729998eb4b1b7d948bc184594b8864/core/src/main/java/org/geysermc/geyser/session/GeyserSession.java#L620
+//                // send start game packet
+//                (event.connection as BedrockConnection).sendPacket(StartGamePacket().apply {
+//                    seed = -1L
+//                    dimensionId = 0
+//                    generatorId = 1
+//                    playerGameType = player.gameMode.bedrockGameMode()
+//                    levelGameType = player.gameMode.bedrockGameMode()
+//                    difficulty = 1
+//                    defaultSpawn = Vector3i.ZERO
+//                    playerPosition = Vector3f.ZERO
+//                    rotation = Vector2f.ZERO
+//                    isAchievementsDisabled = true
+//                    currentTick = -1
+//                    eduEditionOffers = 0
+//                    isEduFeaturesEnabled = false
+//                    rainLevel = 0F
+//                    lightningLevel = 1f
+//                    isMultiplayerGame = true
+//                    isBroadcastingToLan = true
+//                    platformBroadcastMode = GamePublishSetting.PUBLIC
+//                    xblBroadcastMode = GamePublishSetting.PUBLIC
+//                    isCommandsEnabled = false
+//                    isTexturePacksRequired = false
+//                    isBonusChestEnabled = false
+//                    isStartingWithMap = false
+//                    isTrustingPlayers = true
+//                    defaultPlayerPermission = PlayerPermission.MEMBER
+//                    serverChunkTickRange = io.github.daylightnebula.meld.server.Meld.simDistance
+//                    isBehaviorPackLocked = false
+//                    isResourcePackLocked = false
+//                    isFromLockedWorldTemplate = false
+//                    isUsingMsaGamertagsOnly = false
+//                    isFromWorldTemplate = false
+//                    isWorldTemplateOptionLocked = false
+//                    spawnBiomeType = SpawnBiomeType.DEFAULT
+//                    customBiomeName = ""
+//                    educationProductionId = ""
+//                    forceExperimentalGameplay = OptionalBoolean.empty()
+//                    levelId = io.github.daylightnebula.meld.server.Meld.serverName
+//                    levelName = io.github.daylightnebula.meld.server.Meld.serverName
+//                    premiumWorldTemplateId = "00000000-0000-0000-0000-000000000000"
+//                    enchantmentSeed = 0
+//                    multiplayerCorrelationId = ""
+//                    itemDefinitions = listOf()
+//                    vanillaVersion = "*"
+//                    isInventoriesServerAuthoritative = true
+//                    serverEngine = ""
+//                    playerPropertyData = NbtMap.EMPTY
+//                    worldTemplateId = UUID.randomUUID()
+//                    chatRestrictionLevel = ChatRestrictionLevel.NONE
+//                    authoritativeMovementMode = AuthoritativeMovementMode.CLIENT
+//                    rewindHistorySize = 0
+//                    isServerAuthoritativeBlockBreaking = false
+//                })
+//
+//                // send biomes definitions
+//                (event.connection as BedrockConnection).sendPacket(BiomeDefinitionListPacket().apply {
+//                    definitions = BedrockRegistries.BIOMES_NBT.get()
+//                })
+//
+//                // send creative content
+//                (event.connection as BedrockConnection).sendPacket(CreativeContentPacket().apply {
+//                    contents = arrayOf()
+//                })
+//
+//                // send player spawn status packet
+//                (event.connection as BedrockConnection).sendPacket(PlayStatusPacket().apply {
+//                    status = PlayStatusPacket.Status.PLAYER_SPAWN
+//                })
+//            }
         }
 
         // mark player joined

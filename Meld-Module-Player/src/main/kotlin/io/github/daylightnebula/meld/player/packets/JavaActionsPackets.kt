@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.player.packets
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -7,7 +8,6 @@ import io.github.daylightnebula.meld.server.noEncode
 import io.github.daylightnebula.meld.player.PlayerBlockAction
 import io.github.daylightnebula.meld.player.PlayerCommandAction
 import io.github.daylightnebula.meld.server.utils.BlockFace
-import org.cloudburstmc.math.vector.Vector3i
 
 class JavaPlayerCommandPacket(
     var entityID: Int = 0,
@@ -25,7 +25,7 @@ class JavaPlayerCommandPacket(
 
 class JavaBlockActionPacket(
     var action: PlayerBlockAction = PlayerBlockAction.START_DIGGING,
-    var blockPosition: Vector3i = Vector3i.ZERO,
+    var blockPosition: Float3 = Float3(),
     var face: BlockFace = BlockFace.BOTTOM,
     var sequence: Int = 0
 ): JavaPacket {

@@ -3,59 +3,49 @@ package io.github.daylightnebula.meld.server.registries
 import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.meldNbt
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromHexString
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
+import kotlinx.serialization.serializer
 import net.benwoodworth.knbt.*
 import java.io.File
-import java.io.StringReader
-import java.math.BigDecimal
-
+import kotlin.reflect.full.starProjectedType
 
 object RegistryCodec {
     val codec: JsonObject = meldJson.decodeFromString(File("codec.json").readText())
 
 
-    val chatRegistry = meldNbt.encodeToNbtTag(ChatRegistry.default)
-    val dimensionType = meldNbt.encodeToNbtTag(DimensionRegistry.default)
-    val defaultBiome = meldNbt.encodeToNbtTag(BiomeRegistry.default)
-    val damageTypeJson = codec["value"]!!
-        .jsonObject["minecraft:damage_type"]!!
-        .jsonObject["value"]!!.jsonObject
-        .jsonObject["value"]!!.jsonObject
-        .jsonObject["value"]!!.jsonObject
-        .jsonObject["value"]!!.jsonArray
-    var damageTypes = nbtCompoundList(
-        "minecraft:damage_type",
-        *(damageTypeJson.mapIndexed { index, j ->
-            val json = j.jsonObject
+//    val chatRegistry = meldNbt.encodeToNbtTag(ChatRegistry.default)
+//    val dimensionType = meldNbt.encodeToNbtTag(DimensionRegistry.default)
+//    val defaultBiome = meldNbt.encodeToNbtTag(BiomeRegistry.default)
+//    val damageTypeJson = codec["value"]!!
+//        .jsonObject["minecraft:damage_type"]!!
+//        .jsonObject["value"]!!.jsonObject
+//        .jsonObject["value"]!!.jsonObject
+//        .jsonObject["value"]!!.jsonObject
+//        .jsonObject["value"]!!.jsonArray
+//    var damageTypes = nbtCompoundList(
+//        "minecraft:damage_type",
+//        *(damageTypeJson.mapIndexed { index, j ->
+//            val json = j.jsonObject
+//
+//            // unpack json
+//            val id = json["id"]!!.jsonObject["value"]!!.jsonPrimitive.int
+//            val name = json["name"]!!.jsonObject["value"]!!.jsonPrimitive.content
+//            val elements = json["element"]!!.jsonObject["value"]!!.jsonObject
+//            val map = mutableMapOf<String, NbtTag>()
+//
+//            // for each key in object
+////            elements.keys.forEach { key ->
+////                val nbt = elements[key]!!.jsonObject.toNBT()
+////                map[key] = nbt
+////            }
+//
+//            // pass back elements
+//            nbtListElement(id, name, NbtCompound(map))
+//        }.toTypedArray())
+//    )
 
-            // unpack json
-            val id = json["id"]!!.jsonObject["value"]!!.jsonPrimitive.int
-            val name = json["name"]!!.jsonObject["value"]!!.jsonPrimitive.content
-            val elements = json["elements"]!!.jsonObject["value"]!!.jsonObject
-            val map = mutableMapOf<String, NbtTag>()
-
-            // for each key in object
-            elements.keys.forEach { key ->
-                val nbt = elements[key]!!.jsonObject.toNBT()
-                map[key] = nbt
-            }
-
-            // pass back elements
-            nbtListElement(id, name, NbtCompound(map))
-        }.toTypedArray())
-    )
-
-    var nbt: NbtCompound = NbtCompound(
-        mapOf(
-            "minecraft:chat_type" to chatRegistry,
-            "minecraft:dimension_type" to dimensionType,
-            "minecraft:worldgen/biome" to defaultBiome,
-            "minecraft:damage_type" to damageTypes
-        )
-    )
+    val nbt = StringifiedNbt.decodeFromString<NbtCompound>(File("codec.json").readText())
 
     fun nbtCompoundList(type: String, vararg elements: NbtCompound): NbtCompound {
         return NbtCompound(mapOf(

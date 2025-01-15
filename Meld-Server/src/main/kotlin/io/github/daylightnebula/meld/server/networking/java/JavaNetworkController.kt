@@ -4,9 +4,13 @@ import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.PacketManager
 import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.networking.common.*
+import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController.acceptor
+import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController.listener
+import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController.serverSocket
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import kotlinx.coroutines.*
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.JsonObject
 import java.util.*
 import kotlin.concurrent.thread
@@ -27,8 +31,7 @@ object JavaNetworkController: INetworkController {
     }
 
     // thread that listens for active java connections
-    @OptIn(DelicateCoroutinesApi::class)
-    val listener = thread(start = false) {
+    private val listener = thread(start = false) {
         while(true) {
             // for each connection, process incoming packets
             Meld.connections.filter { it is JavaConnection }.forEach { connection ->
@@ -43,8 +46,6 @@ object JavaNetworkController: INetworkController {
                 runBlocking {
                     val length = read.readVarInt()
                     val packetID = read.readVarInt()
-                    println("Received $packetID")
-//                    println("Got packet $packetID with length $length on state ${connection.state}")
 
                     // try catch due to packet 122 in status state
                     val data = ByteArrayReader(read.readArray(length - 1))
@@ -58,10 +59,10 @@ object JavaNetworkController: INetworkController {
         }
     }
 
-    fun pingJson(): JsonObject = meldJson.decodeFromString("""
+    fun pingJson() = meldJson.decodeFromString<JsonObject>("""
         {
           "version": {
-              "name": ${Meld.javaVersion},
+              "name": "${Meld.javaVersion}",
               "protocol": ${Meld.javaProtocol}
           },
           "players": {
@@ -70,10 +71,10 @@ object JavaNetworkController: INetworkController {
             "sample": []
           },
           "description": {
-            "text": ${Meld.description}
+            "text": "${Meld.description}"
           },
-          "favicon": ${Meld.favicon},
-          "enforcesSecureChat": ${Meld.enforceSecureChat}
+          "favicon": "${Meld.favicon}",
+          "enforcesSecureChat": "${Meld.enforceSecureChat}"
         }
     """.trimIndent())
 

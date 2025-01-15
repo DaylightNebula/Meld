@@ -29,6 +29,7 @@ object PacketManager {
             println("WARN no java packet registered for id $packetID and state ${connection.state}")
             return
         }
+        println("Received $packetID - ${packet::class.simpleName}")
 
         // decode the packet
         packet.decode(reader)
@@ -38,7 +39,7 @@ object PacketManager {
     }
 
     // handle an incoming packet
-    fun <T: Any> handlePacket(connection: IConnection<T>, packet: T) =
+    private fun <T: Any> handlePacket(connection: IConnection<T>, packet: T) =
         packetListeners[packet::class.starProjectedType]?.forEach { it.second.call(it.first, connection, packet) }
             ?: println("WARN not handling packet $packet")
 

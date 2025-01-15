@@ -1,14 +1,14 @@
 package io.github.daylightnebula.meld.entities.packets
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
-import org.cloudburstmc.math.vector.Vector3f
 
 class JavaSpawnExpOrbPacket(
     var entityID: Int = 0,
-    var position: Vector3f = Vector3f.from(0f, 0f, 0f),
+    var position: Float3 = Float3(),
     var count: Short = 0
 ): JavaPacket {
     override val id: Int = 0x02

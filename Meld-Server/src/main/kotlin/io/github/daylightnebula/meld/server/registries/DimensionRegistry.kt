@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.server.registries
 
+import io.github.daylightnebula.meld.server.meldJson
 import kotlinx.serialization.SerialName
 import kotlin.math.log
 
@@ -8,34 +9,47 @@ data class DimensionRegistry(
     val value: List<DimensionRegistryEntry>
 ) {
     companion object {
-        val default = DimensionRegistry(
-            value = listOf(
-                DimensionRegistryEntry(
-                    name = "minecraft:overworld",
-                    id = 0,
-                    element = DimensionRegistryElement(
-                        piglinSafe = 0x01,
-                        hasRaids = 0x01,
-                        monsterSpawnLightLevel = 7,
-                        monsterSpawnBlockLightLimit = 7,
-                        natural = 0x01,
-                        ambientLight = 1f,
-                        fixedTime = 4000L,
-                        infiniburn = "#minecraft:infiniburn_overworld",
-                        respawnAnchorWorks = 0x01,
-                        hasSkylight = 0x01,
-                        bedWorks = 0x01,
-                        effects = "minecraft:overworld",
-                        minY = -64,
-                        height = 384,
-                        logicalHeight = 384,
-                        coordinateScale = 1.0,
-                        ultrawarm = 0x00,
-                        hasCeiling = 0x00
-                    )
-                )
-            )
-        )
+        val default = meldJson.decodeFromString<DimensionRegistry>("""
+            {
+              "type": "minecraft:dimension_type",
+              "value": [
+                {
+                  "name": "minecraft:overworld",
+                  "id": 0,
+                  "element": {
+                  }
+                }
+              ]
+            }
+        """.trimIndent())
+//        val default = DimensionRegistry(
+//            value = listOf(
+//                DimensionRegistryEntry(
+//                    name = "minecraft:overworld",
+//                    id = 0,
+//                    element = DimensionRegistryElement(
+//                        piglinSafe = 0x01,
+//                        hasRaids = 0x01,
+//                        monsterSpawnLightLevel = 7,
+//                        monsterSpawnBlockLightLimit = 7,
+//                        natural = 0x01,
+//                        ambientLight = 1f,
+//                        fixedTime = 4000L,
+//                        infiniburn = "#minecraft:infiniburn_overworld",
+//                        respawnAnchorWorks = 0x01,
+//                        hasSkylight = 0x01,
+//                        bedWorks = 0x01,
+//                        effects = "minecraft:overworld",
+//                        minY = -64,
+//                        height = 384,
+//                        logicalHeight = 384,
+//                        coordinateScale = 1.0,
+//                        ultrawarm = 0x00,
+//                        hasCeiling = 0x00
+//                    )
+//                )
+//            )
+//        )
     }
 }
 

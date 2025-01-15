@@ -2,7 +2,6 @@ package io.github.daylightnebula.meld.entities
 
 import io.github.daylightnebula.meld.server.events.EventHandler
 import io.github.daylightnebula.meld.server.events.EventListener
-import org.json.XMLTokener.entity
 
 class EntityListener: EventListener {
     @EventHandler

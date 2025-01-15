@@ -1,6 +1,6 @@
 package io.github.daylightnebula.meld.player.packets
 
-import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode
+import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -50,7 +50,7 @@ interface PlayerInfoAction {
     }
 
     // update game mode for players
-    class UpdateGameMode(var gameMode: GameMode = GameMode.ADVENTURE): PlayerInfoAction {
+    class UpdateGameMode(var gameMode: Player.GameMode = Player.GameMode.ADVENTURE): PlayerInfoAction {
         override val bitIndex: Int = 2
         override fun writeJava(writer: ByteWriter) {
             writer.writeVarInt(gameMode.ordinal)

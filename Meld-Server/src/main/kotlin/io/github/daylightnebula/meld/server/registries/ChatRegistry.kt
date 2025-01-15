@@ -44,7 +44,7 @@ data class ChatRegistry(
 data class ChatRegistryEntry(
     val name: String,
     val id: Int,
-    val element: List<ChatRegistryElement>
+    val element: ChatRegistryElement
 )
 
 @Serializable

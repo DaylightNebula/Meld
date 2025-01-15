@@ -1,9 +1,9 @@
 package io.github.daylightnebula.meld.entities
 
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
 import io.github.daylightnebula.meld.entities.metadata.entityMetadata
-import org.cloudburstmc.math.vector.Vector2f
-import org.cloudburstmc.math.vector.Vector3f
 import java.util.*
 
 abstract class LivingEntity(
@@ -12,9 +12,9 @@ abstract class LivingEntity(
     type: EntityType = EntityType.ARMOR_STAND,
     metadata: EntityMetadata = entityMetadata(),
     dimension: String = "overworld",
-    position: Vector3f = Vector3f.from(0.0, 0.0, 0.0),
-    startVelocity: Vector3f = Vector3f.ZERO,
-    startRotation: Vector2f = Vector2f.ZERO,
+    position: Float3 = Float3(),
+    startVelocity: Float3 = Float3(),
+    startRotation: Float2 = Float2(),
     var headYaw: Float = 0f,
     val health: Health = Health(1.0)
 ): Entity(
