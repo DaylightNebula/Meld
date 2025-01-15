@@ -1,13 +1,20 @@
 package io.github.daylightnebula.meld.server.networking.common
 
+import dev.romainguy.kotlin.math.Float3
+import io.github.daylightnebula.meld.server.meldJson
+import io.github.daylightnebula.meld.server.meldNbt
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.SEGMENT_BITS
+import io.github.daylightnebula.meld.server.registries.RegistryCodec.nbt
 import io.github.daylightnebula.meld.server.utils.ItemContainer
-import org.cloudburstmc.math.vector.Vector3i
-import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTWriter
-import org.json.JSONObject
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.serializer
+import net.benwoodworth.knbt.Nbt
+import net.benwoodworth.knbt.NbtCompression
+import net.benwoodworth.knbt.NbtVariant
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
@@ -62,8 +69,9 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
             writeByte(item.count)
 
             // write nbt if present otherwise a 0
-            if (item.nbt != null) writeNBT(item.nbt)
-            else writeByte(0x00)
+            TODO("Write item container NBT")
+//            if (item.nbt != null) writeNBT(item.nbt)
+//            else writeByte(0x00)
         }
     }
 
@@ -82,22 +90,26 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
 
     fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
 
-    fun writeBlockPosition(position: Vector3i) =
+    fun writeBlockPosition(position: Float3) =
         writeLong(position.x.toLong() and 0x3FFFFFFL shl 38 or
                 (position.z.toLong() and 0x3FFFFFFL shl 12) or
                 (position.y.toLong() and 0xFFFL))
 
     // NBT
-    fun writeNBT(compound: NBTCompound) {
+    inline fun <reified T> writeNBT(compound: T) = writeNBT(meldNbt.serializersModule.serializer(), compound)
+    fun <T> writeNBT(serializer: SerializationStrategy<T>, compound: T) {
         val buffer = ByteWriter(id, mode)
         buffer.writeByte(0x0A)
-        val writer = NBTWriter(object : OutputStream() {
-            override fun write(b: Int) {
-                buffer.writeByte(b.toByte())
-            }
-        }, CompressedProcesser.NONE)
-        writer.writeRaw(compound)
-        data.add(buffer.getRawData())
+        data.add(meldNbt.encodeToByteArray(serializer, compound))
+
+//        buffer.writeByte(0x0A)
+//        val writer = NBTWriter(object : OutputStream() {
+//            override fun write(b: Int) {
+//                buffer.writeByte(b.toByte())
+//            }
+//        }, CompressedProcesser.NONE)
+//        writer.writeRaw(compound)
+//        data.add(buffer.getRawData())
     }
 
     // write complex objects
@@ -107,7 +119,7 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
         else writeVarInt(string.length)
         data.add(bytes)
     }
-    fun writeJSON(json: JSONObject) = writeString(json.toString(0))
+    fun writeJSON(json: JsonObject) = writeString(meldJson.encodeToString(json))
 
     fun getRawData(): ByteArray {
         var offset = 0

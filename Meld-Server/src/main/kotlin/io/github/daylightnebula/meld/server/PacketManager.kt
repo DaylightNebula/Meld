@@ -1,14 +1,11 @@
 package io.github.daylightnebula.meld.server
 
-import io.github.daylightnebula.meld.server.events.EventHandler
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
-import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -59,7 +56,7 @@ object PacketManager {
 
                 // make sure that parameter is an event
                 if (!checkParameterInheritance(func.valueParameters[0], JavaConnection::class)) return@forEach
-                if (!checkParameterInheritance(func.valueParameters[1], JavaPacket::class) && !checkParameterInheritance(func.valueParameters[1], BedrockPacket::class)) return@forEach
+                if (!checkParameterInheritance(func.valueParameters[1], JavaPacket::class) /*&& BEDROCK !checkParameterInheritance(func.valueParameters[1], BedrockPacket::class)*/) return@forEach
 
                 // get list of functions for the given param type
                 val param = func.valueParameters[1]
@@ -91,9 +88,9 @@ fun noEncode(): Unit = throw NotImplementedException("Function marked no encode!
 fun noDecode(): Unit = throw NotImplementedException("Function marked no decode!")
 
 // functions to make making bundles easier
-fun bedrock(
-    vararg handlers: Pair<String, (connection: BedrockConnection, packet: BedrockPacket) -> Unit>
-) = hashMapOf(*handlers)
+// BEDROCK fun bedrock(
+//     vararg handlers: Pair<String, (connection: BedrockConnection, packet: BedrockPacket) -> Unit>
+// ) = hashMapOf(*handlers)
 
 fun java(
     vararg handlers: Pair<String, (connection: JavaConnection, packet: JavaPacket) -> Unit>

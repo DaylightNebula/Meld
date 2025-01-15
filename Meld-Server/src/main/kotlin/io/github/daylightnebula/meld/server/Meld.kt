@@ -8,6 +8,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import net.benwoodworth.knbt.Nbt
+import net.benwoodworth.knbt.NbtCompression
+import net.benwoodworth.knbt.NbtVariant
 import java.io.File
 import java.lang.Thread.sleep
 import java.util.ConcurrentModificationException
@@ -54,6 +57,16 @@ val configSerializer = Json {
 val Meld =
     if (meldConfigFile.exists()) configSerializer.decodeFromString<MeldConfig>(meldConfigFile.readText())
     else MeldConfig()
+
+val meldJson = Json {
+    prettyPrint = false
+    encodeDefaults = true
+}
+
+val meldNbt = Nbt {
+    variant = NbtVariant.Java
+    compression = NbtCompression.None
+}
 
 // needs bedrock function
 fun NeedsBedrock(): Nothing = throw NotImplementedError("This function requires a bedrock implementation!")

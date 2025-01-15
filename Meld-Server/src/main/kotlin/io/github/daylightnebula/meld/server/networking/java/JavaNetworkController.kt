@@ -2,12 +2,12 @@ package io.github.daylightnebula.meld.server.networking.java
 
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.PacketManager
+import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.networking.common.*
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import kotlinx.coroutines.*
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -58,13 +58,24 @@ object JavaNetworkController: INetworkController {
         }
     }
 
-    fun pingJson(): JSONObject = JSONObject()
-        .put("version", JSONObject().put("name", Meld.javaVersion).put("protocol", Meld.javaProtocol))
-        .put("players", JSONObject().put("max", Meld.maxPlayers).put("online", Meld.players).put("sample", JSONArray().put(JSONObject().put("name", "hello_world").put("id", UUID.randomUUID().toString()))))
-        .put("description", JSONObject().put("text", Meld.description))
-        .put("favicon", JSONObject().put("favicon", Meld.favicon))
-        .put("enforcesSecureChat", Meld.enforceSecureChat)
-        .put("previewsChat", Meld.previewsChat)
+    fun pingJson(): JsonObject = meldJson.decodeFromString("""
+        {
+          "version": {
+              "name": ${Meld.javaVersion},
+              "protocol": ${Meld.javaProtocol}
+          },
+          "players": {
+            "max": ${Meld.maxPlayers},
+            "online": ${Meld.players},
+            "sample": []
+          },
+          "description": {
+            "text": ${Meld.description}
+          },
+          "favicon": ${Meld.favicon},
+          "enforcesSecureChat": ${Meld.enforceSecureChat}
+        }
+    """.trimIndent())
 
     override fun start() {
         // start socket

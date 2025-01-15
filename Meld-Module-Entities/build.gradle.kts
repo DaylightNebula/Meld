@@ -1,6 +1,5 @@
 plugins {
-    id("java")
-    kotlin("jvm") version "1.8.22"
+    kotlin("jvm") version "2.1.0"
 }
 
 repositories {
@@ -14,17 +13,6 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":Meld-Server"))
-    implementation("org.json:json:20230227")
-
-    // protocols
-    implementation(libs.bundles.fastutil)
-    api(libs.bundles.bedrockprotocol)
-    api(libs.bundles.javaprotocol)
-
-    // nbt
-    implementation("io.github.jglrxavpok.hephaistos:common:2.5.3")
-    implementation("io.github.jglrxavpok.hephaistos:antlr:2.5.3")
-    implementation("io.github.jglrxavpok.hephaistos:gson:2.5.3")
 }
 
 tasks {
@@ -34,5 +22,5 @@ tasks {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_21
 }

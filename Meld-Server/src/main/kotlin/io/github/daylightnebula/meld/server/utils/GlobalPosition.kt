@@ -1,5 +1,5 @@
 package io.github.daylightnebula.meld.server.utils
 
-import org.cloudburstmc.math.vector.Vector3i
+import dev.romainguy.kotlin.math.Float3
 
-data class GlobalPosition(val dimension: String, val position: Vector3i)
+data class GlobalPosition(val dimension: String, val position: Float3)

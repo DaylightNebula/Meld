@@ -5,8 +5,7 @@ val kotlin_version: String by project
 val logback_version: String by project
 
 plugins {
-    id("java")
-    kotlin("jvm") version "1.8.22"
+    kotlin("jvm") version "2.1.0"
     kotlin("plugin.serialization") version "1.8.22"
     id("io.ktor.plugin") version "2.3.1"
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -22,77 +21,30 @@ application {
 }
 
 repositories {
+    mavenCentral()
     maven("https://jitpack.io")
-
-    // Floodgate, Cumulus etc.
     maven("https://repo.opencollab.dev/main")
     maven("https://repo.opencollab.dev/maven-releases/")
     maven("https://repo.opencollab.dev/maven-snapshots/")
-
-    // Paper, Velocity
-    maven("https://repo.papermc.io/repository/maven-public")
-
-    // Spigot
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots") {
-        mavenContent { snapshotsOnly() }
-    }
-
-    // BungeeCord
-    maven("https://oss.sonatype.org/content/repositories/snapshots") {
-        mavenContent { snapshotsOnly() }
-    }
-
-    // Minecraft
-    maven("https://libraries.minecraft.net") {
-        name = "minecraft"
-        mavenContent { releasesOnly() }
-    }
-
-    mavenLocal()
-    mavenCentral()
-
-    // ViaVersion
-    maven("https://repo.viaversion.com") {
-        name = "viaversion"
-    }
-
-    // Sponge
-    maven("https://repo.spongepowered.org/repository/maven-public/")
-
-    // For Adventure snapshots
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {
     // kotlin
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-    implementation("org.json:json:20230227")
+    implementation("dev.romainguy:kotlin-math:1.6.0")
 
     // networking
     implementation("io.ktor:ktor-network-tls-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-cio-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-
-    // nbt
-    implementation("io.github.jglrxavpok.hephaistos:common:2.6.1")
-    implementation("io.github.jglrxavpok.hephaistos:antlr:2.6.1")
-    implementation("io.github.jglrxavpok.hephaistos:gson:2.6.1")
-
-    // protocols
-    implementation(libs.bundles.fastutil)
-    api(libs.bundles.bedrockprotocol)
-    api(libs.bundles.javaprotocol)
-
-    // netty
-    implementation("io.netty:netty-all:4.1.66.Final")
-    implementation("io.netty:netty-codec-haproxy:4.1.66.Final")
+    implementation("net.benwoodworth.knbt:knbt:0.11.8")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_21
 }

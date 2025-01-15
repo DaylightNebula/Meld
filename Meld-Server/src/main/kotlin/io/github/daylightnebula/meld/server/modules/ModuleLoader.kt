@@ -1,6 +1,9 @@
 package io.github.daylightnebula.meld.server.modules
 
-import org.json.JSONObject
+import io.github.daylightnebula.meld.server.meldJson
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import java.net.URLClassLoader
 import java.util.jar.JarFile
@@ -11,8 +14,9 @@ object ModuleLoader {
 
     fun load() {
         // get a list of all jar files to load
-        val jarFiles = modulesFolder.listFiles()!!
-            .filter { it.extension == "jar" }
+        val jarFiles = modulesFolder.listFiles()
+            ?.filter { it.extension == "jar" }
+            ?: emptyList<File>()
 
         // create a loader
         val loader = URLClassLoader(jarFiles.map { it.toURI().toURL() }.toTypedArray())
@@ -21,11 +25,11 @@ object ModuleLoader {
         for (jarFile in jarFiles) {
             println("Loading module ${jarFile.name}...")
             // get config file
-            val config = JarFile(jarFile).use {
+            val config: JsonObject = JarFile(jarFile).use {
                 val entry = it.getEntry("module.json")
-                JSONObject(it.getInputStream(entry).bufferedReader().readText())
+                meldJson.decodeFromString(it.getInputStream(entry).bufferedReader().readText())
             }
-            val mainClass = config.optString("main")
+            val mainClass = config["main"]?.jsonPrimitive?.content
             if (mainClass == null) {
                 println("WARN failed to load module ${jarFile.name}")
                 return

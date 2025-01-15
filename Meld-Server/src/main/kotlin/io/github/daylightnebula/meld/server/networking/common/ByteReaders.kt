@@ -1,10 +1,10 @@
 package io.github.daylightnebula.meld.server.networking.common
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
-import org.cloudburstmc.math.vector.Vector3i
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.experimental.and
@@ -69,12 +69,12 @@ abstract class AbstractReader {
 
     fun readLong() = ByteBuffer.wrap(readArray(8)).getLong(0)
 
-    fun readBlockPosition(): Vector3i {
+    fun readBlockPosition(): Float3 {
         val value: Long = readLong()
-        val x = (value shr 38).toInt()
-        val y = (value shl 52 shr 52).toInt()
-        val z = (value shl 26 shr 38).toInt()
-        return Vector3i.from(x, y, z)
+        val x = (value shr 38).toInt().toFloat()
+        val y = (value shl 52 shr 52).toInt().toFloat()
+        val z = (value shl 26 shr 38).toInt().toFloat()
+        return Float3(x, y, z)
     }
 
     // complex object reads

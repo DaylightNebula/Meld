@@ -1,12 +1,12 @@
 package io.github.daylightnebula.meld.server.utils
 
-import org.cloudburstmc.math.vector.Vector3i
+import dev.romainguy.kotlin.math.Float3
 
-enum class BlockFace(val offset: Vector3i) {
-    BOTTOM(Vector3i.from(0, -1, 0)),
-    TOP(Vector3i.from(0, 1, 0)),
-    NORTH(Vector3i.from(0, 0, -1)),
-    SOUTH(Vector3i.from(0, 0, 1)),
-    WEST(Vector3i.from(-1, 0, 0)),
-    EAST(Vector3i.from(1, 0, 0))
+enum class BlockFace(val offset: Float3) {
+    BOTTOM(Float3(0f,-1f,0f)),
+    TOP(Float3(0f,1f,0f)),
+    NORTH(Float3(0f,0f,-1f)),
+    SOUTH(Float3(0f,0f,1f)),
+    WEST(Float3(-1f,0f,0f)),
+    EAST(Float3(1f,0f,0f))
 }

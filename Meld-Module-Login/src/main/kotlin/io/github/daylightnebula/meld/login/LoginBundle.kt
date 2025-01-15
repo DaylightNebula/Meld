@@ -5,14 +5,11 @@ import io.github.daylightnebula.meld.login.packets.login.*
 import io.github.daylightnebula.meld.server.*
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConfigKeepAlivePacket
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController
-import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
-import org.cloudburstmc.protocol.bedrock.packet.*
 import java.util.*
 
 private val tempUIDStorage = mutableMapOf<IConnection<*>, UUID>()
@@ -111,58 +108,58 @@ class LoginBundle: PacketBundle {
             else -> println("Unknown plugin message channel ${packet.channel}")
         }
 
-    @PacketHandler
-    fun onBedrockRequestNetworkSettings(connection: BedrockConnection, packet: RequestNetworkSettingsPacket) {
-        // send back network settings
-        connection.sendPacket(NetworkSettingsPacket().apply {
-            compressionAlgorithm = PacketCompressionAlgorithm.ZLIB
-            compressionThreshold = 512
-        })
-
-        // update compression settings
-        connection.session.setCompression(PacketCompressionAlgorithm.ZLIB)
-        connection.session.setCompressionLevel(9)
-        connection.compressionEnabled = true
-    }
-
-    @PacketHandler
-    fun onBedrockLogin(connection: BedrockConnection, packet: LoginPacket) {
-        connection.sendPacket(PlayStatusPacket().apply { status = PlayStatusPacket.Status.LOGIN_SUCCESS })
-        connection.sendPacket(ResourcePacksInfoPacket().apply {})
-    }
-
-    @PacketHandler
-    fun onBedrockClientCacheStatus(connection: BedrockConnection, packet: ClientCacheStatusPacket) =
-        println("WARN ClientCacheStatusPacket is not implemented")
-
-    @PacketHandler
-    fun onBedrockResourcePackClientResponse(connection: BedrockConnection, packet: ResourcePackClientResponsePacket) {
-        // unpack
-        val status = (packet as ResourcePackClientResponsePacket).status
-
-        // process depending on the status given in the input packet
-        when (status) {
-            ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS -> {
-                connection.sendPacket(ResourcePackStackPacket().apply {
-                    isForcedToAccept = false
-                    isExperimentsPreviouslyToggled = false
-                    gameVersion = "1.20"
-                })
-            }
-
-            ResourcePackClientResponsePacket.Status.COMPLETED -> {
-                // call login event
-                println("Resource pack completed")
-                // https://wiki.vg/Bedrock_Protocol#Start_Game
-            }
-
-            ResourcePackClientResponsePacket.Status.NONE -> TODO("Bedrock resourcepack $status not implemented")
-            ResourcePackClientResponsePacket.Status.REFUSED -> TODO("Bedrock resourcepack $status not implemented")
-            ResourcePackClientResponsePacket.Status.SEND_PACKS -> TODO("Bedrock resourcepack $status not implemented")
-
-            else -> throw NotImplementedError()
-        }
-    }
+//    @PacketHandler
+//    fun onBedrockRequestNetworkSettings(connection: BedrockConnection, packet: RequestNetworkSettingsPacket) {
+//        // send back network settings
+//        connection.sendPacket(NetworkSettingsPacket().apply {
+//            compressionAlgorithm = PacketCompressionAlgorithm.ZLIB
+//            compressionThreshold = 512
+//        })
+//
+//        // update compression settings
+//        connection.session.setCompression(PacketCompressionAlgorithm.ZLIB)
+//        connection.session.setCompressionLevel(9)
+//        connection.compressionEnabled = true
+//    }
+//
+//    @PacketHandler
+//    fun onBedrockLogin(connection: BedrockConnection, packet: LoginPacket) {
+//        connection.sendPacket(PlayStatusPacket().apply { status = PlayStatusPacket.Status.LOGIN_SUCCESS })
+//        connection.sendPacket(ResourcePacksInfoPacket().apply {})
+//    }
+//
+//    @PacketHandler
+//    fun onBedrockClientCacheStatus(connection: BedrockConnection, packet: ClientCacheStatusPacket) =
+//        println("WARN ClientCacheStatusPacket is not implemented")
+//
+//    @PacketHandler
+//    fun onBedrockResourcePackClientResponse(connection: BedrockConnection, packet: ResourcePackClientResponsePacket) {
+//        // unpack
+//        val status = (packet as ResourcePackClientResponsePacket).status
+//
+//        // process depending on the status given in the input packet
+//        when (status) {
+//            ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS -> {
+//                connection.sendPacket(ResourcePackStackPacket().apply {
+//                    isForcedToAccept = false
+//                    isExperimentsPreviouslyToggled = false
+//                    gameVersion = "1.20"
+//                })
+//            }
+//
+//            ResourcePackClientResponsePacket.Status.COMPLETED -> {
+//                // call login event
+//                println("Resource pack completed")
+//                // https://wiki.vg/Bedrock_Protocol#Start_Game
+//            }
+//
+//            ResourcePackClientResponsePacket.Status.NONE -> TODO("Bedrock resourcepack $status not implemented")
+//            ResourcePackClientResponsePacket.Status.REFUSED -> TODO("Bedrock resourcepack $status not implemented")
+//            ResourcePackClientResponsePacket.Status.SEND_PACKS -> TODO("Bedrock resourcepack $status not implemented")
+//
+//            else -> throw NotImplementedError()
+//        }
+//    }
 }
 
 
