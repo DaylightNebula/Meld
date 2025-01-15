@@ -21,8 +21,8 @@ import kotlin.concurrent.thread
 data class MeldConfig (
     // java specific
     val javaPort: Int = 25565,
-    val javaProtocol: Int = 765,
-    val javaVersion: String = "1.20.4",
+    val javaProtocol: Int = 769,
+    val javaVersion: String = "1.21.4",
 
     // bedrock specific
     val bedrockPort: Int = 19132,

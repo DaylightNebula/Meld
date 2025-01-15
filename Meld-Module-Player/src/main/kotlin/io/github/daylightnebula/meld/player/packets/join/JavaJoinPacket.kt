@@ -44,6 +44,7 @@ class JavaJoinPacket(
         // header
         writer.writeInt(playerID)
         writer.writeBoolean(isHardcore)
+        writer.writeVarInt(0)
         writer.writeVarInt(dimensionCount)
         dimensionNames.forEach { writer.writeString(it) }
         writer.writeVarInt(maxPlayers)
@@ -52,15 +53,17 @@ class JavaJoinPacket(
         writer.writeBoolean(reducedDebugInfo)
         writer.writeBoolean(enableRespawnScreen)
         writer.writeBoolean(doLimitedCrafting)
-        writer.writeString(dimensionType)
+        writer.writeVarInt(0) // dimension type
         writer.writeString(dimensionName)
         writer.writeLong(0) // hashed seed
-        writer.writeUByte(gameMode.ordinal.toUByte())
+        writer.writeUByte(gameMode.ordinal.toUByte())   // todo get ID from game mode
         writer.writeByte(previousGameMode)
         writer.writeBoolean(isDebug)
         writer.writeBoolean(isFlat)
         writer.writeBoolean(false)
         writer.writeVarInt(portalCooldown)
+        writer.writeVarInt(40)
+        writer.writeBoolean(Meld.enforceSecureChat)
     }
 }
 
