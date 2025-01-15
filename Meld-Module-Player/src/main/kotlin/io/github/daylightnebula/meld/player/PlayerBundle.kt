@@ -23,17 +23,18 @@ import io.github.daylightnebula.meld.server.utils.Pose
 class PlayerBundle: PacketBundle {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
         javaPackets(
-            javaGamePacket(0x15) to { JavaPlayKeepAlivePacket() },
-            javaGamePacket(0x17) to { JavaReceivePlayerPositionPacket() },
-            javaGamePacket(0x19) to { JavaReceivePlayerRotationPacket() },
-            javaGamePacket(0x18) to { JavaReceivePlayerPositionAndRotationPacket() },
-            javaGamePacket(0x10) to { JavaPluginMessagePacket() },
+            javaGamePacket(0x1A) to { JavaPlayKeepAlivePacket() },
+            javaGamePacket(0x1C) to { JavaReceivePlayerPositionPacket() },
+            javaGamePacket(0x1E) to { JavaReceivePlayerRotationPacket() },
+            javaGamePacket(0x1D) to { JavaReceivePlayerPositionAndRotationPacket() },
+            javaGamePacket(0x14) to { JavaPluginMessagePacket() },
             javaGamePacket(0x00) to { JavaConfirmTeleportPacket() },
-            javaGamePacket(0x20) to { JavaReceivePlayerAbilitiesPacket() },
-            javaGamePacket(0x22) to { JavaPlayerCommandPacket() },
-            javaGamePacket(0x33) to { JavaSwingArmPacket() },
-            javaGamePacket(0x21) to { JavaBlockActionPacket() },
-            javaGamePacket(0x13) to { JavaEntityInteractPacket() }
+            javaGamePacket(0x26) to { JavaReceivePlayerAbilitiesPacket() },
+            javaGamePacket(0x28) to { JavaPlayerCommandPacket() },
+            javaGamePacket(0x3B) to { JavaSwingArmPacket() },
+            javaGamePacket(0x08) to { JavaBlockActionPacket() },
+            javaGamePacket(0x18) to { JavaEntityInteractPacket() },
+            javaGamePacket(0x0B) to { JavaPlayerClientTick() }
         )
 
 //    BEDROCK @PacketHandler
@@ -57,6 +58,9 @@ class PlayerBundle: PacketBundle {
         if (event.cancelled) player.teleport()
         else player.setPosition(packet.position)
     }
+
+    @PacketHandler
+    fun onClientTick(connection: JavaConnection, tick: JavaPlayerClientTick) {}
 
     @PacketHandler
     fun onReceivePlayerPositionAndRotation(connection: JavaConnection, packet: JavaReceivePlayerPositionAndRotationPacket) {

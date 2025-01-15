@@ -23,7 +23,7 @@ class JavaReceivePlayerPositionPacket(
     var position: Float3 = Float3(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x17
+    override val id: Int = 0x1C
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         position = Float3(reader.readDouble().toFloat(), reader.readDouble().toFloat(), reader.readDouble().toFloat())
@@ -37,7 +37,7 @@ class JavaReceivePlayerPositionAndRotationPacket(
     var onGround: Boolean = false
 ): JavaPacket {
     companion object {
-        const val ID = 0x18
+        const val ID = 0x1D
     }
     override val id: Int = ID
     override fun encode(writer: ByteWriter) = noEncode()
@@ -52,7 +52,7 @@ class JavaReceivePlayerRotationPacket(
     var rotation: Float2 = Float2(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x19
+    override val id: Int = 0x1E
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         rotation = Float2(reader.readFloat(), reader.readFloat())
@@ -62,20 +62,24 @@ class JavaReceivePlayerRotationPacket(
 
 class JavaSetPlayerPositionPacket( // AKA sync player position
     var position: Float3 = Float3(),
+    var velocity: Float3 = Float3(),
     var rotation: Float2 = Float2(),
     var flags: Byte = 0x00,
     var teleportID: Int = TeleportCounter.nextID()
 ): JavaPacket {
-    override val id: Int = 0x3E
+    override val id: Int = 0x42
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
+        writer.writeVarInt(teleportID)
         writer.writeDouble(position.x.toDouble())
         writer.writeDouble(position.y.toDouble())
         writer.writeDouble(position.z.toDouble())
+        writer.writeDouble(velocity.x.toDouble())
+        writer.writeDouble(velocity.y.toDouble())
+        writer.writeDouble(velocity.z.toDouble())
         writer.writeFloat(rotation.x)
         writer.writeFloat(rotation.y)
-        writer.writeByte(flags)
-        writer.writeVarInt(teleportID)
+        writer.writeByteArray(byteArrayOf(0, 0, 0, 0))
     }
 }
 
@@ -83,7 +87,7 @@ class JavaSetSpawnPositionPacket(
     var blockPosition: Float3,
     var rotation: Float
 ): JavaPacket {
-    override val id: Int = 0x54
+    override val id: Int = 0x5B
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeBlockPosition(blockPosition)

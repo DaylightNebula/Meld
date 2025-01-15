@@ -10,7 +10,7 @@ class JavaAbilitiesPacket(
     var flySpeed: Float = 0.05f,
     var flags: Byte = 0x04
 ): JavaPacket {
-    override val id: Int = 0x36
+    override val id: Int = 0x3A
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeByte(flags)

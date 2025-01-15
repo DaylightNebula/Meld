@@ -11,7 +11,7 @@ data class JavaSetEntityVelocityPacket(
     var entityID: Int = 0,
     var velocity: Float3 = Float3()
 ): JavaPacket {
-    override val id: Int = 0x58
+    override val id: Int = 0x5F
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)

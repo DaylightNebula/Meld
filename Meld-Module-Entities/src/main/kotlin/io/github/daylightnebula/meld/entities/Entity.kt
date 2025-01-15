@@ -47,7 +47,7 @@ open class Entity(
                 is JavaConnection -> {
                     // send packet based on if change is greater than 8 blocks, teleport if greater than 8, otherwise just update position
                     if (length(change) > 8) connection.sendPacket(JavaTeleportEntityPacket(
-                        id, newPosition, rotation, true
+                        id, newPosition, Float3(), rotation, true
                     )) else connection.sendPacket(JavaUpdateEntityPositionPacket(
                         id, Float3(
                             ((newPosition.x * 32f) - (position.x * 32f)) * 128f,

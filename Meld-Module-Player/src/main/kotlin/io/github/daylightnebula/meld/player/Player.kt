@@ -65,7 +65,7 @@ class Player(
         setPosition(position)
         setRotation(rotation)
         when(connection) {
-            is JavaConnection -> connection.sendPacket(JavaSetPlayerPositionPacket(position, rotation))
+            is JavaConnection -> connection.sendPacket(JavaSetPlayerPositionPacket(position, Float3(), rotation))
         }
     }
 

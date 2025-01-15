@@ -29,7 +29,7 @@ object PacketManager {
             println("WARN no java packet registered for id $packetID and state ${connection.state}")
             return
         }
-        println("Received $packetID - ${packet::class.simpleName}")
+//        println("Received $packetID - ${packet::class.simpleName}")
 
         // decode the packet
         packet.decode(reader)

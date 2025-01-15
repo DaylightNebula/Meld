@@ -2,8 +2,8 @@ package io.github.daylightnebula.meld.player
 
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
+import io.github.daylightnebula.meld.entities.packets.JavaEntityStatusPacket
 import io.github.daylightnebula.meld.login.LoginEvent
-import io.github.daylightnebula.meld.player.extensions.JavaEntityStatusPacket
 import io.github.daylightnebula.meld.player.extensions.hasPlayer
 import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.JavaDifficultyPacket
@@ -17,7 +17,6 @@ import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.events.EventHandler
 import io.github.daylightnebula.meld.server.events.EventListener
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import java.util.*
 
 class PlayerListener: EventListener {
     // on disconnect
@@ -43,15 +42,14 @@ class PlayerListener: EventListener {
                 val connection = event.connection as JavaConnection
 
                 // send join packets
-                println("Starting join...")
                 connection.sendPacket(JavaJoinPacket(player))
-//                connection.sendPacket(JavaAbilitiesPacket())
-//                connection.sendPacket(JavaEntityStatusPacket(player))
-//                connection.sendPacket(JavaDifficultyPacket())
+                connection.sendPacket(JavaAbilitiesPacket())
+                connection.sendPacket(JavaEntityStatusPacket(player.id, 24))
+                connection.sendPacket(JavaDifficultyPacket())
 
                 // send positions
-//                connection.sendPacket(JavaSetSpawnPositionPacket(Float3(0f, 60f, 0f), 0f))
-//                connection.sendPacket(JavaSetPlayerPositionPacket(Float3(0f, 60f, 0f), Float2(0f, 0f)))
+                connection.sendPacket(JavaSetSpawnPositionPacket(Float3(0f, 60f, 0f), 0f))
+                connection.sendPacket(JavaSetPlayerPositionPacket(Float3(0f, 60f, 0f), Float3(), Float2(0f, 0f)))
             }
 
             // bedrock connections

@@ -14,7 +14,7 @@ class JavaPlayerCommandPacket(
     var action: PlayerCommandAction = PlayerCommandAction.START_SNEAKING,
     var jumpBoost: Int = 0
 ): JavaPacket {
-    override val id: Int = 0x1E
+    override val id: Int = 0x1E // todo
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         entityID = reader.readVarInt()
@@ -29,7 +29,7 @@ class JavaBlockActionPacket(
     var face: BlockFace = BlockFace.BOTTOM,
     var sequence: Int = 0
 ): JavaPacket {
-    override val id: Int = 0x1D
+    override val id: Int = 0x08
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         action = PlayerBlockAction.values()[reader.readVarInt()]
