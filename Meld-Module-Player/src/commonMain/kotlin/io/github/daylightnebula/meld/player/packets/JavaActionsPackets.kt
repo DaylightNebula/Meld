@@ -7,6 +7,7 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noEncode
 import io.github.daylightnebula.meld.player.PlayerBlockAction
 import io.github.daylightnebula.meld.player.PlayerCommandAction
+import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.utils.BlockFace
 
 class JavaPlayerCommandPacket(
@@ -14,7 +15,13 @@ class JavaPlayerCommandPacket(
     var action: PlayerCommandAction = PlayerCommandAction.START_SNEAKING,
     var jumpBoost: Int = 0
 ): JavaPacket {
-    override val id: Int = 0x1E // todo
+    companion object: JavaPacket.Creator<JavaPlayerCommandPacket> {
+        override val INCOMING_ID: Int = 0x0E
+        override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
+        override fun create() = JavaPlayerCommandPacket()
+    }
+
+    override val OUTGOING_ID: Int = 0x0E // todo
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         entityID = reader.readVarInt()
@@ -29,7 +36,13 @@ class JavaBlockActionPacket(
     var face: BlockFace = BlockFace.BOTTOM,
     var sequence: Int = 0
 ): JavaPacket {
-    override val id: Int = 0x08
+    companion object: JavaPacket.Creator<JavaBlockActionPacket> {
+        override val INCOMING_ID: Int = 0x08
+        override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
+        override fun create() = JavaBlockActionPacket()
+    }
+
+    override val OUTGOING_ID: Int = 0x08
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         action = PlayerBlockAction.values()[reader.readVarInt()]

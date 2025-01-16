@@ -5,25 +5,30 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
-import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 // https://wiki.vg/Protocol#Player_Info_Update
+@OptIn(ExperimentalUuidApi::class)
 class JavaPlayerInfoUpdatePacket(
-    var uuid: UUID = UUID.randomUUID(),
+    var uuid: Uuid = Uuid.random(),
     var actions: Collection<PlayerInfoAction> = listOf()
 ): JavaPacket {
-    override val id: Int = 0x3C
+    override val OUTGOING_ID: Int = 0x3C
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         // create and write bit set
-        val set = BitSet()
-        actions.forEach { set.set(it.bitIndex, true) }
-        writer.writeByteArray(set.toByteArray())
+//        val set = BitSet()
+//        actions.forEach { set.set(it.bitIndex, true) }
+//        writer.writeByteArray(set.toByteArray())
+        writer.writeByte(0x00)
 
         // write action count and uuid
         writer.writeVarInt(actions.size)
-        writer.writeLong(uuid.mostSignificantBits)
-        writer.writeLong(uuid.leastSignificantBits)
+        uuid.toLongs { most, least ->
+            writer.writeLong(most)
+            writer.writeLong(least)
+        }
 
         // write actions
         for (it in actions) { it.writeJava(writer) }

@@ -14,13 +14,19 @@ import io.github.daylightnebula.meld.player.packets.login.JavaAbilitiesPacket
 import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.events.EventHandler
+import io.github.daylightnebula.meld.server.events.EventExecutor
 import io.github.daylightnebula.meld.server.events.EventListener
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class PlayerListener: EventListener {
+    override val executors: List<EventExecutor<*, *>> = listOf(
+        EventExecutor(ConnectionAbortedEvent, this::onConnectionAborted),
+        EventExecutor(LoginEvent, this::onLoginEvent)
+    )
+
     // on disconnect
-    @EventHandler
     fun onConnectionAborted(event: ConnectionAbortedEvent) {
         try {
             if (event.connection.hasPlayer) event.connection.player.despawn()
@@ -28,7 +34,7 @@ class PlayerListener: EventListener {
     }
 
     // on login
-    @EventHandler
+    @OptIn(ExperimentalUuidApi::class)
     fun onLoginEvent(event: LoginEvent) {
         // create player and broadcast pre join
         val player = Player(event.connection, event.uid)
@@ -135,5 +141,22 @@ class PlayerListener: EventListener {
     }
 }
 
-class PreJoinEvent(val player: Player): Event
-class JoinEvent(val player: Player): Event
+@OptIn(ExperimentalUuidApi::class)
+class PreJoinEvent(val player: Player): Event {
+    companion object: Event.Data<PreJoinEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PreJoinEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+class JoinEvent(val player: Player): Event {
+    companion object: Event.Data<JoinEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(JoinEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

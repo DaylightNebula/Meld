@@ -20,7 +20,9 @@ abstract class LivingEntity(
     var headYaw: Float = 0f,
     val health: Health = Health(1.0)
 ): Entity(
-    uid, id, type, metadata, dimension, position, startVelocity, startRotation
+    uid, id, type, metadata,
+    dimension, position, startVelocity,
+    startRotation
 )
 
 class Health(

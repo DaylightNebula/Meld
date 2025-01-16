@@ -7,6 +7,7 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.Meld
+import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 
 // https://wiki.vg/Protocol#Login_.28play.29
 @Suppress("MemberVisibilityCanBePrivate")
@@ -37,8 +38,13 @@ class JavaJoinPacket(
         gameMode = player.gameMode
     )
 
-    companion object { val ID = 0x2C }
-    override val id: Int = ID
+    companion object: JavaPacket.Creator<JavaJoinPacket> {
+        override val INCOMING_ID = 0x2C
+        override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
+        override fun create() = JavaJoinPacket()
+    }
+
+    override val OUTGOING_ID: Int = INCOMING_ID
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         // header

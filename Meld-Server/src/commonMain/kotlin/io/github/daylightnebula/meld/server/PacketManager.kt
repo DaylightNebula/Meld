@@ -47,7 +47,6 @@ object PacketManager {
     fun register(bundle: PacketBundle) {
         // register java packets
         val packets = bundle.registerJavaPackets()
-        println("Registering packets ${packets.map { it.key }.toList()}")
         JavaPacketRegistry.putAll(packets)
     }
 }

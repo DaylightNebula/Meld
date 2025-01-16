@@ -7,6 +7,12 @@ import kotlin.random.Random
 class JavaPlayKeepAlivePacket(
     var randomID: Long = Random.nextLong()
 ): JavaPacket {
+    companion object: JavaPacket.Creator<JavaPlayKeepAlivePacket> {
+        override val INCOMING_ID: Int = 0x1A
+        override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
+        override fun create() = JavaPlayKeepAlivePacket()
+    }
+
     override val OUTGOING_ID: Int = 0x27
     override fun encode(writer: ByteWriter) {
         writer.writeLong(randomID)

@@ -2,16 +2,17 @@ package io.github.daylightnebula.meld.player
 
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.entities.EntityAnimation
+import io.github.daylightnebula.meld.entities.EntityMoveEvent
 import io.github.daylightnebula.meld.entities.metadata.metaPose
+import io.github.daylightnebula.meld.player.PlayerActionEvent
 import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.*
 import io.github.daylightnebula.meld.player.packets.join.JavaPluginMessagePacket
 import io.github.daylightnebula.meld.server.PacketBundle
-import io.github.daylightnebula.meld.server.PacketHandler
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.events.EventHandler
 import io.github.daylightnebula.meld.server.javaGamePacket
+import io.github.daylightnebula.meld.server.javaPacket
 import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
@@ -19,22 +20,24 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.networking.java.JavaPlayKeepAlivePacket
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import io.github.daylightnebula.meld.server.utils.Pose
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class PlayerBundle: PacketBundle {
-    override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
+    override fun registerJavaPackets() =
         javaPackets(
-            javaGamePacket(0x1A) to { JavaPlayKeepAlivePacket() },
-            javaGamePacket(0x1C) to { JavaReceivePlayerPositionPacket() },
-            javaGamePacket(0x1E) to { JavaReceivePlayerRotationPacket() },
-            javaGamePacket(0x1D) to { JavaReceivePlayerPositionAndRotationPacket() },
-            javaGamePacket(0x14) to { JavaPluginMessagePacket() },
-            javaGamePacket(0x00) to { JavaConfirmTeleportPacket() },
-            javaGamePacket(0x26) to { JavaReceivePlayerAbilitiesPacket() },
-            javaGamePacket(0x28) to { JavaPlayerCommandPacket() },
-            javaGamePacket(0x3B) to { JavaSwingArmPacket() },
-            javaGamePacket(0x08) to { JavaBlockActionPacket() },
-            javaGamePacket(0x18) to { JavaEntityInteractPacket() },
-            javaGamePacket(0x0B) to { JavaPlayerClientTick() }
+            javaPacket(JavaPlayKeepAlivePacket, this::onGameKeepAlive),
+            javaPacket(JavaReceivePlayerPositionPacket, this::onReceivePlayerPosition),
+            javaPacket(JavaReceivePlayerRotationPacket, this::onReceiveRotation),
+            javaPacket(JavaReceivePlayerPositionAndRotationPacket, this::onReceivePlayerPositionAndRotation),
+            javaPacket(JavaPluginMessagePacket, this::onPluginMessage),
+            javaPacket(JavaConfirmTeleportPacket, this::onConfirmTeleport),
+            javaPacket(JavaReceivePlayerAbilitiesPacket, this::onReceivePlayerAbilities),
+            javaPacket(JavaPlayerCommandPacket, this::onPlayerCommand),
+            javaPacket(JavaSwingArmPacket, this::onSwingArm),
+            javaPacket(JavaBlockActionPacket, this::onBlockAction),
+            javaPacket(JavaEntityInteractPacket, this::onEntityInteraction),
+            javaPacket(JavaPlayerClientTick, this::onClientTick)
         )
 
 //    BEDROCK @PacketHandler
@@ -47,7 +50,6 @@ class PlayerBundle: PacketBundle {
 //    @PacketHandler
 //    fun onBedrockEmoteListRequest(connection: BedrockConnection, packet: EmoteListPacket) = println("TODO what about emotes?")
 
-    @PacketHandler
     fun onReceivePlayerPosition(connection: JavaConnection, packet: JavaReceivePlayerPositionPacket) {
         // get player and broadcast event
         val player = connection.player
@@ -59,10 +61,8 @@ class PlayerBundle: PacketBundle {
         else player.setPosition(packet.position)
     }
 
-    @PacketHandler
     fun onClientTick(connection: JavaConnection, tick: JavaPlayerClientTick) {}
 
-    @PacketHandler
     fun onReceivePlayerPositionAndRotation(connection: JavaConnection, packet: JavaReceivePlayerPositionAndRotationPacket) {
         // get player and broadcast events
         val player = connection.player
@@ -83,7 +83,6 @@ class PlayerBundle: PacketBundle {
         if (!rotateEvent.cancelled) player.setRotation(rotation)
     }
 
-    @PacketHandler
     fun onReceiveRotation(connection: JavaConnection, packet: JavaReceivePlayerRotationPacket) {
         // get player and broadcast event
         val player = connection.player
@@ -95,7 +94,6 @@ class PlayerBundle: PacketBundle {
         else player.setRotation(packet.rotation)
     }
 
-    @PacketHandler
     fun onPluginMessage(connection: JavaConnection, packet: JavaPluginMessagePacket) {
         when (packet.channel) {
             "minecraft:brand" -> {
@@ -106,15 +104,12 @@ class PlayerBundle: PacketBundle {
         }
     }
 
-    @PacketHandler
     fun onConfirmTeleport(connection: JavaConnection, packet: JavaConfirmTeleportPacket) =
         EventBus.callEvent(PlayerConfirmTeleportEvent(connection.player, packet.teleportID))
 
-    @PacketHandler
     fun onReceivePlayerAbilities(connection: JavaConnection, packet: JavaReceivePlayerAbilitiesPacket) =
         EventBus.callEvent(PlayerAbilitiesReceivedEvent(connection.player, packet.flags))
 
-    @PacketHandler
     fun onPlayerCommand(connection: JavaConnection, packet: JavaPlayerCommandPacket) {
         // start event
         EventBus.callEvent(PlayerActionEvent(connection.player, packet.action, packet.entityID, packet.jumpBoost))
@@ -129,7 +124,6 @@ class PlayerBundle: PacketBundle {
         }
     }
 
-    @PacketHandler
     fun onBlockAction(connection: JavaConnection, packet: JavaBlockActionPacket) =
         EventBus.callEvent(
             PlayerBlockActionEvent(
@@ -140,20 +134,61 @@ class PlayerBundle: PacketBundle {
             )
         )
 
-    @PacketHandler
     fun onSwingArm(connection: JavaConnection, packet: JavaSwingArmPacket) =
         connection.player.playAnimation(EntityAnimation.SWING_ARM)
 
-    @PacketHandler
     fun onEntityInteraction(connection: JavaConnection, packet: JavaEntityInteractPacket) =
         EventBus.callEvent(PlayerEntityInteractEvent(connection.player, packet.type, packet.entityID, packet.sneaking, packet.targetPosition))
 
-    @PacketHandler
     fun onGameKeepAlive(connection: JavaConnection, packet: JavaPlayKeepAlivePacket) {}
 }
 
-data class PlayerActionEvent(val player: Player, val action: PlayerCommandAction, val entityID: Int, val jumpBoost: Int): Event
-data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Float3, val face: BlockFace): Event
-data class PlayerConfirmTeleportEvent(val player: Player, val teleportID: Int): Event
-data class PlayerAbilitiesReceivedEvent(val player: Player, val abilities: Byte): Event
-data class PlayerEntityInteractEvent(val player: Player, val type: PlayerInteractType, val entityID: Int, val sneaking: Boolean, val targetPosition: Float3?): Event
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerActionEvent(val player: Player, val action: PlayerCommandAction, val entityID: Int, val jumpBoost: Int): Event {
+    companion object: Event.Data<PlayerActionEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerActionEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerBlockActionEvent(val player: Player, val action: PlayerBlockAction, val blockPosition: Float3, val face: BlockFace): Event {
+    companion object: Event.Data<PlayerBlockActionEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerBlockActionEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerConfirmTeleportEvent(val player: Player, val teleportID: Int): Event {
+    companion object: Event.Data<PlayerConfirmTeleportEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerConfirmTeleportEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerAbilitiesReceivedEvent(val player: Player, val abilities: Byte): Event {
+    companion object: Event.Data<PlayerAbilitiesReceivedEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerAbilitiesReceivedEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerEntityInteractEvent(val player: Player, val type: PlayerInteractType, val entityID: Int, val sneaking: Boolean, val targetPosition: Float3?): Event {
+    companion object: Event.Data<PlayerEntityInteractEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerEntityInteractEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

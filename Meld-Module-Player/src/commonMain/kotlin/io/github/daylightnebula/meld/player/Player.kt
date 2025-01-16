@@ -2,8 +2,6 @@ package io.github.daylightnebula.meld.player
 
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
-import io.github.daylightnebula.meld.server.networking.common.IConnection
-import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.entities.EntityController
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.entities.Health
@@ -16,15 +14,19 @@ import io.github.daylightnebula.meld.entities.packets.JavaSpawnEntityPacket
 import io.github.daylightnebula.meld.player.packets.JavaPlayerInfoUpdatePacket
 import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
 import io.github.daylightnebula.meld.player.packets.PlayerInfoAction
-import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
+import io.github.daylightnebula.meld.server.events.Event
+import io.github.daylightnebula.meld.server.networking.common.IConnection
+import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.utils.Pose
-import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class Player(
     val connection: IConnection<*>,
-    uid: UUID,
+    uid: Uuid,
     id: Int = EntityController.nextID(),
     entityType: EntityType = EntityType.PLAYER,
     metadata: EntityMetadata = entityMetadata(),
@@ -36,7 +38,9 @@ class Player(
     health: Health = Health(20.0),
     val infoActions: MutableList<PlayerInfoAction> = mutableListOf(PlayerInfoAction.AddPlayer("player"))
 ): LivingEntity(
-    uid, id, entityType, metadata, dimensionID, position, velocity, rotation, startHeadYaw, health
+    uid, id, entityType, metadata,
+    dimensionID, position, velocity,
+    rotation, startHeadYaw, health
 ) {
     // marks if the player has been sent their join packets
     var joinSent = false
@@ -84,8 +88,25 @@ class Player(
 }
 
 // events
-data class PlayerMoveEvent(val player: Player, val oldPosition: Float3, val position: Float3, override var cancelled: Boolean = false): CancellableEvent
-data class PlayerRotateEvent(val player: Player, val oldRotation: Float2, val rotation: Float2, override var cancelled: Boolean = false): CancellableEvent
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerMoveEvent(val player: Player, val oldPosition: Float3, val position: Float3, override var cancelled: Boolean = false): CancellableEvent {
+    companion object: Event.Data<PlayerMoveEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerMoveEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerRotateEvent(val player: Player, val oldRotation: Float2, val rotation: Float2, override var cancelled: Boolean = false): CancellableEvent {
+    companion object: Event.Data<PlayerRotateEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerRotateEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
 
 // enums
 enum class PlayerChatMode { ENABLED, COMMANDS_ONLY, HIDDEN }
