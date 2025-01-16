@@ -14,7 +14,7 @@ class JavaUpdateTags: JavaPacket {
     override fun encode(writer: ByteWriter) {
         val tags = defaultTags["tags"]!!.jsonObject
         writer.writeVarInt(tags.size)
-        tags.forEach { k, v ->
+        tags.forEach { (k, v) ->
             val array = v.jsonArray
             writer.writeString(k)
             writer.writeVarInt(array.size)

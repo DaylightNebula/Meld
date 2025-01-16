@@ -11,7 +11,8 @@ import io.github.daylightnebula.meld.server.utils.Pose
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
 import net.benwoodworth.knbt.NbtCompound
-import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 // all metadata objects listed in https://wiki.vg/Entity_metadata#Entity_Metadata_Format
 
@@ -38,11 +39,12 @@ fun metaOptBlockPosition(index: Int, value: Float3?) = metaObject<Float3?>(index
     if (value != null) it.writeBlockPosition(value)
 }
 fun metaDirection(index: Int, direction: Direction) = metaObject<Direction>(index, 12, direction) { it.writeVarInt(direction.ordinal) }
-fun metaOptUUID(index: Int, value: UUID?) = metaObject<UUID?>(index, 13, value) {
+@OptIn(ExperimentalUuidApi::class)
+fun metaOptUUID(index: Int, value: Uuid?) = metaObject<Uuid?>(index, 13, value) {
     it.writeBoolean(value != null)
-    if (value != null) {
-        it.writeLong(value.mostSignificantBits)
-        it.writeLong(value.leastSignificantBits)
+    value?.toLongs { most, least ->
+        it.writeLong(most)
+        it.writeLong(least)
     }
 }
 fun metaBlockID(index: Int, blockID: Int) = metaObject<Int>(index, 14, blockID) { it.writeVarInt(blockID) }

@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.internal.impldep.org.bouncycastle.asn1.x500.style.RFC4519Style.c
 
 plugins {
     kotlin("multiplatform") version "2.1.0"
@@ -19,7 +18,13 @@ kotlin {
     jvm {
         withJava()
     }
-    linuxX64()
+    mingwX64 {
+        binaries {
+            executable {
+                entryPoint = "io.github.daylightnebula.meld.test.main"
+            }
+        }
+    }
 
     sourceSets["commonMain"].dependencies {
         implementation(project(":Meld-Server"))

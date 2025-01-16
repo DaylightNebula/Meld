@@ -1,19 +1,12 @@
 package io.github.daylightnebula.meld.world.anvil
 
-import dev.romainguy.kotlin.math.Float2
-import io.github.daylightnebula.meld.world.chunks.Chunk
-import io.github.daylightnebula.meld.world.chunks.FilledSection
-import io.github.daylightnebula.meld.world.chunks.Section
-import java.io.File
-import java.io.RandomAccessFile
-
-fun loadRegionFiles(folder: File): HashMap<Float2, Chunk> {
-    val output = hashMapOf<Float2, Chunk>()
-    folder.listFiles()?.forEach {
-        // load file
-        val nameTokens = it.name.split(".")
-        val regionX = nameTokens[1].toInt()
-        val regionY = nameTokens[2].toInt()
+//fun loadRegionFiles(folder: File): HashMap<Float2, Chunk> {
+//    val output = hashMapOf<Float2, Chunk>()
+//    folder.listFiles()?.forEach {
+//        // load file
+//        val nameTokens = it.name.split(".")
+//        val regionX = nameTokens[1].toInt()
+//        val regionY = nameTokens[2].toInt()
 //        val regionFile = RegionFile(RandomAccessFile(it, "rw"), regionX, regionY, -128, 255)
 //
 //        // load each chunk
@@ -54,6 +47,6 @@ fun loadRegionFiles(folder: File): HashMap<Float2, Chunk> {
 //                output[Vector2i.from(32 * regionX + chunkX, 32 * regionY + chunkY)] = Chunk("overworld", position, outSections, mutableListOf())
 //            }
 //        }
-    }
-    return output
-}
+//    }
+//    return output
+//}

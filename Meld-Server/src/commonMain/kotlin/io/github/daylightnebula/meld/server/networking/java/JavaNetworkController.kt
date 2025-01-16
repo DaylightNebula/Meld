@@ -26,7 +26,7 @@ object JavaNetworkController: INetworkController {
             runBlocking {
                 val connected = serverSocket.accept()
                 Meld.connections.add(JavaConnection(connected, ChannelReader(connected.openReadChannel()), connected.openWriteChannel(autoFlush = true)))
-                println("New connection from ${connected.remoteAddress}")
+//                println("New connection from ${connected.remoteAddress}")
             }
         }
     }
