@@ -6,13 +6,12 @@ import io.github.daylightnebula.meld.server.meldNbt
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.SEGMENT_BITS
 import io.github.daylightnebula.meld.server.utils.ItemContainer
-import kotlinx.serialization.SerializationStrategy
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.serializer
 import net.benwoodworth.knbt.NbtCompound
-import java.nio.ByteBuffer
+import okio.Buffer
 
 
 open class ByteWriter(val id: Int, val mode: DataPacketMode) {
@@ -74,17 +73,16 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     // write primitives
     fun writeUByte(byte: UByte) { data.add(byteArrayOf(byte.toByte())) }
     fun writeByte(byte: Byte) { data.add(ByteArray(1) { byte }) }
-    fun writeBoolean(bool: Boolean) { data.add(ByteBuffer.allocate(1).put(if (bool) 0x01 else 0x00).array()) }
+    fun writeBoolean(bool: Boolean) { data.add(byteArrayOf(if (bool) 1 else 0)) }
 
-    fun writeShort(short: Short) { data.add(ByteBuffer.allocate(2).putShort(short).array()) }
-    fun writeUShort(short: UShort) { data.add(ByteBuffer.allocate(2).putShort(short.toShort()).array()) }
-    fun write3Int(int: Int) { data.add(ByteBuffer.allocate(4).putInt(int).array().slice(0 until 3).toByteArray()) }
-    fun writeInt(int: Int) { data.add(ByteBuffer.allocate(4).putInt(int).array()) }
+    fun writeShort(short: Short) { data.add(Buffer().writeShort(short.toInt()).readByteArray()) }
+    fun writeUShort(short: UShort) { data.add(Buffer().writeShort(short.toShort().toInt()).readByteArray()) }
+    fun writeInt(int: Int) { data.add(Buffer().writeInt(int).readByteArray()) }
 
-    fun writeFloat(float: Float) { data.add(ByteBuffer.allocate(4).putFloat(float).array()) }
-    fun writeDouble(double: Double) { data.add(ByteBuffer.allocate(8).putDouble(double).array()) }
+    fun writeFloat(float: Float) { data.add(Buffer().writeInt(float.toBits()).readByteArray()) }
+    fun writeDouble(double: Double) { data.add(Buffer().writeLong(double.toBits()).readByteArray()) }
 
-    fun writeLong(long: Long) { data.add(ByteBuffer.allocate(8).putLong(long).array()) }
+    fun writeLong(long: Long) { data.add(Buffer().writeLong(long).readByteArray()) }
 
     fun writeBlockPosition(position: Float3) =
         writeLong(position.x.toLong() and 0x3FFFFFFL shl 38 or

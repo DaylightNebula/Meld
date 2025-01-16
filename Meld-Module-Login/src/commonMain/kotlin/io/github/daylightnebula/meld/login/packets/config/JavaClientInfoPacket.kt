@@ -16,12 +16,13 @@ class JavaClientInfoPacket(
     var textFilterEnabled: Boolean = false,
     var allowServerListings: Boolean = true
 ): JavaPacket {
-    companion object {
-        val ID = 0x00
-        val TYPE = JavaConnectionState.CONFIG
+    companion object: JavaPacket.Creator<JavaClientInfoPacket> {
+        override val INCOMING_ID = 0x00
+        override val STATE = JavaConnectionState.CONFIG
+        override fun create() = JavaClientInfoPacket()
     }
 
-    override val id: Int = ID
+    override val OUTGOING_ID: Int = INCOMING_ID
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         locale = reader.readVarString()

@@ -8,12 +8,13 @@ import io.github.daylightnebula.meld.server.noDecode
 import io.github.daylightnebula.meld.server.noEncode
 
 class JavaLoginAcknowledge: JavaPacket {
-    companion object {
-        val ID = 0x03
-        val TYPE = JavaConnectionState.LOGIN
+    companion object: JavaPacket.Creator<JavaLoginAcknowledge> {
+        override val INCOMING_ID = 0x03
+        override val STATE = JavaConnectionState.LOGIN
+        override fun create() = JavaLoginAcknowledge()
     }
 
-    override val id: Int = ID
+    override val OUTGOING_ID: Int = INCOMING_ID
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {}
 }

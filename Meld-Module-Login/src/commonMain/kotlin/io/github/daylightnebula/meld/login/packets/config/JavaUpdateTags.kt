@@ -9,7 +9,7 @@ import io.github.daylightnebula.meld.server.registries.RegistryCodec
 import kotlinx.serialization.json.*
 
 class JavaUpdateTags: JavaPacket {
-    override val id: Int = 0x0D
+    override val OUTGOING_ID: Int = 0x0D
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         val tags = defaultTags["tags"]!!.jsonObject

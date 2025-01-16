@@ -1,110 +1,89 @@
 package io.github.daylightnebula.meld.server
 
-import io.github.daylightnebula.meld.server.PacketManager.packetListeners
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.IConnection
+import io.github.daylightnebula.meld.server.networking.common.Packet
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.KType
 
-annotation class PacketHandler
+val JavaPacketRegistry = hashMapOf<JavaPacketKey, JavaPacketEntry<*>>()
 
-val JavaPacketRegistry = hashMapOf<Pair<Int, JavaConnectionState>, () -> JavaPacket>()
+data class JavaPacketKey(
+    val id: Int,
+    val state: JavaConnectionState
+)
+
+data class JavaPacketEntry<T: JavaPacket>(
+    val key: JavaPacketKey,
+    val creator: JavaPacket.Creator<T>,
+    val execute: (JavaConnection, T) -> Unit
+) {
+    fun buildAndExecute(connection: JavaConnection, reader: AbstractReader) {
+        val packet = creator.create()
+        packet.decode(reader)
+        execute.invoke(connection, packet)
+    }
+}
 
 // singleton to handle incoming packets
 object PacketManager {
-    // global list of all registered packet handlers
-    private val packetListeners = hashMapOf<KClass<*>, MutableList<>>()
-    typealias PACKET_CALLBACK = (IConnection) -> Unit
-
     // handle incoming java packets
     fun handleJavaPacket(connection: JavaConnection, packetID: Int, reader: AbstractReader) {
         // attempt to find an initializer for the given packet id and the connections state
-        val packet = JavaPacketRegistry[packetID to connection.state]?.let { it() }
-        if (packet == null) {
+        val key = JavaPacketKey(packetID, connection.state)
+        if (!JavaPacketRegistry.containsKey(key)) {
             println("WARN no java packet registered for id $packetID and state ${connection.state}")
             return
         }
-//        println("Received $packetID - ${packet::class.simpleName}")
 
-        // decode the packet
-        packet.decode(reader)
-
-        // handle the packet
-        handlePacket(connection, packet)
+        // build and execute
+        JavaPacketRegistry[key]!!.buildAndExecute(connection, reader)
     }
-
-    // handle an incoming packet
-    private fun <T: Any> handlePacket(connection: IConnection<T>, packet: T) =
-        packetListeners[packet::class]?.forEach { it.second.call(it.first, connection, packet) }
-            ?: println("WARN not handling packet $packet")
 
     // add the given bundle to the list of handlers
     fun register(bundle: PacketBundle) {
         // register java packets
-        JavaPacketRegistry.putAll(bundle.registerJavaPackets())
-
-        // load all packet handler functions from the given listener
-        bundle::class.declaredMemberFunctions
-            .filter { it.findAnnotation<PacketHandler>() != null }
-            .forEach { func ->
-                // only 1 parameter
-                if (func.valueParameters.size != 2) return@forEach
-
-                // make sure that parameter is an event
-                if (!checkParameterInheritance(func.valueParameters[0], JavaConnection::class)) return@forEach
-                if (!checkParameterInheritance(func.valueParameters[1], JavaPacket::class) /*&& BEDROCK !checkParameterInheritance(func.valueParameters[1], BedrockPacket::class)*/) return@forEach
-
-                // get list of functions for the given param type
-                val param = func.valueParameters[1]
-                var list = packetListeners[param.type]
-                if (list == null) {
-                    list = mutableListOf()
-                    packetListeners[param.type] = list
-                }
-
-                // save event
-                list.add(bundle to func)
-            }
-
-        println("Registered packet bundle: $bundle")
+        val packets = bundle.registerJavaPackets()
+        println("Registering packets ${packets.map { it.key }.toList()}")
+        JavaPacketRegistry.putAll(packets)
     }
-
-    // function to check if a parameter inherits from the given class
-    private fun checkParameterInheritance(parameter: KParameter, className: KClass<*>) =
-        parameter.type.classifier?.let { it as? KClass<*> }?.isSubclassOf(className) ?: false
 }
 
 // class to represent packet bundles
 interface PacketBundle {
-    fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, ()  -> JavaPacket>
+    fun registerJavaPackets(): Map<JavaPacketKey, JavaPacketEntry<*>>
 }
 
 // helper functions to make some packets as no encode or decode
 fun noEncode(): Unit = throw NotImplementedException("Function marked no encode!")
 fun noDecode(): Unit = throw NotImplementedException("Function marked no decode!")
 
-// functions to make making bundles easier
-// BEDROCK fun bedrock(
-//     vararg handlers: Pair<String, (connection: BedrockConnection, packet: BedrockPacket) -> Unit>
-// ) = hashMapOf(*handlers)
-
 fun java(
-    vararg handlers: Pair<String, (connection: JavaConnection, packet: JavaPacket) -> Unit>
-) = hashMapOf(*handlers)
+    vararg handlers: Pair<JavaPacketKey, JavaPacketEntry<*>>
+) = mapOf(*handlers)
 
 fun javaPackets(
-    vararg map: Pair<Pair<Int, JavaConnectionState>, () -> JavaPacket>
+    vararg map: Pair<JavaPacketKey, JavaPacketEntry<*>>
 ) = hashMapOf(*map)
 
-fun javaPacketID(
+fun <T: JavaPacket> javaPacket(
+    creator: JavaPacket.Creator<T>,
+    execute: (JavaConnection, T) -> Unit
+) = javaPacket(creator.INCOMING_ID, creator.STATE, creator, execute)
+
+fun <T: JavaPacket> javaPacket(
     id: Int,
-    state: JavaConnectionState
-) = id to state
+    state: JavaConnectionState,
+    creator: JavaPacket.Creator<T>,
+    execute: (JavaConnection, T) -> Unit
+): Pair<JavaPacketKey, JavaPacketEntry<T>> {
+    val key = JavaPacketKey(id, state)
+    val entry = JavaPacketEntry(key, creator, execute)
+    return key to entry
+}
 
 fun javaGamePacket(
     id: Int

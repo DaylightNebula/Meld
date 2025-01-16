@@ -1,55 +1,60 @@
 package io.github.daylightnebula.meld.server.events
 
-import io.ktor.util.reflect.*
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
-import kotlin.reflect.KType
-import kotlin.reflect.full.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-annotation class EventHandler
-interface EventListener
-interface Event
+data class EventExecutor<D: Event.Data<E>, E: Event>(
+    val data: D,
+    val executor: (E) -> Unit
+)
+
+
+interface EventListener {
+    val executors: List<EventExecutor<*, *>>
+}
+
+@OptIn(ExperimentalUuidApi::class)
+interface Event {
+    interface Data<E: Event> {
+        val ID: Uuid
+        val executors: MutableList<(E) -> Unit>
+
+        fun <D: Event.Data<O>, O: Event> add(executor: EventExecutor<D, O>) =
+            if (executor.data == this) executors.add(executor.executor)
+            else Unit
+
+        fun execute(e: Event) =
+            executors.forEach { it(e as E) }
+    }
+
+    val ID: Uuid
+}
+
 interface CancellableEvent: Event {
     var cancelled: Boolean
 }
 
+@OptIn(ExperimentalUuidApi::class)
 object EventBus {
-    private val listenerMap = hashMapOf<KType, MutableList<Pair<EventListener, KFunction<*>>>>()
+    private val listenerMap = hashMapOf<Uuid, Event.Data<*>>()
 
     // function to register event listeners event handler functions
     fun register(listener: EventListener) {
-        // load all event handler functions from the given listener
-        listener::class.declaredMemberFunctions
-            .filter { it.findAnnotation<EventHandler>() != null }
-            .forEach { func ->
-                // only 1 parameter
-                if (func.valueParameters.size != 1) return@forEach
-                val param = func.valueParameters.first()
-
-                // make sure that parameter is an event
-                if (!checkParameterInheritance(param, Event::class)) return@forEach
-
-                // get list of functions for the given param type
-                var list = listenerMap[param.type]
-                if (list == null) {
-                    list = mutableListOf()
-                    listenerMap[param.type] = list
-                }
-
-                // save event
-                list.add(listener to func)
+        listener.executors.forEach { executor ->
+            // get data
+            var data = listenerMap[executor.data.ID]
+            if (data == null) {
+                data = executor.data
+                listenerMap[executor.data.ID] = data
             }
+
+            // add execution functions
+            data.add(executor)
+        }
 
         println("Registered event listener: $listener")
     }
 
     // function to execute all events handlers for an event
-    fun callEvent(event: Event) {
-        listenerMap[event::class.starProjectedType]?.forEach { it.second.call(it.first, event) }
-    }
-
-    // function to check if a parameter inherits from the given class
-    private fun checkParameterInheritance(parameter: KParameter, className: KClass<*>) =
-        parameter.type.classifier?.let { it as? KClass<*> }?.isSubclassOf(className) ?: false
+    fun <E: Event> callEvent(event: E) = listenerMap[event.ID]?.execute(event)
 }

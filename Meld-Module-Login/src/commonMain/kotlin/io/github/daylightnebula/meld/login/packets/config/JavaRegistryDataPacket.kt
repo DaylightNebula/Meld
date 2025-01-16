@@ -14,7 +14,7 @@ class JavaRegistryDataPacket(
 
     constructor(codec: RegistryCodec.Codec): this(codec.name(), codec.build())
 
-    override val id: Int = 0x07
+    override val OUTGOING_ID: Int = 0x07
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeString(name)

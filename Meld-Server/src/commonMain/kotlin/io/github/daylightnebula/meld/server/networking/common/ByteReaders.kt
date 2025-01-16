@@ -1,14 +1,16 @@
 package io.github.daylightnebula.meld.server.networking.common
 
 import dev.romainguy.kotlin.math.Float3
+import io.github.daylightnebula.meld.server.java
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
-import java.nio.ByteBuffer
-import java.util.*
+import kotlinx.io.readFloat
+import okio.Buffer
 import kotlin.experimental.and
-import kotlin.text.String
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 abstract class AbstractReader {
     // important abstract functions
@@ -34,7 +36,7 @@ abstract class AbstractReader {
             value = value or (currentByte.toInt() and SEGMENT_BITS shl position)
             if (currentByte.toInt() and CONTINUE_BIT == 0) break
             position += 7
-            if (position >= 32) throw RuntimeException("VarInt is too big")
+            if (position >= 32) throw IllegalStateException("VarInt is too big")
         }
         return value
     }
@@ -49,7 +51,7 @@ abstract class AbstractReader {
             value = value or ((currentByte and SEGMENT_BITS.toByte()).toLong() shl position)
             if (currentByte.toInt() and CONTINUE_BIT == 0) break
             position += 7
-            if (position >= 64) throw java.lang.RuntimeException("VarLong is too big")
+            if (position >= 64) throw IllegalStateException("VarLong is too big")
         }
         return value
     }
@@ -58,16 +60,17 @@ abstract class AbstractReader {
     fun readBoolean(): Boolean = readByte() > 0
     fun readUByte(): UByte = readByte().toUByte()
 
-    fun readShort(): Short = ByteBuffer.wrap(readArray(2)).getShort()
+//    fun readShort(): Short = ByteBuffer.wrap(readArray(2)).getShort()
+    fun readShort(): Short = Buffer().write(readArray(2)).readShort()
     fun readUShort(): UShort = readShort().toUShort()
 
     fun read3Int(): Int = readByte() + (readByte().toInt() shl 8) + (readByte().toInt() shl 16) // reknet sends 3 byte integers sometimes
-    fun readInt(): Int = ByteBuffer.wrap(readArray(4)).getInt()
+    fun readInt(): Int = Buffer().write(readArray(4)).readInt()
 
-    fun readFloat(): Float = ByteBuffer.wrap(readArray(4)).getFloat()
-    fun readDouble(): Double = ByteBuffer.wrap(readArray(8)).getDouble()
+    fun readFloat(): Float = Float.fromBits(readInt())
+    fun readDouble(): Double = Double.fromBits(readLong())
 
-    fun readLong() = ByteBuffer.wrap(readArray(8)).getLong(0)
+    fun readLong() = Buffer().write(readArray(8)).readLong()
 
     fun readBlockPosition(): Float3 {
         val value: Long = readLong()
@@ -80,7 +83,9 @@ abstract class AbstractReader {
     // complex object reads
     fun readVarString(): String = String(readArray(readVarInt()))
     fun readShortString(): String = String(readArray(readUShort().toInt()))
-    fun readUUID(): UUID = UUID(readLong(), readLong())
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun readUUID(): Uuid = Uuid.fromLongs(readLong(), readLong())
 }
 
 class ChannelReader(val channel: ByteReadChannel): AbstractReader() {

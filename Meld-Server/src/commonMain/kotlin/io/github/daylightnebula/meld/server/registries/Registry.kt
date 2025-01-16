@@ -1,7 +1,5 @@
 package io.github.daylightnebula.meld.server.registries
 
-import java.util.function.Consumer
-
 abstract class Registry<M>(
     var mappings: M
 ): IRegistry<M> {
@@ -32,15 +30,15 @@ abstract class Registry<M>(
      *
      * @param consumer the consumer
      */
-    override fun register(consumer: Consumer<M>) {
-        mappings?.let { consumer.accept(it) }
+    override fun register(consumer: (M) -> Unit) {
+        mappings?.let { consumer.invoke(it) }
     }
 }
 
 interface IRegistry<M> {
     fun get(): M
     fun set(mappings: M)
-    fun register(consumer: Consumer<M>)
+    fun register(consumer: (M) -> Unit)
 }
 
 interface RegistryLoader<I, O> {

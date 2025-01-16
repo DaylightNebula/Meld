@@ -6,18 +6,21 @@ import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
 import io.github.daylightnebula.meld.server.noEncode
-import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class JavaInitiateLoginPacket(
     var username: String = "",
-    var uuid: UUID? = null
+    var uuid: Uuid? = null
 ): JavaPacket {
-    companion object {
-        val ID = 0x00
-        val TYPE = JavaConnectionState.LOGIN
+    companion object: JavaPacket.Creator<JavaInitiateLoginPacket> {
+        override val INCOMING_ID = 0x00
+        override val STATE = JavaConnectionState.LOGIN
+        override fun create() = JavaInitiateLoginPacket()
     }
 
-    override val id: Int = ID
+    override val OUTGOING_ID: Int = INCOMING_ID
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         username = reader.readVarString()
@@ -25,21 +28,25 @@ class JavaInitiateLoginPacket(
     }
 }
 
+@OptIn(ExperimentalUuidApi::class)
 class JavaLoginSuccessPacket(
-    val uuid: UUID = UUID.randomUUID(),
+    val uuid: Uuid = Uuid.random(),
     val username: String = "",
     val strictErrorHandling: Boolean = false
 ): JavaPacket {
-    companion object {
-        val ID = 0x02
-        val TYPE = JavaConnectionState.LOGIN
+    companion object: JavaPacket.Creator<JavaLoginSuccessPacket> {
+        override val INCOMING_ID = 0x02
+        override val STATE = JavaConnectionState.LOGIN
+        override fun create() = JavaLoginSuccessPacket()
     }
 
-    override val id: Int = ID
+    override val OUTGOING_ID: Int = INCOMING_ID
 
     override fun encode(writer: ByteWriter) {
-        writer.writeLong(uuid.mostSignificantBits)
-        writer.writeLong(uuid.leastSignificantBits)
+        uuid.toLongs { most, least ->
+            writer.writeLong(most)
+            writer.writeLong(least)
+        }
         writer.writeString(username)
         writer.writeVarInt(0)
     }

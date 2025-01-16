@@ -8,55 +8,55 @@ import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.*
 import io.github.daylightnebula.meld.server.registries.codec.*
-import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-private val tempUIDStorage = mutableMapOf<IConnection<*>, UUID>()
+@OptIn(ExperimentalUuidApi::class)
+private val tempUIDStorage = mutableMapOf<IConnection<*>, Uuid>()
 class LoginBundle: PacketBundle {
-    override fun registerJavaPackets() = io.github.daylightnebula.meld.server.javaPackets(
-        javaPacketID(
-            JavaHandshakePacket.ID,
-            JavaHandshakePacket.TYPE
-        ) to { JavaHandshakePacket() },
+    override fun registerJavaPackets() = javaPackets(
+        javaPacket(
+            creator = JavaHandshakePacket,
+            execute = this::onHandshake
+        ),
 
-        javaPacketID(
-            JavaStatusStatusPacket.ID,
-            JavaStatusStatusPacket.TYPE
-        ) to { JavaStatusStatusPacket() },
+        javaPacket(
+            creator = JavaStatusStatusPacket,
+            execute = this::onStatusStatus
+        ),
 
-        javaPacketID(
-            JavaStatusPingPacket.ID,
-            JavaStatusPingPacket.TYPE
-        ) to { JavaStatusPingPacket() },
+        javaPacket(
+            creator = JavaStatusPingPacket,
+            execute = this::onStatusPing
+        ),
 
-        javaPacketID(
-            JavaInitiateLoginPacket.ID,
-            JavaInitiateLoginPacket.TYPE
-        ) to { JavaInitiateLoginPacket() },
+        javaPacket(
+            creator = JavaInitiateLoginPacket,
+            execute = this::onInitiateLogin
+        ),
 
-        javaPacketID(
-            JavaConfigKeepAlivePacket.ID,
-            JavaConfigKeepAlivePacket.TYPE
-        ) to { JavaConfigKeepAlivePacket() },
+        javaPacket(
+            creator = JavaConfigKeepAlivePacket,
+            execute = this::onConfigKeepAlive
+        ),
 
-        javaPacketID(
-            JavaClientInfoPacket.ID,
-            JavaClientInfoPacket.TYPE
-        ) to { JavaClientInfoPacket() },
+        javaPacket(
+            creator = JavaClientInfoPacket,
+            execute = this::onClientInfo
+        ),
 
-        javaPacketID(
-            JavaLoginAcknowledge.ID,
-            JavaLoginAcknowledge.TYPE
-        ) to { JavaLoginAcknowledge() },
+        javaPacket(
+            creator = JavaLoginAcknowledge,
+            execute = this::onLoginAcknowledged
+        ),
 
-        javaPacketID(0x02, JavaConnectionState.CONFIG) to { JavaConfigMessagePacket() },
-        javaPacketID(0x03, JavaConnectionState.CONFIG) to { JavaFinishConfigPacket() },
-        javaPacketID(0x07, JavaConnectionState.CONFIG) to { JavaSelectKnownPackPacket() }
+        javaPacket(JavaConfigMessagePacket, this::onConfigMessage),
+        javaPacket(JavaFinishConfigPacket, this::onFinishConfig),
+        javaPacket(JavaSelectKnownPackPacket, this::onClientPacksLoaded)
     )
 
-    @PacketHandler
     fun onConfigKeepAlive(connection: JavaConnection, packet: JavaConfigKeepAlivePacket) {}
 
-    @PacketHandler
     fun onHandshake(connection: JavaConnection, packet: JavaHandshakePacket) =
         when (packet.nextState) {
             1 -> connection.state = JavaConnectionState.STATUS
@@ -64,18 +64,16 @@ class LoginBundle: PacketBundle {
             else -> throw IllegalArgumentException("Unknown handshake next state ${packet.nextState}")
         }
 
-    @PacketHandler
     fun onStatusStatus(connection: JavaConnection, packet: JavaStatusStatusPacket) =
         connection.sendPacket(JavaStatusStatusPacket().apply {
             json = JavaNetworkController.pingJson()
         })
 
-    @PacketHandler
     fun onStatusPing(connection: JavaConnection, packet: JavaStatusPingPacket) = connection.sendPacket(packet)
 
-    @PacketHandler
+    @OptIn(ExperimentalUuidApi::class)
     fun onInitiateLogin(connection: JavaConnection, packet: JavaInitiateLoginPacket) {
-        tempUIDStorage[connection] = packet.uuid ?: UUID.randomUUID()
+        tempUIDStorage[connection] = packet.uuid ?: Uuid.random()
 
         // respond
         connection.sendPacket(
@@ -86,19 +84,16 @@ class LoginBundle: PacketBundle {
         )
     }
 
-    @PacketHandler
     fun onLoginAcknowledged(connection: JavaConnection, packet: JavaLoginAcknowledge) {
         // move to config state
         connection.state = JavaConnectionState.CONFIG
     }
 
-    @PacketHandler
     fun onClientInfo(connection: JavaConnection, packet: JavaClientInfoPacket) {
         connection.sendPacket(JavaFeatureFlagsPacket())
         connection.sendPacket(JavaSelectKnownPackPacket())
     }
 
-    @PacketHandler
     fun onClientPacksLoaded(connection: JavaConnection, packet: JavaSelectKnownPackPacket) {
         connection.sendPacket(JavaRegistryDataPacket(BiomeRegistry))
         connection.sendPacket(JavaRegistryDataPacket(ChatRegistry))
@@ -116,13 +111,12 @@ class LoginBundle: PacketBundle {
         connection.sendPacket(JavaFinishConfigPacket())
     }
 
-    @PacketHandler
+    @OptIn(ExperimentalUuidApi::class)
     fun onFinishConfig(connection: JavaConnection, packet: JavaFinishConfigPacket) {
         connection.state = JavaConnectionState.IN_GAME
         EventBus.callEvent(LoginEvent(connection, tempUIDStorage.remove(connection)!!))
     }
 
-    @PacketHandler
     fun onConfigMessage(connection: JavaConnection, packet: JavaConfigMessagePacket) =
         when (packet.channel) {
             "minecraft:brand" -> {
@@ -186,9 +180,15 @@ class LoginBundle: PacketBundle {
 //    }
 }
 
-
-
+@OptIn(ExperimentalUuidApi::class)
 class LoginEvent(
     val connection: IConnection<*>,
-    val uid: UUID
-): Event
+    val uid: Uuid
+): Event {
+    companion object: Event.Data<LoginEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(LoginEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

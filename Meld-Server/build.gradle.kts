@@ -23,7 +23,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 // kotlin
-                implementation(kotlin("stdlib-jdk8"))
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
                 implementation("dev.romainguy:kotlin-math:1.6.0")

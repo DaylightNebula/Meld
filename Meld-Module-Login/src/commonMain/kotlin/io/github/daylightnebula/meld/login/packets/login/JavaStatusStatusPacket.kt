@@ -7,12 +7,13 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import kotlinx.serialization.json.JsonObject
 
 class JavaStatusStatusPacket(var json: JsonObject = JsonObject(mapOf())): JavaPacket {
-    companion object {
-        val ID = 0x00
-        val TYPE = JavaConnectionState.STATUS
+    companion object: JavaPacket.Creator<JavaStatusStatusPacket> {
+        override val INCOMING_ID = 0x00
+        override val STATE = JavaConnectionState.STATUS
+        override fun create() = JavaStatusStatusPacket()
     }
 
-    override val id: Int = ID
+    override val OUTGOING_ID: Int = INCOMING_ID
     override fun decode(reader: AbstractReader) {} // input status packet have no payload
     override fun encode(writer: ByteWriter) {
         writer.writeJSON(json)

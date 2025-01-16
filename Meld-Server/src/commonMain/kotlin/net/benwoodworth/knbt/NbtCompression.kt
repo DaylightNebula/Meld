@@ -58,5 +58,5 @@ internal fun NbtCompression.Companion.detect(firstByte: Byte): NbtCompression =
  *
  * @throws NbtDecodingException when unable to detect NbtCompression.
  */
-public fun NbtCompression.Companion.detect(byteArray: ByteArray): NbtCompression =
-    detect(byteArray[0])
+//public fun NbtCompression.Companion.detect(byteArray: ByteArray): NbtCompression =
+//    detect(byteArray[0])

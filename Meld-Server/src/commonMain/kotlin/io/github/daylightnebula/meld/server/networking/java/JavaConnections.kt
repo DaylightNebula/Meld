@@ -2,7 +2,6 @@ package io.github.daylightnebula.meld.server.networking.java
 
 import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
 import io.github.daylightnebula.meld.server.Meld
-import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.*
 import io.ktor.network.sockets.*
@@ -23,8 +22,8 @@ class JavaConnection(
 
     override fun sendPacket(packet: JavaPacket) {
         // create writer
-        val writer = ByteWriter(packet.id, DataPacketMode.JAVA)
-        println("Sending ${packet.id} - ${packet::class.simpleName}")
+        val writer = ByteWriter(packet.OUTGOING_ID, DataPacketMode.JAVA)
+//        println("Sending ${packet.OUTGOING_ID} - ${packet::class.simpleName}")
 
         // encode packet
         packet.encode(writer)
@@ -54,7 +53,13 @@ enum class JavaConnectionState { HANDSHAKE, STATUS, LOGIN, CONFIG, IN_GAME }
 
 // representation of a java packet that can be sent too and from users
 interface JavaPacket {
-    val id: Int
+    interface Creator<T: JavaPacket> {
+        val INCOMING_ID: Int
+        val STATE: JavaConnectionState
+        fun create(): T
+    }
+
+    val OUTGOING_ID: Int
     fun decode(reader: AbstractReader)
     fun encode(writer: ByteWriter)
 }

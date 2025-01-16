@@ -3,6 +3,8 @@ package io.github.daylightnebula.meld.entities
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.length
+import io.github.daylightnebula.meld.entities.EntityMoveEvent
+import io.github.daylightnebula.meld.entities.EntityRotateEvent
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
 import io.github.daylightnebula.meld.entities.metadata.IEntityMetadataParent
@@ -18,6 +20,8 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import java.lang.Thread.sleep
 import java.util.*
 import kotlin.concurrent.thread
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 open class Entity(
     val uid: UUID = UUID.randomUUID(),
@@ -190,10 +194,72 @@ open class Entity(
 
 enum class EntityAnimation { SWING_ARM, TAKE_DAMAGE, LEAVE_BED, SWING_OFFHAND, CRITICAL_EFFECT, MAGICAL_CRITICAL_EFFECT }
 
-data class EntityMoveEvent(val entity: Entity, val oldPosition: Float3, val newPosition: Float3): Event
-data class EntityRotateEvent(val entity: Entity, val oldRotation: Float2, val newRotation: Float2): Event
-data class EntityVelocityChangeEvent(val entity: Entity, val oldVelocity: Float3, val velocity: Float3): Event
-data class EntitySpawnEvent(val entity: Entity): Event
-data class EntityDespawnEvent(val entity: Entity): Event
-data class EntityPlayAnimationEvent(val entity: Entity, var animation: EntityAnimation, override var cancelled: Boolean = false): CancellableEvent
-data class EntityMetadataUpdateEvent(val entity: Entity, val metadata: EntityMetadata): Event
+@OptIn(ExperimentalUuidApi::class)
+data class EntityMoveEvent(val entity: Entity, val oldPosition: Float3, val newPosition: Float3): Event {
+    companion object: Event.Data<EntityMoveEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(EntityMoveEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class EntityRotateEvent(val entity: Entity, val oldRotation: Float2, val newRotation: Float2): Event {
+    companion object: Event.Data<EntityRotateEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(EntityRotateEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class EntityVelocityChangeEvent(val entity: Entity, val oldVelocity: Float3, val velocity: Float3): Event {
+    companion object: Event.Data<EntityVelocityChangeEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(EntityVelocityChangeEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class EntitySpawnEvent(val entity: Entity): Event {
+    companion object: Event.Data<EntitySpawnEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(EntitySpawnEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class EntityDespawnEvent(val entity: Entity): Event {
+    companion object: Event.Data<EntityDespawnEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(EntityDespawnEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class EntityPlayAnimationEvent(val entity: Entity, var animation: EntityAnimation, override var cancelled: Boolean = false): CancellableEvent {
+    companion object: Event.Data<EntityPlayAnimationEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(EntityPlayAnimationEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class EntityMetadataUpdateEvent(val entity: Entity, val metadata: EntityMetadata): Event {
+    companion object: Event.Data<EntityMetadataUpdateEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(EntityMetadataUpdateEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

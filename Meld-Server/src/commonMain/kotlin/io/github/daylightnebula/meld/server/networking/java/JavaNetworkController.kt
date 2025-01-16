@@ -3,25 +3,25 @@ package io.github.daylightnebula.meld.server.networking.java
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.PacketManager
 import io.github.daylightnebula.meld.server.meldJson
-import io.github.daylightnebula.meld.server.networking.common.*
-import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController.acceptor
-import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController.listener
-import io.github.daylightnebula.meld.server.networking.java.JavaNetworkController.serverSocket
+import io.github.daylightnebula.meld.server.networking.common.ByteArrayReader
+import io.github.daylightnebula.meld.server.networking.common.ChannelReader
+import io.github.daylightnebula.meld.server.networking.common.INetworkController
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.*
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.JsonObject
-import java.util.*
-import kotlin.concurrent.thread
 
 object JavaNetworkController: INetworkController {
     // setup socket
     private lateinit var serverSocket: ServerSocket
+    private val serverReady: Boolean
+        get() = this::serverSocket.isInitialized
 
     // acceptor that accepts incoming connections
-    private val acceptor = thread(start = false) {
+    @OptIn(DelicateCoroutinesApi::class)
+    private val acceptor = GlobalScope.launch {
+        while(!serverReady) { delay(100) }
         while(true) {
             runBlocking {
                 val connected = serverSocket.accept()
@@ -32,7 +32,8 @@ object JavaNetworkController: INetworkController {
     }
 
     // thread that listens for active java connections
-    private val listener = thread(start = false) {
+    @OptIn(DelicateCoroutinesApi::class)
+    private val listener = GlobalScope.launch {
         while(true) {
             // for each connection, process incoming packets
             Meld.connections.filter { it is JavaConnection }.forEach { connection ->
@@ -56,7 +57,7 @@ object JavaNetworkController: INetworkController {
             }
 
             // slow everything down
-            Thread.sleep(10)
+            delay(10)
         }
     }
 
@@ -81,7 +82,7 @@ object JavaNetworkController: INetworkController {
 
     override fun start() {
         // start socket
-        val selectorManager = ActorSelectorManager(Dispatchers.IO)
+        val selectorManager = SelectorManager()
         serverSocket = runBlocking { aSocket(selectorManager).tcp().bind(port = Meld.javaPort) }
 
         // start threads
@@ -93,8 +94,8 @@ object JavaNetworkController: INetworkController {
 
     override fun stop() {
         // stop threads
-        acceptor.join(100)
-        listener.join(100)
+        acceptor.cancel()
+        listener.cancel()
 
         // stop sockets
         Meld.connections.filter { it is JavaConnection }.forEach { (it as JavaConnection).socket.dispose() }

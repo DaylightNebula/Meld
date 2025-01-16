@@ -13,12 +13,13 @@ class JavaHandshakePacket(
     var nextState: Int = 100
 ) : JavaPacket {
 
-    companion object {
-        val ID = 0x00
-        val TYPE = JavaConnectionState.HANDSHAKE
+    companion object: JavaPacket.Creator<JavaHandshakePacket> {
+        override val INCOMING_ID = 0x00
+        override val STATE = JavaConnectionState.HANDSHAKE
+        override fun create() = JavaHandshakePacket()
     }
 
-    override val id: Int = ID
+    override val OUTGOING_ID: Int = INCOMING_ID
 
     override fun decode(reader: AbstractReader) {
         version = reader.readVarInt()

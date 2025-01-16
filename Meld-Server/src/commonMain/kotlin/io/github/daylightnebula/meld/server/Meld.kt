@@ -9,6 +9,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
@@ -17,6 +18,8 @@ import net.benwoodworth.knbt.*
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.SYSTEM
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Serializable
 data class MeldConfig (
@@ -56,11 +59,12 @@ val configSerializer = Json {
 }
 
 // config
-val Meld =
-    if (FileSystem.SYSTEM.exists(meldConfigFile)) {
-        val text = FileSystem.SYSTEM.read("/config.json".toPath()) { readUtf8() }
-        configSerializer.decodeFromString<MeldConfig>(text)
-    } else MeldConfig()
+val Meld = MeldConfig() // todo load config.json
+//    if (FileSystem.SYSTEM.exists(meldConfigFile)) {
+//        println("Exists ${FileSystem.SYSTEM.exists(meldConfigFile)}")
+//        val text = FileSystem.SYSTEM.read("/config.json".toPath()) { readUtf8() }
+//        configSerializer.decodeFromString<MeldConfig>(text)
+//    } else MeldConfig()
 
 val meldJson = Json {
     prettyPrint = false
@@ -108,8 +112,18 @@ fun runMeldServer(vararg modules: MeldModule) {
     JavaNetworkController.start()
 
     println("Started")
+
+    runBlocking { keepAliveThread.join() }
 }
 
-data class ConnectionAbortedEvent(val connection: IConnection<*>): Event
+@OptIn(ExperimentalUuidApi::class)
+data class ConnectionAbortedEvent(val connection: IConnection<*>): Event {
+    companion object: Event.Data<ConnectionAbortedEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(ConnectionAbortedEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
 
 fun Any.encodeToNbt(): NbtCompound = meldNbt.encodeToNbtTag(this) as NbtCompound

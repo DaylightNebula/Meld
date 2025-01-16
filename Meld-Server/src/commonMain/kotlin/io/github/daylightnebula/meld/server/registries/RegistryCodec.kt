@@ -1,10 +1,8 @@
 package io.github.daylightnebula.meld.server.registries
 
 import io.github.daylightnebula.meld.server.meldJson
-import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import kotlinx.serialization.json.*
 import net.benwoodworth.knbt.*
-import java.io.File
 
 object RegistryCodec {
 //    val codec: JsonObject = meldJson.decodeFromString(File("codec.json").readText())
