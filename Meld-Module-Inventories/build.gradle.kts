@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.0"
+    kotlin("multiplatform") version "2.1.0"
     kotlin("plugin.serialization") version "2.1.0"
 }
 
@@ -11,19 +11,14 @@ repositories {
     maven("https://repo.opencollab.dev/maven-snapshots/")
 }
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(project(":Meld-Server"))
-    implementation(project(":Meld-Module-Entities"))
-    implementation(project(":Meld-Module-Player"))
-}
+kotlin {
+    jvm()
+    linuxX64()
 
-tasks {
-    jar {
-        destinationDirectory.set(file("$rootDir/modules/"))
+    sourceSets["commonMain"].dependencies {
+        implementation(kotlin("stdlib-jdk8"))
+        implementation(project(":Meld-Server"))
+        implementation(project(":Meld-Module-Entities"))
+        implementation(project(":Meld-Module-Player"))
     }
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
 }
