@@ -1,18 +1,18 @@
 package io.github.daylightnebula.meld.world.packets
 
+import dev.romainguy.kotlin.math.Float2
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
-import org.cloudburstmc.math.vector.Vector2i
 
 class JavaUnloadChunkPacket(
-    var chunkPos: Vector2i = Vector2i.ZERO
+    var chunkPos: Float2 = Float2()
 ): JavaPacket {
-    override val id: Int = 0x1F
+    override val id: Int = 0x22
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
-        writer.writeInt(chunkPos.x)
-        writer.writeInt(chunkPos.y)
+        writer.writeInt(chunkPos.x.toInt())
+        writer.writeInt(chunkPos.y.toInt())
     }
 }

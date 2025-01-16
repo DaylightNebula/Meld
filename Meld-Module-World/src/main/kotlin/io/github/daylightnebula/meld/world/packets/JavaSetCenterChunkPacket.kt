@@ -9,7 +9,7 @@ class JavaSetCenterChunkPacket(
     var chunkX: Int = 0,
     var chunkY: Int = 0
 ): JavaPacket {
-    override val id: Int = 0x52
+    override val id: Int = 0x58
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(chunkX)

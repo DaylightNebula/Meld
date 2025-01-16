@@ -7,17 +7,14 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
 import io.github.daylightnebula.meld.world.chunks.Chunk
 import io.github.daylightnebula.meld.world.chunks.ChunkRegistry
-import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTWriter
-import java.io.OutputStream
+import net.benwoodworth.knbt.NbtCompound
 
 class JavaChunkPacket(
     var chunk: Chunk = Chunk(),
-    var heightmaps: NBTCompound = ChunkRegistry.defaultHeightmap
+    var heightmaps: NbtCompound = ChunkRegistry.defaultHeightmap
 ): JavaPacket {
 
-    override val id: Int = 0x25
+    override val id: Int = 0x28
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         // serialize chunk
@@ -26,8 +23,8 @@ class JavaChunkPacket(
         val data = dataWriter.getRawData()
 
         // write chunk header and raw data
-        writer.writeInt(chunk.position.x)
-        writer.writeInt(chunk.position.y)
+        writer.writeInt(chunk.position.x.toInt())
+        writer.writeInt(chunk.position.y.toInt())
         writer.writeNBT(heightmaps)
 
         writer.writeVarInt(data.size)

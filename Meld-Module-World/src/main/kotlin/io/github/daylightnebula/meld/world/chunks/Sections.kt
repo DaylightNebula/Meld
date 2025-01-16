@@ -1,9 +1,8 @@
 package io.github.daylightnebula.meld.world.chunks
 
+import dev.romainguy.kotlin.math.Float2
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.world.World
-import org.cloudburstmc.math.vector.Vector2i
-import kotlin.text.Typography.section
 
 interface Section {
     var blockPalette: FlexiblePalette?
@@ -27,7 +26,7 @@ class FilledSection(
 
 class GhostSection(
     var dimensionRef: String = "",
-    var chunkPos: Vector2i = Vector2i.ZERO,
+    var chunkPos: Float2 = Float2(),
     var sectionIndex: Int = 0
 ): Section {
     override var blockPalette: FlexiblePalette? = null

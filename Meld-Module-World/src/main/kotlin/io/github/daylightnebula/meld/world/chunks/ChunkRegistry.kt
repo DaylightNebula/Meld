@@ -2,14 +2,14 @@ package io.github.daylightnebula.meld.world.chunks
 
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.common.DataPacketMode
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTLongArray
+import net.benwoodworth.knbt.NbtCompound
+import net.benwoodworth.knbt.NbtLongArray
+import net.benwoodworth.knbt.NbtTag
 
 object ChunkRegistry {
-    val defaultHeightmap: NBTCompound = NBT.Compound(
-        mapOf<String, NBT>(
-            "MOTION_BLOCKING" to NBT.LongArray(
+    val defaultHeightmap: NbtCompound = NbtCompound(
+        mapOf<String, NbtTag>(
+            "MOTION_BLOCKING" to NbtLongArray(listOf(
                 3591880695370059463,
                 3591880695370059463,
                 3591880695370059463,
@@ -47,8 +47,8 @@ object ChunkRegistry {
                 3591880695370059463,
                 3591880695370059463,
                 26761596615
-            ),
-            "WORLD_SURFACE" to NBT.LongArray(
+            )),
+            "WORLD_SURFACE" to NbtLongArray(listOf(
                 3591880695370059463,
                 3591880695370059463,
                 3591880695370059463,
@@ -86,7 +86,7 @@ object ChunkRegistry {
                 3591880695370059463,
                 3591880695370059463,
                 26761596615
-            )
+            ))
         )
     )
 

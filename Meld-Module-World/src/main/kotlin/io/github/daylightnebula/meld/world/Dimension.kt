@@ -1,10 +1,10 @@
 package io.github.daylightnebula.meld.world
 
-import io.github.daylightnebula.meld.entities.packets.JavaRemoveEntitiesPacket
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.common.DataPacketMode
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
@@ -17,17 +17,13 @@ import io.github.daylightnebula.meld.world.chunks.toSectionPosition
 import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
 import io.github.daylightnebula.meld.world.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.meld.world.packets.JavaUnloadChunkPacket
-import io.netty.buffer.Unpooled
-import org.cloudburstmc.math.vector.Vector2i
-import org.cloudburstmc.math.vector.Vector3f
-import org.cloudburstmc.math.vector.Vector3i
-import org.cloudburstmc.protocol.bedrock.packet.LevelChunkPacket
+import kotlin.math.roundToInt
 
 class Dimension(
     val id: String,
-    private val loadedChunks: MutableMap<Vector2i, Chunk> = hashMapOf()
+    private val loadedChunks: MutableMap<Float2, Chunk> = hashMapOf()
 ) {
-    fun getChunk(position: Vector2i): Chunk {
+    fun getChunk(position: Float2): Chunk {
         // attempt to get a chunk
         var chunk = loadedChunks[position]
 
@@ -54,7 +50,7 @@ class Dimension(
             is JavaConnection -> {
                 connection.sendPacket(JavaUnloadChunkPacket(chunk.position))
             }
-            is BedrockConnection -> NeedsBedrock()
+//          BEDROCK  is BedrockConnection -> NeedsBedrock()
         }
 
         // remove player as watcher of all entities
@@ -65,18 +61,18 @@ class Dimension(
         // send packet based on connection type
         when (player.connection) {
             is JavaConnection -> (player.connection as JavaConnection).sendPacket(JavaChunkPacket(chunk))
-            is BedrockConnection -> (player.connection as BedrockConnection).sendPacket(LevelChunkPacket().apply {
-                // update basic values of packet
-                subChunksLength = 24
-                isCachingEnabled = false
-                chunkX = chunk.position.x
-                chunkZ = chunk.position.y
-
-                // serialize data
-                val writer = ByteWriter(0x00, DataPacketMode.BEDROCK)
-                chunk.writeBedrock(writer)
-                data = Unpooled.wrappedBuffer(writer.getRawData())
-            })
+//          BEDROCK  is BedrockConnection -> (player.connection as BedrockConnection).sendPacket(LevelChunkPacket().apply {
+//                // update basic values of packet
+//                subChunksLength = 24
+//                isCachingEnabled = false
+//                chunkX = chunk.position.x
+//                chunkZ = chunk.position.y
+//
+//                // serialize data
+//                val writer = ByteWriter(0x00, DataPacketMode.BEDROCK)
+//                chunk.writeBedrock(writer)
+//                data = Unpooled.wrappedBuffer(writer.getRawData())
+//            })
         }
 
         // spawn entities
@@ -93,25 +89,25 @@ class Dimension(
         // send packet based on connection type
         when (player.connection) {
             is JavaConnection -> {
-                (player.connection as JavaConnection).sendPacket(JavaSetCenterChunkPacket(chunkPosition.x, chunkPosition.y))
+                (player.connection as JavaConnection).sendPacket(JavaSetCenterChunkPacket(chunkPosition.x.toInt(), chunkPosition.y.toInt()))
             }
             else -> {} // throw IllegalArgumentException("No center packet for bedrock connections")
         }
     }
-    fun getChunksInViewDistance(location: Vector3f): MutableList<Chunk> = getChunksInViewDistanceOfChunk(location.toChunkPosition())
-    fun getChunksInViewDistanceOfChunk(chunkPos: Vector2i): MutableList<Chunk> {
+    fun getChunksInViewDistance(location: Float3): MutableList<Chunk> = getChunksInViewDistanceOfChunk(location.toChunkPosition())
+    fun getChunksInViewDistanceOfChunk(chunkPos: Float2): MutableList<Chunk> {
         // return chunks between min and max chunk
         val output = mutableListOf<Chunk>()
-        (chunkPos.x - Meld.viewDistance .. chunkPos.x + Meld.viewDistance).forEach { x ->
-            (chunkPos.y - Meld.viewDistance .. chunkPos.y + Meld.viewDistance).forEach { y ->
-                output.add(getChunk(Vector2i.from(x, y)))
+        ((chunkPos.x - Meld.viewDistance).roundToInt() .. (chunkPos.x + Meld.viewDistance).roundToInt()).forEach { x ->
+            ((chunkPos.y - Meld.viewDistance).roundToInt() .. (chunkPos.y + Meld.viewDistance).roundToInt()).forEach { y ->
+                output.add(getChunk(Float2(x.toFloat(), y.toFloat())))
             }
         }
         return output
     }
 
     data class ChunkDiffs(val oldOnly: List<Chunk>, val newOnly: List<Chunk>)
-    fun getDiffChunks(oldChunkPos: Vector2i, newChunkPos: Vector2i): ChunkDiffs {
+    fun getDiffChunks(oldChunkPos: Float2, newChunkPos: Float2): ChunkDiffs {
         // skip if the same
         if (oldChunkPos == newChunkPos) return ChunkDiffs(listOf(), listOf())
 
@@ -128,36 +124,36 @@ class Dimension(
     }
 
     // get and set block functions
-    fun getBlock(position: Vector3i) = getChunk(position.toChunkPosition()).getBlock(position)
-    fun setBlock(position: Vector3i, blockID: Int) = getChunk(position.toChunkPosition()).setBlock(position, blockID)
+    fun getBlock(position: Float3) = getChunk(position.toChunkPosition()).getBlock(position)
+    fun setBlock(position: Float3, blockID: Int) = getChunk(position.toChunkPosition()).setBlock(position, blockID)
 
     // fill function
-    fun fillBlocks(from: Vector3i, to: Vector3i, blockID: Int) {
+    fun fillBlocks(from: Float3, to: Float3, blockID: Int) {
         // get to and from chunk position
         val fromChunk = from.toChunkPosition()
         val toChunk = to.toChunkPosition()
 
         // loop through all chunks in fill
-        (fromChunk.x .. toChunk.x).forEach { x ->
-            (fromChunk.y .. toChunk.y).forEach { y ->
+        (fromChunk.x.toInt() .. toChunk.x.toInt()).forEach { x ->
+            (fromChunk.y.toInt() .. toChunk.y.toInt()).forEach { y ->
                 // get highest and lowest x and z positions relative to chunk
-                val lowX = if (fromChunk.x == x) from.x.toSectionPosition() else 0
-                val highX = if (toChunk.x == x) to.x.toSectionPosition() else 16
-                val lowZ = if (fromChunk.y == y) from.y.toSectionPosition() else 0
-                val highZ = if (toChunk.y == y) to.y.toSectionPosition() else 16
+                val lowX = if (fromChunk.x.toInt() == x) from.x.toSectionPosition() else 0
+                val highX = if (toChunk.x.toInt() == x) to.x.toSectionPosition() else 16
+                val lowZ = if (fromChunk.y.toInt() == y) from.y.toSectionPosition() else 0
+                val highZ = if (toChunk.y.toInt() == y) to.y.toSectionPosition() else 16
 
                 // call fill function on chunk
-                getChunk(Vector2i.from(x, y))
-                    .fill(Vector3i.from(lowX, from.y, lowZ), Vector3i.from(highX, to.y, highZ), blockID)
+                getChunk(Float2(x.toFloat(), y.toFloat()))
+                    .fill(Float3(lowX.toFloat(), from.y, lowZ.toFloat()), Float3(highX.toFloat(), to.y, highZ.toFloat()), blockID)
             }
         }
     }
-    fun clearBlocks(from: Vector3i, to: Vector3i) = fillBlocks(from, to, 0)
+    fun clearBlocks(from: Float3, to: Float3) = fillBlocks(from, to, 0)
 }
 
 fun dimension(
     name: String,
-    vararg loadedChunks: Pair<Vector2i, Chunk>
+    vararg loadedChunks: Pair<Float2, Chunk>
 ) = name to Dimension(name, hashMapOf(*loadedChunks))
 
 data class PlayerLoadChunkEvent(val player: Player, val chunk: Chunk): Event

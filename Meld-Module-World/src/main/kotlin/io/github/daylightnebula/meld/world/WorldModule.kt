@@ -1,10 +1,10 @@
 package io.github.daylightnebula.meld.world
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.entities.Entity
 import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.modules.MeldModule
-import org.cloudburstmc.math.vector.Vector3f
 import kotlin.random.Random
 
 class WorldModule: MeldModule {
@@ -33,7 +33,7 @@ class WorldModule: MeldModule {
                     (0 until numTestEntitiesPerChunk).forEach { _ ->
                         Entity(
                             type = EntityType.values().random(),
-                            startPosition = Vector3f.from(
+                            startPosition = Float3(
                                 chunk.position.x * 16f + (Random.nextFloat() * 16f),
                                 testEntitiesHeight,
                                 chunk.position.y * 16f + (Random.nextFloat() * 16f)

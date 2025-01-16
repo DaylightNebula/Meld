@@ -1,6 +1,11 @@
 package io.github.daylightnebula.meld.server.extensions
 
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import kotlin.math.floor
+
+fun Float3.toChunkPosition(): Float2 =
+    Float2(floor(x.dec16IfNegative() / 16), floor(z.dec16IfNegative() / 16))
 
 fun Int.dec16IfNegative(): Int { return if (this < 0) this - 15 else this }
 fun Float.dec16IfNegative(): Float { return if (this < 0) this - 15f else this }

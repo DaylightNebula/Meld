@@ -1,7 +1,8 @@
 package io.github.daylightnebula.meld.world.chunks
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
-import org.cloudburstmc.math.vector.Vector3i
+import kotlin.math.roundToInt
 
 class FlexiblePalette(
     var blockIDs: IntArray = intArrayOf(0),
@@ -43,34 +44,34 @@ class FlexiblePalette(
         writer.writeByteArray(blockReferences)
     }
 
-    fun fill(from: Vector3i, to: Vector3i, newID: Int) {
+    fun fill(from: Float3, to: Float3, newID: Int) {
         // range check
-        if (from.x !in 0..15 || from.y !in 0 .. 15 || from.z !in 0 .. 15)
+        if (from.x.toInt() !in 0..15 || from.y.toInt() !in 0 .. 15 || from.z.toInt() !in 0 .. 15)
             throw IllegalArgumentException("Section fill call out of range in from $from")
-        if (to.x !in 0..15 || to.y !in 0 .. 15 || to.z !in 0 .. 15)
+        if (to.x.toInt() !in 0..15 || to.y.toInt() !in 0 .. 15 || to.z.toInt() !in 0 .. 15)
             throw IllegalArgumentException("Section fill call out of range in to $to")
 
         // fill blocks
-        (from.x .. to.x).forEach { x ->
-            (from.y .. to.y).forEach { y ->
-                (from.z .. to.z).forEach { z ->
-                    uncheckedSet(Vector3i.from(x, y, z), newID)
+        (from.x.roundToInt() .. to.x.roundToInt()).forEach { x ->
+            (from.y.roundToInt() .. to.y.roundToInt()).forEach { y ->
+                (from.z.roundToInt() .. to.z.roundToInt()).forEach { z ->
+                    uncheckedSet(Float3(x.toFloat(), y.toFloat(), z.toFloat()), newID)
                 }
             }
         }
     }
 
-    fun set(position: Vector3i, newID: Int) {
+    fun set(position: Float3, newID: Int) {
         // range check
-        if (position.x !in 0..15 || position.y !in 0 .. 15 || position.z !in 0 .. 15)
+        if (position.x.toInt() !in 0..15 || position.y.toInt() !in 0 .. 15 || position.z.toInt() !in 0 .. 15)
             throw IllegalArgumentException("Section set call out of range $position")
 
         uncheckedSet(position, newID)
     }
 
-    fun uncheckedSet(position: Vector3i, newID: Int) {
+    fun uncheckedSet(position: Float3, newID: Int) {
         // get ref index
-        val refIndex = locationToRefIndex(position)
+        val refIndex = locationToRefIndex(position).toInt()
 
         // get index of new id in block ids
         var index = blockIDs.indexOf(newID)
@@ -103,14 +104,14 @@ class FlexiblePalette(
         }
     }
 
-    fun get(position: Vector3i): Int {
-        val refIndex = locationToRefIndex(position)
+    fun get(position: Float3): Int {
+        val refIndex = locationToRefIndex(position).toInt()
         val blockID = blockReferences[refIndex]
         return blockIDs[blockID.toInt()]
     }
 
-    private fun locationToRefIndex(position: Vector3i) =
-        (position.y * 256) + (position.z * 16) + modChunkRefIndexByX(position.x)
+    private fun locationToRefIndex(position: Float3) =
+        ((position.y * 256) + (position.z * 16) + modChunkRefIndexByX(position.x.toInt())).roundToInt()
 
     // why is this necessary for java edition clients?  IDK
     private fun modChunkRefIndexByX(index: Int) =

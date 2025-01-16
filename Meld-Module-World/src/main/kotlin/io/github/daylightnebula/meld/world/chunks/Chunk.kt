@@ -1,29 +1,24 @@
 package io.github.daylightnebula.meld.world.chunks
 
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.entities.Entity
-import io.github.daylightnebula.meld.entities.currentTick
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.extensions.inc16IfNegative
-import io.github.daylightnebula.meld.server.extensions.toChunkPosition
 import io.github.daylightnebula.meld.server.extensions.toSectionID
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
-import io.github.daylightnebula.meld.world.Dimension
 import io.github.daylightnebula.meld.world.World
 import io.github.daylightnebula.meld.world.WorldModule
 import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
-import org.cloudburstmc.math.vector.Vector2i
-import org.cloudburstmc.math.vector.Vector3i
 import kotlin.math.floor
-import kotlin.text.Typography.section
 
 data class Chunk(
     var dimensionRef: String = "",
-    var position: Vector2i = Vector2i.from(0, 0),
+    var position: Float2 = Float2(),
     var sections: Array<Section> = Array(24) { FilledSection() },
     var entities: MutableList<Entity> = mutableListOf()
 ) {
@@ -46,8 +41,8 @@ data class Chunk(
         return sections.contentEquals(other.sections)
     }
     override fun hashCode(): Int {
-        var result = position.x
-        result = 31 * result + position.y
+        var result = position.x.toInt()
+        result = 31 * result + position.y.toInt()
         result = 31 * result + sections.contentHashCode()
         return result
     }
@@ -65,12 +60,12 @@ data class Chunk(
         players.forEach {
             when (val connection = it.connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
-                is BedrockConnection -> NeedsBedrock()
+//              BEDROCK  is BedrockConnection -> NeedsBedrock()
             }
         }
     }
 
-    fun fill(from: Vector3i, to: Vector3i, blockID: Int) {
+    fun fill(from: Float3, to: Float3, blockID: Int) {
         // loop through all sections
         (from.y.toSectionID() .. to.y.toSectionID()).forEach { section ->
             // get lowest and highest y
@@ -78,14 +73,14 @@ data class Chunk(
             val highY = if (to.y.toSectionID() == section) to.y.toSectionPosition() else 15
 
             // call fill on section
-            sections[section].blockPalette?.fill(Vector3i.from(from.x, lowY, from.z), Vector3i.from(to.x, highY, to.z), blockID)
+            sections[section].blockPalette?.fill(Float3(from.x, lowY.toFloat(), from.z), Float3(to.x, highY.toFloat(), to.z), blockID)
         }
 
         broadcastChanges()
     }
-    fun clear(from: Vector3i, to: Vector3i) = fill(from, to, 0)
+    fun clear(from: Float3, to: Float3) = fill(from, to, 0)
 
-    fun setBlock(position: Vector3i, blockID: Int) {
+    fun setBlock(position: Float3, blockID: Int) {
         // get chunk location
         val chunkLocation = position.toSectionPosition()
 
@@ -109,7 +104,7 @@ data class Chunk(
         broadcastChanges()
     }
 
-    fun getBlock(position: Vector3i): Int {
+    fun getBlock(position: Float3): Int {
         // get chunk location
         val chunkLocation = position.toSectionPosition()
 
@@ -121,13 +116,14 @@ data class Chunk(
     }
 }
 
-fun Vector3i.toSectionPosition() = Vector3i.from(
+fun Float3.toSectionPosition() = Float3(
     x.toSectionPosition(),
     y.toSectionPosition(),
     z.toSectionPosition(),
 )
 
-fun Int.toSectionPosition() = floor((this % 16).inc16IfNegative().toDouble()).toInt()
+fun Int.toSectionPosition() = (this % 16).inc16IfNegative()
+fun Float.toSectionPosition() = floor((this % 16).inc16IfNegative())
 
-data class SettingBlockEvent(val chunk: Chunk, val location: Vector3i, val chunkLocation: Vector3i, var isCancelled: Boolean = false): Event
-data class SetBlockEvent(val chunk: Chunk, val location: Vector3i, val chunkLocation: Vector3i): Event
+data class SettingBlockEvent(val chunk: Chunk, val location: Float3, val chunkLocation: Float3, var isCancelled: Boolean = false): Event
+data class SetBlockEvent(val chunk: Chunk, val location: Float3, val chunkLocation: Float3): Event
