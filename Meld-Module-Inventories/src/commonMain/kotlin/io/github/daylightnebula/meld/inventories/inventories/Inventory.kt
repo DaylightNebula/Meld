@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.inventories.inventories
 
+import io.github.daylightnebula.meld.inventories.inventories.InventoryChangeEvent
 import io.github.daylightnebula.meld.inventories.utils.InventoryType
 import io.github.daylightnebula.meld.inventories.utils.inventory
 import io.github.daylightnebula.meld.inventories.packets.JavaCloseInventoryPacket
@@ -8,11 +9,14 @@ import io.github.daylightnebula.meld.inventories.packets.JavaSetInventoryContent
 import io.github.daylightnebula.meld.inventories.packets.JavaSetItemPacket
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.events.CancellableEvent
+import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class Inventory(
     val type: InventoryType,
@@ -93,5 +97,22 @@ class Inventory(
     }
 }
 
-data class PlayerOpenInventoryEvent(val player: Player, val inventory: Inventory, override var cancelled: Boolean = false): CancellableEvent
-data class PlayerCloseInventoryEvent(val player: Player, val inventory: Inventory, override var cancelled: Boolean = false): CancellableEvent
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerOpenInventoryEvent(val player: Player, val inventory: Inventory, override var cancelled: Boolean = false): CancellableEvent {
+    companion object: Event.Data<PlayerOpenInventoryEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerOpenInventoryEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerCloseInventoryEvent(val player: Player, val inventory: Inventory, override var cancelled: Boolean = false): CancellableEvent {
+    companion object: Event.Data<PlayerCloseInventoryEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerCloseInventoryEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

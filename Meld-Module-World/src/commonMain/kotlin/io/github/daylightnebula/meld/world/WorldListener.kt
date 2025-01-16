@@ -6,12 +6,19 @@ import io.github.daylightnebula.meld.entities.EntitySpawnEvent
 import io.github.daylightnebula.meld.player.JoinEvent
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.player.PlayerMoveEvent
-import io.github.daylightnebula.meld.server.events.EventHandler
+import io.github.daylightnebula.meld.server.events.EventExecutor
 import io.github.daylightnebula.meld.server.events.EventListener
 import io.github.daylightnebula.meld.server.extensions.toChunkPosition
 
 class WorldListener: EventListener {
-    @EventHandler
+    override val executors: List<EventExecutor<*, *>> = listOf(
+        EventExecutor(EntitySpawnEvent, this::onEntitySpawn),
+        EventExecutor(EntityDespawnEvent, this::onEntityDespawn),
+        EventExecutor(EntityMoveEvent, this::onEntityMove),
+        EventExecutor(JoinEvent, this::onPlayerJoin),
+        EventExecutor(PlayerMoveEvent, this::onPlayerMove)
+    )
+
     fun onEntitySpawn(event: EntitySpawnEvent) {
         val entity = event.entity
 
@@ -30,7 +37,6 @@ class WorldListener: EventListener {
         }
     }
 
-    @EventHandler
     fun onEntityDespawn(event: EntityDespawnEvent) {
         val entity = event.entity
 
@@ -42,7 +48,6 @@ class WorldListener: EventListener {
         chunk.entities.remove(entity)
     }
 
-    @EventHandler
     fun onPlayerJoin(event: JoinEvent) {
         val player = event.player
 
@@ -56,7 +61,6 @@ class WorldListener: EventListener {
         dimension.centerPacket(player)
     }
 
-    @EventHandler
     fun onPlayerMove(event: PlayerMoveEvent) {
         val player = event.player
 
@@ -74,7 +78,6 @@ class WorldListener: EventListener {
         if (chunkDiffs.oldOnly.isNotEmpty()) dimension.centerPacket(event.player)
     }
 
-    @EventHandler
     fun onEntityMove(event: EntityMoveEvent) {
         val entity = event.entity
 

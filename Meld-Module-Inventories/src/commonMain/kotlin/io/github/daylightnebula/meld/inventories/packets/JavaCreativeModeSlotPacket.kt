@@ -2,6 +2,7 @@ package io.github.daylightnebula.meld.inventories.packets
 
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
+import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noEncode
 import io.github.daylightnebula.meld.server.utils.ItemContainer
@@ -11,7 +12,13 @@ class JavaCreativeModeSlotPacket(
     var slot: Int = 0,
     var itemContainer: ItemContainer? = null
 ): JavaPacket {
-    override val id: Int = 0x2B
+    companion object: JavaPacket.Creator<JavaCreativeModeSlotPacket> {
+        override val INCOMING_ID: Int = 0x2B
+        override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
+        override fun create() = JavaCreativeModeSlotPacket()
+    }
+
+    override val OUTGOING_ID: Int = 0x2B
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         slot = reader.readShort().toInt()

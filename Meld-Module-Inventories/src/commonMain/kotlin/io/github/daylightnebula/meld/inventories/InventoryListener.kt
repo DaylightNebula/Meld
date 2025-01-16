@@ -5,9 +5,16 @@ import io.github.daylightnebula.meld.inventories.utils.inventory
 import io.github.daylightnebula.meld.player.*
 import io.github.daylightnebula.meld.server.events.*
 import io.github.daylightnebula.meld.server.utils.ItemContainer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class InventoryListener: EventListener {
-    @EventHandler
+    override val executors: List<EventExecutor<*, *>> = listOf(
+        EventExecutor(PlayerBlockActionEvent, this::onPlayerDropItem),
+        EventExecutor(PlayerBlockActionEvent, this::onBlockAction),
+        EventExecutor(PlayerEntityInteractEvent, this::onInteract)
+    )
+
     fun onPlayerDropItem(event: PlayerBlockActionEvent) {
         // make sure drop item event
         if (event.action != PlayerBlockAction.DROP_ITEM && event.action != PlayerBlockAction.DROP_ITEM_STACK) return
@@ -24,14 +31,12 @@ class InventoryListener: EventListener {
         else inventory.setItem(inventory.selectedSlot + 36, null)
     }
 
-    @EventHandler
     fun onBlockAction(event: PlayerBlockActionEvent) {
         val inventory = event.player.inventory
         inventory.getItem(inventory.selectedSlot + 36)
             ?.handler?.onBlockAction(event.action, event.face, event.blockPosition)
     }
 
-    @EventHandler
     fun onInteract(event: PlayerEntityInteractEvent) {
         val inventory = event.player.inventory
         inventory.getItem(inventory.selectedSlot + 36)
@@ -39,4 +44,12 @@ class InventoryListener: EventListener {
     }
 }
 
-data class PlayerDropRequestEvent(val player: Player, val item: ItemContainer?, var allowRemove: Boolean = false): Event
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerDropRequestEvent(val player: Player, val item: ItemContainer?, var allowRemove: Boolean = false): Event {
+    companion object: Event.Data<PlayerDropRequestEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerDropRequestEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

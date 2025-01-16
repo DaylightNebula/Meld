@@ -3,6 +3,7 @@ package io.github.daylightnebula.meld.world.packets
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.common.DataPacketMode
+import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
 import io.github.daylightnebula.meld.world.chunks.Chunk
@@ -13,8 +14,13 @@ class JavaChunkPacket(
     var chunk: Chunk = Chunk(),
     var heightmaps: NbtCompound = ChunkRegistry.defaultHeightmap
 ): JavaPacket {
+    companion object: JavaPacket.Creator<JavaChunkPacket> {
+        override val INCOMING_ID: Int = 0x28
+        override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
+        override fun create() = JavaChunkPacket()
+    }
 
-    override val id: Int = 0x28
+    override val OUTGOING_ID: Int = 0x28
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         // serialize chunk

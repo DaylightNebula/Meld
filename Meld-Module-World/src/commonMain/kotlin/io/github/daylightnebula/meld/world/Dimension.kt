@@ -18,6 +18,8 @@ import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
 import io.github.daylightnebula.meld.world.packets.JavaSetCenterChunkPacket
 import io.github.daylightnebula.meld.world.packets.JavaUnloadChunkPacket
 import kotlin.math.roundToInt
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class Dimension(
     val id: String,
@@ -156,6 +158,32 @@ fun dimension(
     vararg loadedChunks: Pair<Float2, Chunk>
 ) = name to Dimension(name, hashMapOf(*loadedChunks))
 
-data class PlayerLoadChunkEvent(val player: Player, val chunk: Chunk): Event
-data class PlayerUnloadChunkEvent(val player: Player, val chunk: Chunk): Event
-data class ChunkCreateEvent(val chunk: Chunk): Event
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerLoadChunkEvent(val player: Player, val chunk: Chunk): Event {
+    companion object: Event.Data<PlayerLoadChunkEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerLoadChunkEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerUnloadChunkEvent(val player: Player, val chunk: Chunk): Event {
+    companion object: Event.Data<PlayerUnloadChunkEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerUnloadChunkEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class ChunkCreateEvent(val chunk: Chunk): Event {
+    companion object: Event.Data<ChunkCreateEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(ChunkCreateEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

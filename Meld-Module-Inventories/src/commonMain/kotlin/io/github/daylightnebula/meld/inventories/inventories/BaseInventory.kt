@@ -1,8 +1,12 @@
 package io.github.daylightnebula.meld.inventories.inventories
 
+import io.github.daylightnebula.meld.inventories.PlayerDropRequestEvent
+import io.github.daylightnebula.meld.player.PlayerEntityInteractEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.utils.ItemContainer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 interface BaseInventory {
     val slots: Array<ItemContainer?>
@@ -13,13 +17,13 @@ interface BaseInventory {
 
     fun getItem(index: Int): ItemContainer? {
         if (!slots.indices.contains(index))
-            throw IndexOutOfBoundsException("Index is not inside bounds of ${this::class.java.name} (${slots.indices})")
+            throw IndexOutOfBoundsException("Index is not inside bounds of ${this::class.simpleName} (${slots.indices})")
         return slots[index]
     }
 
     fun setItem(index: Int, itemContainer: ItemContainer?) {
         if (!slots.indices.contains(index))
-            throw IndexOutOfBoundsException("Index is not inside bounds of ${this::class.java.name} (${slots.indices})")
+            throw IndexOutOfBoundsException("Index is not inside bounds of ${this::class.simpleName} (${slots.indices})")
         slots[index] = itemContainer
         onInventoryChange(index, itemContainer, false)
     }
@@ -35,4 +39,12 @@ interface BaseInventory {
     }
 }
 
-data class InventoryChangeEvent(val changedSlot: Int, val changedItemContainer: ItemContainer?, val filled: Boolean): Event
+@OptIn(ExperimentalUuidApi::class)
+data class InventoryChangeEvent(val changedSlot: Int, val changedItemContainer: ItemContainer?, val filled: Boolean): Event {
+    companion object: Event.Data<InventoryChangeEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(InventoryChangeEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

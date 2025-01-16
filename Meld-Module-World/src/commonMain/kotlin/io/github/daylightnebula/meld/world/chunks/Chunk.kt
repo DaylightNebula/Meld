@@ -15,6 +15,8 @@ import io.github.daylightnebula.meld.world.World
 import io.github.daylightnebula.meld.world.WorldModule
 import io.github.daylightnebula.meld.world.packets.JavaChunkPacket
 import kotlin.math.floor
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 data class Chunk(
     var dimensionRef: String = "",
@@ -29,23 +31,6 @@ data class Chunk(
     }
 
     fun writeBedrock(writer: ByteWriter) {}
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Chunk
-
-        if (position.x != other.position.x) return false
-        if (position.y != other.position.y) return false
-        return sections.contentEquals(other.sections)
-    }
-    override fun hashCode(): Int {
-        var result = position.x.toInt()
-        result = 31 * result + position.y.toInt()
-        result = 31 * result + sections.contentHashCode()
-        return result
-    }
 
     private fun broadcastChanges() {
         if (!WorldModule.module.broadcastEnabled) return
@@ -114,6 +99,28 @@ data class Chunk(
         // get block and return
         return section.blockPalette?.get(chunkLocation) ?: 0
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as Chunk
+
+        if (dimensionRef != other.dimensionRef) return false
+        if (position != other.position) return false
+        if (!sections.contentEquals(other.sections)) return false
+        if (entities != other.entities) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = dimensionRef.hashCode()
+        result = 31 * result + position.hashCode()
+        result = 31 * result + sections.contentHashCode()
+        result = 31 * result + entities.hashCode()
+        return result
+    }
 }
 
 fun Float3.toSectionPosition() = Float3(
@@ -125,5 +132,22 @@ fun Float3.toSectionPosition() = Float3(
 fun Int.toSectionPosition() = (this % 16).inc16IfNegative()
 fun Float.toSectionPosition() = floor((this % 16).inc16IfNegative())
 
-data class SettingBlockEvent(val chunk: Chunk, val location: Float3, val chunkLocation: Float3, var isCancelled: Boolean = false): Event
-data class SetBlockEvent(val chunk: Chunk, val location: Float3, val chunkLocation: Float3): Event
+@OptIn(ExperimentalUuidApi::class)
+data class SettingBlockEvent(val chunk: Chunk, val location: Float3, val chunkLocation: Float3, var isCancelled: Boolean = false): Event {
+    companion object: Event.Data<SettingBlockEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(SettingBlockEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}
+
+@OptIn(ExperimentalUuidApi::class)
+data class SetBlockEvent(val chunk: Chunk, val location: Float3, val chunkLocation: Float3): Event {
+    companion object: Event.Data<SetBlockEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(SetBlockEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

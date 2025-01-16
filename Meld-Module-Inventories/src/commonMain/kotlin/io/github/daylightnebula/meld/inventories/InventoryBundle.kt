@@ -1,55 +1,51 @@
 package io.github.daylightnebula.meld.inventories
 
 import dev.romainguy.kotlin.math.Float3
+import io.github.daylightnebula.meld.inventories.PlayerCloseInventoryEvent
 import io.github.daylightnebula.meld.inventories.packets.*
 import io.github.daylightnebula.meld.inventories.utils.inventory
-import io.github.daylightnebula.meld.server.events.Event
-import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
-import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.player.Player
+import io.github.daylightnebula.meld.player.PlayerEntityInteractEvent
 import io.github.daylightnebula.meld.player.PlayerHand
 import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.server.PacketBundle
-import io.github.daylightnebula.meld.server.PacketHandler
-import io.github.daylightnebula.meld.server.events.EventHandler
-import io.github.daylightnebula.meld.server.javaGamePacket
+import io.github.daylightnebula.meld.server.events.Event
+import io.github.daylightnebula.meld.server.events.EventBus
+import io.github.daylightnebula.meld.server.javaPacket
 import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.utils.BlockFace
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class InventoryBundle: PacketBundle {
-    override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
+    override fun registerJavaPackets() =
         javaPackets(
-            javaGamePacket(0x36) to { JavaUseItemPacket() },
-            javaGamePacket(0x35) to { JavaUseItemOnPacket() },
-            javaGamePacket(0x2C) to { JavaSetSelectedSlotPacket() },
-            javaGamePacket(0x0E) to { JavaCloseInventoryPacket() },
-            javaGamePacket(0x2F) to { JavaCreativeModeSlotPacket() }
+            javaPacket(JavaUseItemPacket, this::onUseItem),
+            javaPacket(JavaUseItemOnPacket, this::onUseItemOn),
+            javaPacket(JavaSetSelectedSlotPacket, this::onSetSelectedSlot),
+            javaPacket(JavaCloseInventoryPacket, this::onCloseInventory),
+            javaPacket(JavaCreativeModeSlotPacket, this::onSetCreativeModeSlot)
         )
 
-    @PacketHandler
     fun onUseItem(connection: JavaConnection, packet: JavaUseItemPacket) =
         EventBus.callEvent(PlayerUseItemEvent(packet, connection.player))
 
-    @PacketHandler
     fun onUseItemOn(connection: JavaConnection, packet: JavaUseItemOnPacket) =
         EventBus.callEvent(PlayerUseItemEvent(packet, connection.player)) // todo differentiate
 
-    @PacketHandler
     fun onSetSelectedSlot(connection: JavaConnection, packet: JavaSetSelectedSlotPacket) {
         connection.player.inventory.selectedSlot = packet.slot
     }
 
-    @PacketHandler
     fun onCloseInventory(connection: JavaConnection, packet: JavaCloseInventoryPacket) =
         EventBus.callEvent(PlayerCloseInventoryEvent(connection.player, packet.inventoryID.toInt()))
 
-    @PacketHandler
     fun onSetCreativeModeSlot(connection: JavaConnection, packet: JavaCreativeModeSlotPacket) =
         connection.player.inventory.setItem(packet.slot, packet.itemContainer)
 }
 
+@OptIn(ExperimentalUuidApi::class)
 data class PlayerUseItemEvent(
     val player: Player,
     val hand: PlayerHand,
@@ -58,8 +54,22 @@ data class PlayerUseItemEvent(
     val cursorPosition: Float3?,
     val insideBlock: Boolean?,
 ): Event {
+    companion object: Event.Data<PlayerUseItemEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerUseItemEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
     constructor(packet: JavaUseItemPacket, player: Player): this(player, packet.hand, null, null, null, null)
     constructor(packet: JavaUseItemOnPacket, player: Player): this(player, packet.hand, packet.location, packet.face, packet.cursorPosition, packet.insideBlock)
 }
 
-data class PlayerCloseInventoryEvent(val player: Player, val inventoryID: Int): Event
+@OptIn(ExperimentalUuidApi::class)
+data class PlayerCloseInventoryEvent(val player: Player, val inventoryID: Int): Event {
+    companion object: Event.Data<PlayerCloseInventoryEvent> {
+        override val ID: Uuid = Uuid.random()
+        override val executors: MutableList<(PlayerCloseInventoryEvent) -> Unit> = mutableListOf()
+    }
+
+    override val ID: Uuid = Companion.ID
+}

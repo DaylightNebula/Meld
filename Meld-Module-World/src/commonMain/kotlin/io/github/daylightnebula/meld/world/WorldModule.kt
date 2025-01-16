@@ -6,7 +6,9 @@ import io.github.daylightnebula.meld.entities.EntityType
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.modules.MeldModule
 import kotlin.random.Random
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class WorldModule: MeldModule {
     private val testEntities = false
     private val numTestEntitiesPerChunk = 16
