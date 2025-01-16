@@ -14,10 +14,14 @@ import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, DelicateCoroutinesApi::class)
 open class Entity(
     val uid: Uuid = Uuid.random(),
     val id: Int = EntityController.nextID(),
@@ -30,7 +34,11 @@ open class Entity(
 ): IEntityMetadataParent {
 
     init {
-        EventBus.callEvent(EntitySpawnEvent(this))
+        val me = this
+        GlobalScope.launch {
+            delay(50)
+            EventBus.callEvent(EntitySpawnEvent(me))
+        }
     }
 
     // position of the entity

@@ -16,7 +16,7 @@ class JavaConnection(
 ): IConnection<JavaPacket> {
     var state: JavaConnectionState = JavaConnectionState.HANDSHAKE
         set(value) {
-            println("New connection state $value")
+//            println("New connection state $value")
             field = value
         }
 
