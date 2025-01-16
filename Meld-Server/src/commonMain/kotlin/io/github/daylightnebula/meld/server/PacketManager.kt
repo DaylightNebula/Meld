@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.server
 
+import io.github.daylightnebula.meld.server.PacketManager.packetListeners
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
@@ -8,9 +9,7 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.KType
-import kotlin.reflect.full.*
 
 annotation class PacketHandler
 
@@ -19,7 +18,8 @@ val JavaPacketRegistry = hashMapOf<Pair<Int, JavaConnectionState>, () -> JavaPac
 // singleton to handle incoming packets
 object PacketManager {
     // global list of all registered packet handlers
-    private val packetListeners = hashMapOf<KType, MutableList<Pair<PacketBundle, KFunction<*>>>>()
+    private val packetListeners = hashMapOf<KClass<*>, MutableList<>>()
+    typealias PACKET_CALLBACK = (IConnection) -> Unit
 
     // handle incoming java packets
     fun handleJavaPacket(connection: JavaConnection, packetID: Int, reader: AbstractReader) {
@@ -40,7 +40,7 @@ object PacketManager {
 
     // handle an incoming packet
     private fun <T: Any> handlePacket(connection: IConnection<T>, packet: T) =
-        packetListeners[packet::class.starProjectedType]?.forEach { it.second.call(it.first, connection, packet) }
+        packetListeners[packet::class]?.forEach { it.second.call(it.first, connection, packet) }
             ?: println("WARN not handling packet $packet")
 
     // add the given bundle to the list of handlers

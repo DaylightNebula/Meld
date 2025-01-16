@@ -16,7 +16,6 @@ kotlin {
     linuxX64()
 
     sourceSets["commonMain"].dependencies {
-        implementation(kotlin("stdlib-jdk8"))
         implementation(project(":Meld-Server"))
         implementation(project(":Meld-Module-Entities"))
         implementation(project(":Meld-Module-Player"))

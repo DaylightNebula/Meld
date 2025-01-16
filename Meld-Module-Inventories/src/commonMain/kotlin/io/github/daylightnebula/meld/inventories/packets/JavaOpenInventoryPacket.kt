@@ -5,12 +5,13 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noDecode
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 class JavaOpenInventoryPacket(
     var windowID: Int = 0,
     var windowType: InventoryType = InventoryType.GENERIC_9x1,
-    var title: JSONObject = JSONObject().put("text", "")
+    var title: JsonObject = JsonObject(mapOf("text" to JsonPrimitive("")))
 ): JavaPacket {
     override val id: Int = 0x31
     override fun decode(reader: AbstractReader) = noDecode()

@@ -5,9 +5,7 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.noEncode
 import io.github.daylightnebula.meld.server.utils.ItemContainer
-import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTReader
+import net.benwoodworth.knbt.NbtCompound
 
 class JavaCreativeModeSlotPacket(
     var slot: Int = 0,
@@ -29,10 +27,10 @@ class JavaCreativeModeSlotPacket(
         }
     }
 
-    fun readOptionalNBT(reader: AbstractReader): NBTCompound? {
+    fun readOptionalNBT(reader: AbstractReader): NbtCompound? {
         val data = reader.readArray(reader.remaining())
         return if (data.size == 1 && data.first() == (0x00).toByte()) null
-        else NBTReader(data, CompressedProcesser.NONE).read() as NBTCompound
+        else TODO() // NBTReader(data, CompressedProcesser.NONE).read() as NBTCompound
     }
 }
 

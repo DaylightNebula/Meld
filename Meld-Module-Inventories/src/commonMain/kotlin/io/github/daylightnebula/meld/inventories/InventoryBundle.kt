@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.inventories
 
+import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.inventories.packets.*
 import io.github.daylightnebula.meld.inventories.utils.inventory
 import io.github.daylightnebula.meld.server.events.Event
@@ -16,8 +17,6 @@ import io.github.daylightnebula.meld.server.javaGamePacket
 import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.utils.BlockFace
-import org.cloudburstmc.math.vector.Vector3f
-import org.cloudburstmc.math.vector.Vector3i
 
 class InventoryBundle: PacketBundle {
     override fun registerJavaPackets(): HashMap<Pair<Int, JavaConnectionState>, () -> JavaPacket> =
@@ -54,9 +53,9 @@ class InventoryBundle: PacketBundle {
 data class PlayerUseItemEvent(
     val player: Player,
     val hand: PlayerHand,
-    val location: Vector3i?,
+    val location: Float3?,
     val face: BlockFace?,
-    val cursorPosition: Vector3f?,
+    val cursorPosition: Float3?,
     val insideBlock: Boolean?,
 ): Event {
     constructor(packet: JavaUseItemPacket, player: Player): this(player, packet.hand, null, null, null, null)

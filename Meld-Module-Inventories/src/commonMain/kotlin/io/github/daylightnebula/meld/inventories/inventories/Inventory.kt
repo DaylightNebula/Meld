@@ -7,13 +7,12 @@ import io.github.daylightnebula.meld.inventories.packets.JavaOpenInventoryPacket
 import io.github.daylightnebula.meld.inventories.packets.JavaSetInventoryContentPacket
 import io.github.daylightnebula.meld.inventories.packets.JavaSetItemPacket
 import io.github.daylightnebula.meld.player.Player
-import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.utils.ItemContainer
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 class Inventory(
     val type: InventoryType,
@@ -33,12 +32,12 @@ class Inventory(
         // send open packets
         val connection = player.connection
         val javaPackets = arrayOf(
-            JavaOpenInventoryPacket(1, type, JSONObject().put("text", title)),
+            JavaOpenInventoryPacket(1, type, JsonObject(mapOf("text" to JsonPrimitive(title)))),
             JavaSetInventoryContentPacket(1u, 0, slots, null),
         )
         when(connection) {
             is JavaConnection -> for (packet in javaPackets) connection.sendPacket(packet)
-            is BedrockConnection -> NeedsBedrock()
+//          BEDROCK  is BedrockConnection -> NeedsBedrock()
         }
 
         // send event
@@ -58,7 +57,7 @@ class Inventory(
         val javaPacket = JavaCloseInventoryPacket(1u)
         when (connection) {
             is JavaConnection -> connection.sendPacket(javaPacket)
-            is BedrockConnection -> NeedsBedrock()
+//          BEDROCK  is BedrockConnection -> NeedsBedrock()
         }
     }
 
@@ -88,7 +87,7 @@ class Inventory(
         watchers.forEach {
             when (val connection = it.connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
-                is BedrockConnection -> NeedsBedrock()
+//              BEDROCK  is BedrockConnection -> NeedsBedrock()
             }
         }
     }

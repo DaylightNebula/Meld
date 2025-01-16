@@ -7,9 +7,6 @@ import io.github.daylightnebula.meld.inventories.packets.JavaSetInventoryContent
 import io.github.daylightnebula.meld.inventories.packets.JavaSetItemPacket
 import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.NeedsBedrock
-import io.github.daylightnebula.meld.server.events.Event
-import io.github.daylightnebula.meld.server.events.EventBus
-import io.github.daylightnebula.meld.server.networking.bedrock.BedrockConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 
@@ -36,7 +33,7 @@ interface EntityInventory: BaseInventory {
             val player = (entity as Player).connection
             when (player) {
                 is JavaConnection -> player.sendPacket(javaPacket)
-                is BedrockConnection -> NeedsBedrock()
+//              BEDROCK  is BedrockConnection -> NeedsBedrock()
             }
         }
     }
@@ -55,7 +52,7 @@ interface EntityInventory: BaseInventory {
         entity.getWatchers().forEach { connection ->
             when (connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)
-                is BedrockConnection -> NeedsBedrock()
+//              BEDROCK  is BedrockConnection -> NeedsBedrock()
             }
         }
     }

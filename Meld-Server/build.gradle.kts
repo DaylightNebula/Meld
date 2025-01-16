@@ -19,18 +19,28 @@ kotlin {
     jvm()
     linuxX64()
 
-    sourceSets["commonMain"].dependencies {
-        // kotlin
-        implementation(kotlin("stdlib-jdk8"))
-        api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-        implementation("dev.romainguy:kotlin-math:1.6.0")
-        implementation("com.squareup.okio:okio:3.3.0")
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                // kotlin
+                implementation(kotlin("stdlib-jdk8"))
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+                implementation("dev.romainguy:kotlin-math:1.6.0")
+                implementation("com.squareup.okio:okio:3.10.0")
 
-        // networking
-        implementation("io.ktor:ktor-network-tls:3.0.3")
-        implementation("io.ktor:ktor-server-core:3.0.3")
-        implementation("io.ktor:ktor-server-cio:3.0.3")
-        implementation("ch.qos.logback:logback-classic:1.2.11")
+                // networking
+                implementation("io.ktor:ktor-network-tls:3.0.3")
+                implementation("io.ktor:ktor-server-core:3.0.3")
+                implementation("io.ktor:ktor-server-cio:3.0.3")
+                implementation("ch.qos.logback:logback-classic:1.2.11")
+            }
+        }
+
+        val jvmMain by getting {
+            dependencies {
+                implementation("com.squareup.okio:okio-jvm:3.3.0")
+            }
+        }
     }
 }
