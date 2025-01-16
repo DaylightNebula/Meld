@@ -13,7 +13,7 @@ data class JavaUpdateEntityPositionPacket(
     var delta: Float3 = Float3(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x2F
+    override val OUTGOING_ID: Int = 0x2F
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)
@@ -30,7 +30,7 @@ data class JavaUpdateEntityPositionAndRotationPacket(
     var rotation: Float2 = Float2(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x30
+    override val OUTGOING_ID: Int = 0x30
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)
@@ -48,7 +48,7 @@ data class JavaUpdateEntityRotationPacket(
     var rotation: Float2 = Float2(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x32
+    override val OUTGOING_ID: Int = 0x32
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)
@@ -62,7 +62,7 @@ data class JavaUpdateHeadYawPacket(
     var entityID: Int = 0,
     var yaw: Float = 0f
 ): JavaPacket {
-    override val id: Int = 0x46
+    override val OUTGOING_ID: Int = 0x46
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)

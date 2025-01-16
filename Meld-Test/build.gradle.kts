@@ -23,7 +23,7 @@ kotlin {
 
     sourceSets["commonMain"].dependencies {
         implementation(project(":Meld-Server"))
-//        implementation(project(":Meld-Module-Entities"))
+        implementation(project(":Meld-Module-Entities"))
 //        implementation(project(":Meld-Module-Player"))
         implementation(project(":Meld-Module-Login"))
 //        implementation(project(":Meld-Module-Inventories"))

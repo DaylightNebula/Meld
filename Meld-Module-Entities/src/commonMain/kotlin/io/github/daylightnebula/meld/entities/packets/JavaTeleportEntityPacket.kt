@@ -15,7 +15,7 @@ class JavaTeleportEntityPacket(
     var rotation: Float2 = Float2(),
     var onGround: Boolean = false
 ): JavaPacket {
-    override val id: Int = 0x20
+    override val OUTGOING_ID: Int = 0x20
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)

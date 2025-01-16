@@ -11,7 +11,7 @@ class JavaSpawnExpOrbPacket(
     var position: Float3 = Float3(),
     var count: Short = 0
 ): JavaPacket {
-    override val id: Int = 0x02
+    override val OUTGOING_ID: Int = 0x02
     override fun decode(reader: AbstractReader) = noDecode()
     override fun encode(writer: ByteWriter) {
         writer.writeVarInt(entityID)

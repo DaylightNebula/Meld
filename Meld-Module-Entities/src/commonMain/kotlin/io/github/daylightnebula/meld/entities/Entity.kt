@@ -3,14 +3,11 @@ package io.github.daylightnebula.meld.entities
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.length
-import io.github.daylightnebula.meld.entities.EntityMoveEvent
-import io.github.daylightnebula.meld.entities.EntityRotateEvent
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
 import io.github.daylightnebula.meld.entities.metadata.IEntityMetadataParent
 import io.github.daylightnebula.meld.entities.metadata.entityMetadata
 import io.github.daylightnebula.meld.entities.packets.*
-import io.github.daylightnebula.meld.server.NeedsBedrock
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
@@ -23,8 +20,9 @@ import kotlin.concurrent.thread
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 open class Entity(
-    val uid: UUID = UUID.randomUUID(),
+    val uid: Uuid = Uuid.random(),
     val id: Int = EntityController.nextID(),
     val type: EntityType = EntityType.ARROW,
     val metadata: EntityMetadata = entityMetadata(),
@@ -35,7 +33,7 @@ open class Entity(
 ): IEntityMetadataParent {
 
     init {
-        thread { sleep(1); EventBus.callEvent(EntitySpawnEvent(this)) }
+        EventBus.callEvent(EntitySpawnEvent(this))
     }
 
     // position of the entity
