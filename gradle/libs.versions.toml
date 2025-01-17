@@ -8,8 +8,8 @@ okio = "3.10.0"
 
 [libraries]
 ktor-network-tls = { group = "io.ktor", name = "ktor-network-tls", version.ref = "ktor" }
-ktor-server-core = { group = "io.ktor", name = "ktor-network-tls", version.ref = "ktor" }
-ktor-server-cio = { group = "io.ktor", name = "ktor-network-tls", version.ref = "ktor" }
+ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
+ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "ktor" }
 
 [bundles]
 ktor = ["ktor-network-tls", "ktor-server-core", "ktor-server-cio"]
