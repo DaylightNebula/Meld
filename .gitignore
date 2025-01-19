@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 /modules
 /test-world
+/decompiler
 
 ### STS ###
 .apt_generated
