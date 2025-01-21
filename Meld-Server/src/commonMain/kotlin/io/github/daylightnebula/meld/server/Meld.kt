@@ -5,6 +5,8 @@ import io.github.daylightnebula.meld.server.modules.MeldModule
 import io.github.daylightnebula.meld.server.modules.ModuleLoader
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.*
+import io.github.daylightnebula.meld.server.networking.java.generated.ServerConfigurationKeepAlive
+import io.github.daylightnebula.meld.server.networking.java.generated.ServerPlayKeepAlive
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -18,6 +20,7 @@ import net.benwoodworth.knbt.*
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.SYSTEM
+import kotlin.random.Random
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -92,8 +95,8 @@ val keepAliveThread = GlobalScope.launch {
                             JavaConnectionState.HANDSHAKE -> {}
                             JavaConnectionState.STATUS -> {}
                             JavaConnectionState.LOGIN -> {}
-                            JavaConnectionState.CONFIG -> it.sendPacket(JavaConfigKeepAlivePacket())
-                            JavaConnectionState.IN_GAME -> it.sendPacket(JavaPlayKeepAlivePacket())
+                            JavaConnectionState.CONFIG -> it.sendPacket(ServerConfigurationKeepAlive(Random.nextLong()))
+                            JavaConnectionState.IN_GAME -> it.sendPacket(ServerPlayKeepAlive(Random.nextLong()))
                         }
                     }
                 }

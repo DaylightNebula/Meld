@@ -4,15 +4,19 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import kotlinx.serialization.json.JsonObject
+import net.benwoodworth.knbt.NbtCompound
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ServerHandshakingIntention(
-	nextState: VarInt
+	nextState: Int
 ): JavaPacket {
     companion object: JavaPacket.Creator<ServerHandshakingIntention> {
         override val ID: Int = 0x00
         override val STATE: JavaConnectionState = JavaConnectionState.HANDSHAKE
         override fun decode(reader: AbstractReader): ServerHandshakingIntention = ServerHandshakingIntention(
-			nextState = reader.readInt()
+			nextState = reader.readVarInt()
 		)
     }
     

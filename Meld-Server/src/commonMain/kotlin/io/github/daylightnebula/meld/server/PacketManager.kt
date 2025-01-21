@@ -70,7 +70,7 @@ fun javaPackets(
 fun <T: JavaPacket> javaPacket(
     creator: JavaPacket.Creator<T>,
     execute: (JavaConnection, T) -> Unit
-) = javaPacket(creator.INCOMING_ID, creator.STATE, creator, execute)
+) = javaPacket(creator.ID, creator.STATE, creator, execute)
 
 fun <T: JavaPacket> javaPacket(
     id: Int,

@@ -10,6 +10,9 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import kotlinx.serialization.json.JsonObject
+import net.benwoodworth.knbt.NbtCompound
+import kotlin.uuid.Uuid
 """
 
 
@@ -62,8 +65,8 @@ def get_kt_type(type: str, mc_pref: bool, name: str) -> str:
         case "Double":
             return "Double"
         case "NBT":
-            if mc_pref: return "Angle"
-            else: return "Float"
+            if mc_pref: return "NBT"
+            else: return "NbtCompound"
         case "Position":
             if mc_pref: return "Position"
             else: return "Float3"
@@ -72,7 +75,8 @@ def get_kt_type(type: str, mc_pref: bool, name: str) -> str:
         case "ExplosionData":
             return "ExplosionData"
         case "Angle":
-            return "Angle"
+            if mc_pref: return "Angle"
+            else: return "Float"
         case "ByteArray":
             return "ByteArray"
         case "PlayerInfoUpdateData":
@@ -108,7 +112,9 @@ def get_kt_type(type: str, mc_pref: bool, name: str) -> str:
         case "LoginEntry":
             return "LoginEntry"
         case "Optional":
-            return f"{get_kt_type(' '.join(tokens[1:]), mc_pref, name)}?"
+            next = get_kt_type(' '.join(tokens[1:]), mc_pref, name)
+            if mc_pref: return next
+            else: return f"{next}?"
         case "Array":
             return f"Array<{get_kt_type(' '.join(tokens[1:]), mc_pref, name)}>"
         case _:
@@ -131,7 +137,7 @@ def build_script_file(entry: processor.PacketTableEntry):
         case "Login":
             state = "LOGIN"
         case "Play":
-            state = "PLAY"
+            state = "IN_GAME"
         case _:
             raise Exception(f"No state {entry.state} registered!")
 
@@ -144,7 +150,7 @@ def build_script_file(entry: processor.PacketTableEntry):
     for element in entry.content:
         # convert type
         name = to_lower_camel_case(element.name)
-        type = get_kt_type(element.type, True, entry.name)
+        type = get_kt_type(element.type, False, entry.name)
         params.append(f"{name}: {type}")
     if len(params) > 0:
         rendered_params = "\n\t" + ",\n\t".join(params) + "\n"
@@ -154,7 +160,7 @@ def build_script_file(entry: processor.PacketTableEntry):
     construct = []
     for element in entry.content:
         name = to_lower_camel_case(element.name)
-        type = get_kt_type(element.type, False, entry.name)
+        type = get_kt_type(element.type, True, entry.name)
         construct.append(f"{name} = reader.read{type}()")
     if len(construct) > 0:
         rendered_construct = "\n\t\t\t" + ",\n\t\t\t".join(construct) + "\n\t\t"
@@ -163,6 +169,7 @@ def build_script_file(entry: processor.PacketTableEntry):
 
     # build and write final file
     file.write(f"""{kt_header}
+@OptIn(ExperimentalUuidApi::class)
 class {class_name}({rendered_params}): JavaPacket {{
     companion object: JavaPacket.Creator<{class_name}> {{
         override val ID: Int = {entry.id}

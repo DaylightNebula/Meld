@@ -4,15 +4,19 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import kotlinx.serialization.json.JsonObject
+import net.benwoodworth.knbt.NbtCompound
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ClientPlaySectionBlocksUpdate(
-	blocks: Array<VarLong>
+	blocks: Array<Long>
 ): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlaySectionBlocksUpdate> {
         override val ID: Int = 0x4E
-        override val STATE: JavaConnectionState = JavaConnectionState.PLAY
+        override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
         override fun decode(reader: AbstractReader): ClientPlaySectionBlocksUpdate = ClientPlaySectionBlocksUpdate(
-			blocks = reader.readArray<Long>()
+			blocks = reader.readArray<VarLong>()
 		)
     }
     

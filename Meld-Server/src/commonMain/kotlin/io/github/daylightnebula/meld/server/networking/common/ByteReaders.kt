@@ -2,11 +2,13 @@ package io.github.daylightnebula.meld.server.networking.common
 
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.java
+import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.readFloat
+import kotlinx.serialization.json.JsonObject
 import okio.Buffer
 import kotlin.experimental.and
 import kotlin.uuid.ExperimentalUuidApi
@@ -80,12 +82,18 @@ abstract class AbstractReader {
         return Float3(x, y, z)
     }
 
+    fun readByteArray() = readArray(remaining())
+
     // complex object reads
     fun readString(): String = String(readArray(readVarInt()))
     fun readShortString(): String = String(readArray(readUShort().toInt()))
 
+    fun readJsonObject(): JsonObject = meldJson.decodeFromString(readString())
+
     @OptIn(ExperimentalUuidApi::class)
     fun readUUID(): Uuid = Uuid.fromLongs(readLong(), readLong())
+
+    // todo read NBT
 }
 
 class ChannelReader(val channel: ByteReadChannel): AbstractReader() {

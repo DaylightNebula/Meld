@@ -4,13 +4,17 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import kotlinx.serialization.json.JsonObject
+import net.benwoodworth.knbt.NbtCompound
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ClientPlayEntityEvent(
 	entityStatus: Byte
 ): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlayEntityEvent> {
         override val ID: Int = 0x1F
-        override val STATE: JavaConnectionState = JavaConnectionState.PLAY
+        override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
         override fun decode(reader: AbstractReader): ClientPlayEntityEvent = ClientPlayEntityEvent(
 			entityStatus = reader.readByte()
 		)

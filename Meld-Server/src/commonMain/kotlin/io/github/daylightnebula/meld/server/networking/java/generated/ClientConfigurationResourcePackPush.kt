@@ -4,7 +4,11 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import kotlinx.serialization.json.JsonObject
+import net.benwoodworth.knbt.NbtCompound
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ClientConfigurationResourcePackPush(
 	promptMessage: JsonObject?
 ): JavaPacket {
@@ -12,7 +16,7 @@ class ClientConfigurationResourcePackPush(
         override val ID: Int = 0x09
         override val STATE: JavaConnectionState = JavaConnectionState.CONFIG
         override fun decode(reader: AbstractReader): ClientConfigurationResourcePackPush = ClientConfigurationResourcePackPush(
-			promptMessage = reader.readJsonObject?()
+			promptMessage = reader.readJsonObject()
 		)
     }
     

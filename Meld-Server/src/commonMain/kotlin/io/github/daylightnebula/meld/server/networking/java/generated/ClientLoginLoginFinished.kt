@@ -4,7 +4,11 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import kotlinx.serialization.json.JsonObject
+import net.benwoodworth.knbt.NbtCompound
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ClientLoginLoginFinished(
 	signature: String?
 ): JavaPacket {
@@ -12,7 +16,7 @@ class ClientLoginLoginFinished(
         override val ID: Int = 0x02
         override val STATE: JavaConnectionState = JavaConnectionState.LOGIN
         override fun decode(reader: AbstractReader): ClientLoginLoginFinished = ClientLoginLoginFinished(
-			signature = reader.readString?()
+			signature = reader.readString()
 		)
     }
     

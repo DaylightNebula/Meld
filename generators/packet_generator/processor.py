@@ -110,9 +110,14 @@ def convert_table_to_entry(table: list[str]) -> PacketTableEntry:
             else:
                 type = cluster[-2][2:]
 
+        # decode name
+        entry_name = cluster[-3][2:].split("|")[-1]
+        if entry_name[-1] == "?":
+            entry_name = entry_name[:-1]
+
         # add entry
         entries.append(PacketElement(
-            name = cluster[-3][2:].split("|")[-1],
+            name = entry_name,
             type = type,
             notes = cluster[-1]
         ))
