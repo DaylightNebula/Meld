@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ClientPlayForgetLevelChunk: JavaPacket {
+class ClientPlayForgetLevelChunk(
+	chunkX: Int
+): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlayForgetLevelChunk> {
         override val ID: Int = 0x22
         override val STATE: JavaConnectionState = JavaConnectionState.PLAY
-        override fun create(): ClientPlayForgetLevelChunk = ClientPlayForgetLevelChunk()
+        override fun decode(reader: AbstractReader): ClientPlayForgetLevelChunk = ClientPlayForgetLevelChunk(
+			chunkX = reader.readInt()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

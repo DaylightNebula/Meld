@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ClientConfigurationResourcePackPop: JavaPacket {
+class ClientConfigurationResourcePackPop(
+	uuid: Uuid?
+): JavaPacket {
     companion object: JavaPacket.Creator<ClientConfigurationResourcePackPop> {
         override val ID: Int = 0x08
         override val STATE: JavaConnectionState = JavaConnectionState.CONFIG
-        override fun create(): ClientConfigurationResourcePackPop = ClientConfigurationResourcePackPop()
+        override fun decode(reader: AbstractReader): ClientConfigurationResourcePackPop = ClientConfigurationResourcePackPop(
+			uuid = reader.readUuid?()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

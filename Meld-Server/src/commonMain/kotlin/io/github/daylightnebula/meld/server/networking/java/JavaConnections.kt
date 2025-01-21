@@ -15,15 +15,10 @@ class JavaConnection(
     val write: ByteWriteChannel,
 ): IConnection<JavaPacket> {
     var state: JavaConnectionState = JavaConnectionState.HANDSHAKE
-        set(value) {
-//            println("New connection state $value")
-            field = value
-        }
 
     override fun sendPacket(packet: JavaPacket) {
         // create writer
-        val writer = ByteWriter(packet.OUTGOING_ID, DataPacketMode.JAVA)
-//        println("Sending ${packet.OUTGOING_ID} - ${packet::class.simpleName}")
+        val writer = ByteWriter(packet.ID, DataPacketMode.JAVA)
 
         // encode packet
         packet.encode(writer)
@@ -56,11 +51,10 @@ interface JavaPacket {
     interface Creator<T: JavaPacket> {
         val ID: Int
         val STATE: JavaConnectionState
-        fun create(): T
+        fun decode(reader: AbstractReader): T
     }
 
     val ID: Int
     val STATE: JavaConnectionState
-    fun decode(reader: AbstractReader)
     fun encode(writer: ByteWriter)
 }

@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ClientLoginCookieRequest: JavaPacket {
+class ClientLoginCookieRequest(
+	key: String
+): JavaPacket {
     companion object: JavaPacket.Creator<ClientLoginCookieRequest> {
         override val ID: Int = 0x05
         override val STATE: JavaConnectionState = JavaConnectionState.LOGIN
-        override fun create(): ClientLoginCookieRequest = ClientLoginCookieRequest()
+        override fun decode(reader: AbstractReader): ClientLoginCookieRequest = ClientLoginCookieRequest(
+			key = reader.readString()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

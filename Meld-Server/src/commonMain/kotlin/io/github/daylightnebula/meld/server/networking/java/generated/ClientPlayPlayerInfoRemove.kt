@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ClientPlayPlayerInfoRemove: JavaPacket {
+class ClientPlayPlayerInfoRemove(
+	uuids: Array<Uuid>
+): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlayPlayerInfoRemove> {
         override val ID: Int = 0x3F
         override val STATE: JavaConnectionState = JavaConnectionState.PLAY
-        override fun create(): ClientPlayPlayerInfoRemove = ClientPlayPlayerInfoRemove()
+        override fun decode(reader: AbstractReader): ClientPlayPlayerInfoRemove = ClientPlayPlayerInfoRemove(
+			uuids = reader.readArray<Uuid>()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

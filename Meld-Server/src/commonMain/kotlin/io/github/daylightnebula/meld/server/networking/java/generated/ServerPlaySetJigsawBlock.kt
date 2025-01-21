@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ServerPlaySetJigsawBlock: JavaPacket {
+class ServerPlaySetJigsawBlock(
+	placementPriority: VarInt
+): JavaPacket {
     companion object: JavaPacket.Creator<ServerPlaySetJigsawBlock> {
         override val ID: Int = 0x37
         override val STATE: JavaConnectionState = JavaConnectionState.PLAY
-        override fun create(): ServerPlaySetJigsawBlock = ServerPlaySetJigsawBlock()
+        override fun decode(reader: AbstractReader): ServerPlaySetJigsawBlock = ServerPlaySetJigsawBlock(
+			placementPriority = reader.readInt()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

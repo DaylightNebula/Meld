@@ -389,8 +389,7 @@ See [[Minecraft Wiki:Projects/wiki.vg merge/Protocol Encryption|Protocol Encrypt
  |-
  | rowspan="3"| Property
  | Name
- | rowspan="3"| {{Type|Prefixed Array}} (16)
- | {{Type|String}} (64)
+ | rowspan="3"| {{Type|Prefixed Array}} of {{Type|LoginEntry}}
  | colspan="2"|
  |-
  | Value
@@ -3143,7 +3142,7 @@ Sent when an explosion occurs (creepers, TNT, and ghast fireballs).
  | The particle ID listed in [[Minecraft Wiki:Projects/wiki.vg merge/Particles|Particles]].
  |-
  | Explosion Particle Data
- | Varies
+ | {{Type|ExplosionData}}
  | Particle data as specified in [[Minecraft Wiki:Projects/wiki.vg merge/Particles|Particles]].
  |-
  | Explosion Sound
@@ -3891,7 +3890,7 @@ Displays the named particle
  | The particle ID listed in [[Minecraft Wiki:Projects/wiki.vg merge/Particles|Particles]].
  |-
  | Data
- | Varies
+ | {{Type|ParticleData}}
  | Particle data as specified in [[Minecraft Wiki:Projects/wiki.vg merge/Particles|Particles]].
  |}
 
@@ -4938,7 +4937,7 @@ Sent by the server to update the user list (<tab> in the client).
  | The player UUID
  |-
  | Player Actions
- | {{Type|Array}} of [[#player-info:player-actions|Player&nbsp;Actions]]
+ | {{Type|Array}} of {{Type|PlayerInfoUpdateData}}
  | The length of this array is determined by the number of [[#player-info:player-actions|Player Actions]] that give a non-zero value when applying its mask to the actions flag. For example given the decimal number 5, binary 00000101. The masks 0x01 and 0x04 would return a non-zero value, meaning the Player Actions array would include two actions: Add Player and Update Game Mode.
  |}
 
@@ -5147,7 +5146,7 @@ Pitch is measured in degrees, where 0 is looking straight ahead, -90 is looking 
  | Absolute or relative rotation on the Y axis, in degrees.
  |-
  | Flags
- | {{Type|Teleport Flags}}
+ | {{Type|Int}}
  |
  |}
 
@@ -5908,7 +5907,7 @@ Updates one or more [[Minecraft Wiki:Projects/wiki.vg merge/Entity_metadata#Enti
  |
  |-
  | Metadata
- | [[Minecraft Wiki:Projects/wiki.vg merge/Entity_metadata#Entity Metadata Format|Entity Metadata]]
+ | {{Type|EntityMetadata}}
  |
  |}
 
@@ -5987,8 +5986,7 @@ Velocity is in units of 1/8000 of a block per server tick (50ms); for example, -
  |-
  | rowspan="2"| Equipment
  | Slot
- | rowspan="2"| {{Type|Array}}
- | {{Type|Byte}} {{Type|Enum}}
+ | rowspan="2"| {{Type|Array}} of {{Type|Byte}}
  | rowspan="2"| The length of the array is unknown, it must be read until the most significant bit is 1 ((Slot >>> 7 & 1) == 1)
  | Equipment slot (see below).  Also has the top bit set if another entry follows, and otherwise unset if this is the last item in the array.
  |-
@@ -7880,7 +7878,7 @@ This packet is sent by the client when the player clicks on a slot in a window.
  | New data for this slot, in the client's opinion; see below.
  |-
  | colspan="2"| Carried item
- | colspan="2"| [[Minecraft Wiki:Projects/wiki.vg merge/Slot Data|Slot]]
+ | colspan="2"| {{Type|Slot}}
  | Item carried by the cursor. Has to be empty (item ID = -1) for drop mode, otherwise nothing will happen.
  |}
 

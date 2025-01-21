@@ -5,15 +5,16 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ServerLoginLoginAcknowledged: JavaPacket {
+class ServerLoginLoginAcknowledged(): JavaPacket {
     companion object: JavaPacket.Creator<ServerLoginLoginAcknowledged> {
         override val ID: Int = 0x03
         override val STATE: JavaConnectionState = JavaConnectionState.LOGIN
-        override fun create(): ServerLoginLoginAcknowledged = ServerLoginLoginAcknowledged()
+        override fun decode(reader: AbstractReader): ServerLoginLoginAcknowledged = ServerLoginLoginAcknowledged()
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ServerLoginCustomQueryAnswer: JavaPacket {
+class ServerLoginCustomQueryAnswer(
+	data: ByteArray?
+): JavaPacket {
     companion object: JavaPacket.Creator<ServerLoginCustomQueryAnswer> {
         override val ID: Int = 0x02
         override val STATE: JavaConnectionState = JavaConnectionState.LOGIN
-        override fun create(): ServerLoginCustomQueryAnswer = ServerLoginCustomQueryAnswer()
+        override fun decode(reader: AbstractReader): ServerLoginCustomQueryAnswer = ServerLoginCustomQueryAnswer(
+			data = reader.readByteArray?()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

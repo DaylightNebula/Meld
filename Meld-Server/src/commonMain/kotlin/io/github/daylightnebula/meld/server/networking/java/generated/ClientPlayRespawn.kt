@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ClientPlayRespawn: JavaPacket {
+class ClientPlayRespawn(
+	normalRespawns(afterDeath)KeepNoData;: Byte
+): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlayRespawn> {
         override val ID: Int = 0x47
         override val STATE: JavaConnectionState = JavaConnectionState.PLAY
-        override fun create(): ClientPlayRespawn = ClientPlayRespawn()
+        override fun decode(reader: AbstractReader): ClientPlayRespawn = ClientPlayRespawn(
+			normalRespawns(afterDeath)KeepNoData; = reader.readByte()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ClientConfigurationDisconnect: JavaPacket {
+class ClientConfigurationDisconnect(
+	reason: JsonObject
+): JavaPacket {
     companion object: JavaPacket.Creator<ClientConfigurationDisconnect> {
         override val ID: Int = 0x02
         override val STATE: JavaConnectionState = JavaConnectionState.CONFIG
-        override fun create(): ClientConfigurationDisconnect = ClientConfigurationDisconnect()
+        override fun decode(reader: AbstractReader): ClientConfigurationDisconnect = ClientConfigurationDisconnect(
+			reason = reader.readJsonObject()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

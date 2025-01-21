@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ClientPlayChunkBatchFinished: JavaPacket {
+class ClientPlayChunkBatchFinished(
+	batchSize: VarInt
+): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlayChunkBatchFinished> {
         override val ID: Int = 0x0C
         override val STATE: JavaConnectionState = JavaConnectionState.PLAY
-        override fun create(): ClientPlayChunkBatchFinished = ClientPlayChunkBatchFinished()
+        override fun decode(reader: AbstractReader): ClientPlayChunkBatchFinished = ClientPlayChunkBatchFinished(
+			batchSize = reader.readInt()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

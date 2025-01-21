@@ -1,3 +1,4 @@
+import itertools
 import os
 import re
 from dataclasses import dataclass
@@ -70,41 +71,48 @@ def convert_table_to_entry(table: list[str]) -> PacketTableEntry:
     # cluster lines
     clusters: list[list[str]] = []
     cluster: list[str] = []
+    ignore_fields = False
     for line in table:
         if line.startswith("|-"):
             clusters.append(cluster)
             cluster = []
         else:
+            if "no fields" in line:
+                ignore_fields = True
             cluster.append(line)
     clusters.append(cluster)
 
     # build entries
     entries: list[PacketElement] = []
-    for idx, cluster in enumerate(clusters[1:]):
-        if '||' in cluster[0]:
-            cluster = cluster[0].split("||")
+    if not ignore_fields:
+        for idx, cluster in enumerate(clusters[1:]):
+            if '||' in cluster[0]:
+                cluster = cluster[0].split("||")
 
-        # filter
-        if "no fields" in cluster[-1]: continue
-        if "See below" in cluster[-2]: continue
-        if len(cluster) <= 3 and "| rowspan=" in cluster[0]: continue
+            # filter
+            if "See below" in cluster[-2]: continue
+            if len(cluster) <= 3 and "| rowspan=" in cluster[0]: continue
 
-        # stop if we return to ! lines
-        if cluster[0].startswith("! "): break
+            # stop if we return to ! lines
+            if cluster[0].startswith("! "): break
 
-        # make sure we have enough lines
-        if len(cluster) < 3: cluster.append("|")
+            # make sure we have enough lines
+            if len(cluster) < 3: cluster.append("|")
 
-        # decode type
-        type_tokens = [s for s in cluster if "| {{Type" in s]
-        if len(type_tokens) > 0:
-            type = re.findall(r"\{\{Type\|(.*?)\}\}", type_tokens[0])[0]
-        else:
-            type = cluster[-2][2:]
+            # decode type
+            type_tokens = [s for s in cluster if "| {{Type" in s]
+            if len(type_tokens) > 0:
+                tokens = re.findall(r"\{\{Type\|(.*?)\}\}", type_tokens[0])
+                if len(tokens) > 1:
+                    type = f"{tokens[0]} {tokens[1]}"
+                else:
+                    type = tokens[0]
+            else:
+                type = cluster[-2][2:]
 
         # add entry
         entries.append(PacketElement(
-            name = cluster[-3][2:],
+            name = cluster[-3][2:].split("|")[-1],
             type = type,
             notes = cluster[-1]
         ))

@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ServerPlayMovePlayerRot: JavaPacket {
+class ServerPlayMovePlayerRot(
+	flags: Byte
+): JavaPacket {
     companion object: JavaPacket.Creator<ServerPlayMovePlayerRot> {
         override val ID: Int = 0x1E
         override val STATE: JavaConnectionState = JavaConnectionState.PLAY
-        override fun create(): ServerPlayMovePlayerRot = ServerPlayMovePlayerRot()
+        override fun decode(reader: AbstractReader): ServerPlayMovePlayerRot = ServerPlayMovePlayerRot(
+			flags = reader.readByte()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

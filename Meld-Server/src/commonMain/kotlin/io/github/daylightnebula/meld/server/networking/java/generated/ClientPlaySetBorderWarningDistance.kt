@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ClientPlaySetBorderWarningDistance: JavaPacket {
+class ClientPlaySetBorderWarningDistance(
+	warningBlocks: VarInt
+): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlaySetBorderWarningDistance> {
         override val ID: Int = 0x56
         override val STATE: JavaConnectionState = JavaConnectionState.PLAY
-        override fun create(): ClientPlaySetBorderWarningDistance = ClientPlaySetBorderWarningDistance()
+        override fun decode(reader: AbstractReader): ClientPlaySetBorderWarningDistance = ClientPlaySetBorderWarningDistance(
+			warningBlocks = reader.readInt()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

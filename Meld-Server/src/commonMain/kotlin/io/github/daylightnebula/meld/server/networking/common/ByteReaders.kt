@@ -81,7 +81,7 @@ abstract class AbstractReader {
     }
 
     // complex object reads
-    fun readVarString(): String = String(readArray(readVarInt()))
+    fun readString(): String = String(readArray(readVarInt()))
     fun readShortString(): String = String(readArray(readUShort().toInt()))
 
     @OptIn(ExperimentalUuidApi::class)

@@ -5,15 +5,20 @@ import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 
-class ServerPlayTeleportToEntity: JavaPacket {
+class ServerPlayTeleportToEntity(
+	targetPlayer: Uuid
+): JavaPacket {
     companion object: JavaPacket.Creator<ServerPlayTeleportToEntity> {
         override val ID: Int = 0x3B
         override val STATE: JavaConnectionState = JavaConnectionState.PLAY
-        override fun create(): ServerPlayTeleportToEntity = ServerPlayTeleportToEntity()
+        override fun decode(reader: AbstractReader): ServerPlayTeleportToEntity = ServerPlayTeleportToEntity(
+			targetPlayer = reader.readUuid()
+		)
     }
     
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
-    override fun encode(writer: ByteWriter) {}
-    override fun decode(writer: AbstractReader) {}
+    
+    override fun encode(writer: ByteWriter) {
+    }
 }

@@ -22,8 +22,7 @@ data class JavaPacketEntry<T: JavaPacket>(
     val execute: (JavaConnection, T) -> Unit
 ) {
     fun buildAndExecute(connection: JavaConnection, reader: AbstractReader) {
-        val packet = creator.create()
-        packet.decode(reader)
+        val packet = creator.decode(reader)
         execute.invoke(connection, packet)
     }
 }
