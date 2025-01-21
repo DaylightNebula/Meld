@@ -54,12 +54,13 @@ enum class JavaConnectionState { HANDSHAKE, STATUS, LOGIN, CONFIG, IN_GAME }
 // representation of a java packet that can be sent too and from users
 interface JavaPacket {
     interface Creator<T: JavaPacket> {
-        val INCOMING_ID: Int
+        val ID: Int
         val STATE: JavaConnectionState
         fun create(): T
     }
 
-    val OUTGOING_ID: Int
+    val ID: Int
+    val STATE: JavaConnectionState
     fun decode(reader: AbstractReader)
     fun encode(writer: ByteWriter)
 }

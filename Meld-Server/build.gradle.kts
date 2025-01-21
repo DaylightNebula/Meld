@@ -44,3 +44,8 @@ kotlin {
         }
     }
 }
+
+task<Exec>("generate-packets") {
+    executable = "python"
+    args("../generators/packet_generator/packet_generator.py")
+}
