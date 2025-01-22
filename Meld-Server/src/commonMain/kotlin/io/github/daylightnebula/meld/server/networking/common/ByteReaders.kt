@@ -3,14 +3,6 @@ package io.github.daylightnebula.meld.server.networking.common
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.meldNbt
-import io.github.daylightnebula.meld.server.networking.AwardStatsEntry
-import io.github.daylightnebula.meld.server.networking.ChunkBiomeData
-import io.github.daylightnebula.meld.server.networking.CommandNode
-import io.github.daylightnebula.meld.server.networking.CommandSuggestion
-import io.github.daylightnebula.meld.server.networking.CustomReportDetail
-import io.github.daylightnebula.meld.server.networking.KnownPack
-import io.github.daylightnebula.meld.server.networking.LoginEntry
-import io.github.daylightnebula.meld.server.networking.ServerLink
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
@@ -103,20 +95,6 @@ abstract class AbstractReader {
 
     fun <T> readOptional(read: () -> T?): T? = if (readBoolean()) read() else null
     inline fun <reified T> readArray(read: () -> T): Array<T> = Array(readVarInt()) { read() }
-
-    fun readLoginEntry() = LoginEntry(
-        name = readString(),
-        value = readString(),
-        signature = readOptional { readString() }
-    )
-
-    fun readKnownPack() = KnownPack(readString(), readString(), readString())
-    fun readCustomReportDetail() = CustomReportDetail(readString(), readString())
-    fun readServerLink() = ServerLink(readBoolean(), readVarInt(), readString())
-    fun readAwardStatsEntry() = AwardStatsEntry(readVarInt(), readVarInt(), readVarInt())
-    fun readCommandNode(): CommandNode = TODO()
-    fun readChunkBiomeData() = ChunkBiomeData(readVarInt(), readVarInt(), readArray { readByte() })
-    fun readCommandSuggestion() = CommandSuggestion(readString(), readOptional { readJsonObject() })
 }
 
 class ChannelReader(val channel: ByteReadChannel): AbstractReader() {

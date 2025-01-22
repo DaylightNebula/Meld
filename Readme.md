@@ -24,9 +24,8 @@ know what you are doing:
 | Bedrock | In Progress  |
 
 ## Protocol
-To get a copy of the current Minecraft protocol, we decompile the current Minecraft client via https://github.com/hube12/DecompilerMC
-inside the decompiler directory that is "git ignored", and then use the protocol directory generated to generate our own
-copy of the protocol via a python script.
+To build all types needed for the protocol and the packets themselves, we use the JSON data from the 
+https://github.com/PrismarineJS/minecraft-data/tree/master/data/pc github repo.
 
 ## Modules
 A core part of Meld is its modules system.  These are like the plugins you may have seen in Spigot or Paper.  However,

@@ -3,18 +3,10 @@ package io.github.daylightnebula.meld.server.networking.common
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.meldNbt
-import io.github.daylightnebula.meld.server.networking.AwardStatsEntry
-import io.github.daylightnebula.meld.server.networking.ChunkBiomeData
-import io.github.daylightnebula.meld.server.networking.CommandNode
-import io.github.daylightnebula.meld.server.networking.CommandSuggestion
-import io.github.daylightnebula.meld.server.networking.CustomReportDetail
-import io.github.daylightnebula.meld.server.networking.KnownPack
-import io.github.daylightnebula.meld.server.networking.LoginEntry
-import io.github.daylightnebula.meld.server.networking.ServerLink
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.SEGMENT_BITS
 import io.github.daylightnebula.meld.server.utils.ItemContainer
-import io.ktor.utils.io.core.toByteArray
+import io.ktor.utils.io.core.*
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
@@ -153,20 +145,6 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     fun writeUUID(uuid: Uuid) = uuid.toLongs { most, least -> writeLong(most); writeLong(least) }
     @OptIn(ExperimentalUuidApi::class)
     fun writeUuid(uuid: Uuid) = writeUUID(uuid)
-
-    fun writeLoginEntry(entry: LoginEntry) {
-        writeString(entry.name)
-        writeString(entry.value)
-        writeOptional(entry.signature) { writeString(it) }
-    }
-
-    fun writeKnownPack(pack: KnownPack) { writeString(pack.namespace); writeString(pack.id); writeString(pack.version) }
-    fun writeCustomReportDetail(detail: CustomReportDetail) { writeString(detail.title); writeString(detail.description) }
-    fun writeServerLink(link: ServerLink) { writeBoolean(link.isBuiltIn); writeVarInt(link.label); writeString(link.url) }
-    fun writeAwardStatsEntry(entry: AwardStatsEntry) { writeVarInt(entry.categoryID); writeVarInt(entry.statisticID); writeVarInt(entry.value) }
-    fun writeCommandNode(node: CommandNode) { TODO() }
-    fun writeChunkBiomeData(data: ChunkBiomeData) { writeVarInt(data.chunkZ); writeVarInt(data.chunkX); writeArray(data.data) { writeByte(it) } }
-    fun writeCommandSuggestion(suggestion: CommandSuggestion) { writeString(suggestion.match); writeOptional(suggestion.tooltip) { json -> writeJsonObject(json) } }
 }
 
 enum class DataPacketMode { JAVA, BEDROCK }
