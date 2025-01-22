@@ -3,6 +3,14 @@ package io.github.daylightnebula.meld.server.networking.common
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.meldNbt
+import io.github.daylightnebula.meld.server.networking.AwardStatsEntry
+import io.github.daylightnebula.meld.server.networking.ChunkBiomeData
+import io.github.daylightnebula.meld.server.networking.CommandNode
+import io.github.daylightnebula.meld.server.networking.CommandSuggestion
+import io.github.daylightnebula.meld.server.networking.CustomReportDetail
+import io.github.daylightnebula.meld.server.networking.KnownPack
+import io.github.daylightnebula.meld.server.networking.LoginEntry
+import io.github.daylightnebula.meld.server.networking.ServerLink
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.CONTINUE_BIT
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.SEGMENT_BITS
 import io.github.daylightnebula.meld.server.utils.ItemContainer
@@ -12,6 +20,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonObject
 import net.benwoodworth.knbt.NbtCompound
 import okio.Buffer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 
 open class ByteWriter(val id: Int, val mode: DataPacketMode) {
@@ -74,35 +84,19 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
     fun writeUByte(byte: UByte) { data.add(byteArrayOf(byte.toByte())) }
     fun writeByte(byte: Byte) { data.add(ByteArray(1) { byte }) }
     fun writeBoolean(bool: Boolean) { data.add(byteArrayOf(if (bool) 1 else 0)) }
-
     fun writeShort(short: Short) { data.add(Buffer().writeShort(short.toInt()).readByteArray()) }
     fun writeUShort(short: UShort) { data.add(Buffer().writeShort(short.toShort().toInt()).readByteArray()) }
     fun writeInt(int: Int) { data.add(Buffer().writeInt(int).readByteArray()) }
-
     fun writeFloat(float: Float) { data.add(Buffer().writeInt(float.toBits()).readByteArray()) }
     fun writeDouble(double: Double) { data.add(Buffer().writeLong(double.toBits()).readByteArray()) }
-
     fun writeLong(long: Long) { data.add(Buffer().writeLong(long).readByteArray()) }
+    fun writeAngle(angle: Float) = writeUByte((angle / 360f * 256f) as UByte)
+    fun writeFloat3(vec: Float3) { writeFloat(vec.x); writeFloat(vec.y); writeFloat(vec.z) }
 
     fun writeBlockPosition(position: Float3) =
         writeLong(position.x.toLong() and 0x3FFFFFFL shl 38 or
                 (position.z.toLong() and 0x3FFFFFFL shl 12) or
                 (position.y.toLong() and 0xFFFL))
-
-    // NBT
-    fun writeNBT(compound: NbtCompound) {
-        val out = meldNbt.encodeToByteArray(compound)
-        data.add(out)
-
-//        buffer.writeByte(0x0A)
-//        val writer = NBTWriter(object : OutputStream() {
-//            override fun write(b: Int) {
-//                buffer.writeByte(b.toByte())
-//            }
-//        }, CompressedProcesser.NONE)
-//        writer.writeRaw(compound)
-//        data.add(buffer.getRawData())
-    }
 
     // write complex objects
     fun writeString(string: String) {
@@ -111,7 +105,9 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
         else writeVarInt(string.length)
         data.add(bytes)
     }
+    fun writeNBT(compound: NbtCompound) = data.add(meldNbt.encodeToByteArray(compound))
     fun writeJSON(json: JsonObject) = writeString(meldJson.encodeToString(json))
+    fun writeJsonObject(json: JsonObject) = writeJSON(json)
 
     fun getRawData(): ByteArray {
         var offset = 0
@@ -141,6 +137,36 @@ open class ByteWriter(val id: Int, val mode: DataPacketMode) {
             *getRawData()
         )
     }
+
+    fun <T> writeOptional(data: T?, callback: (T) -> Unit) =
+        if (data != null) {
+            writeBoolean(true)
+            callback(data)
+        } else writeBoolean(false)
+
+    fun <T> writeArray(data: Array<T>, write: (T) -> Unit) {
+        writeVarInt(data.size)
+        (0 until data.size).forEach { idx -> write(data[idx]) }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun writeUUID(uuid: Uuid) = uuid.toLongs { most, least -> writeLong(most); writeLong(least) }
+    @OptIn(ExperimentalUuidApi::class)
+    fun writeUuid(uuid: Uuid) = writeUUID(uuid)
+
+    fun writeLoginEntry(entry: LoginEntry) {
+        writeString(entry.name)
+        writeString(entry.value)
+        writeOptional(entry.signature) { writeString(it) }
+    }
+
+    fun writeKnownPack(pack: KnownPack) { writeString(pack.namespace); writeString(pack.id); writeString(pack.version) }
+    fun writeCustomReportDetail(detail: CustomReportDetail) { writeString(detail.title); writeString(detail.description) }
+    fun writeServerLink(link: ServerLink) { writeBoolean(link.isBuiltIn); writeVarInt(link.label); writeString(link.url) }
+    fun writeAwardStatsEntry(entry: AwardStatsEntry) { writeVarInt(entry.categoryID); writeVarInt(entry.statisticID); writeVarInt(entry.value) }
+    fun writeCommandNode(node: CommandNode) { TODO() }
+    fun writeChunkBiomeData(data: ChunkBiomeData) { writeVarInt(data.chunkZ); writeVarInt(data.chunkX); writeArray(data.data) { writeByte(it) } }
+    fun writeCommandSuggestion(suggestion: CommandSuggestion) { writeString(suggestion.match); writeOptional(suggestion.tooltip) { json -> writeJsonObject(json) } }
 }
 
 enum class DataPacketMode { JAVA, BEDROCK }

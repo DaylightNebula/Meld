@@ -35,7 +35,7 @@ class JavaCreativeModeSlotPacket(
     }
 
     fun readOptionalNBT(reader: AbstractReader): NbtCompound? {
-        val data = reader.readArray(reader.remaining())
+        val data = reader.readBytes(reader.remaining())
         return if (data.size == 1 && data.first() == (0x00).toByte()) null
         else TODO() // NBTReader(data, CompressedProcesser.NONE).read() as NBTCompound
     }

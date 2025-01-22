@@ -1,14 +1,23 @@
 package io.github.daylightnebula.meld.server.networking.common
 
 import dev.romainguy.kotlin.math.Float3
-import io.github.daylightnebula.meld.server.java
 import io.github.daylightnebula.meld.server.meldJson
+import io.github.daylightnebula.meld.server.meldNbt
+import io.github.daylightnebula.meld.server.networking.AwardStatsEntry
+import io.github.daylightnebula.meld.server.networking.ChunkBiomeData
+import io.github.daylightnebula.meld.server.networking.CommandNode
+import io.github.daylightnebula.meld.server.networking.CommandSuggestion
+import io.github.daylightnebula.meld.server.networking.CustomReportDetail
+import io.github.daylightnebula.meld.server.networking.KnownPack
+import io.github.daylightnebula.meld.server.networking.LoginEntry
+import io.github.daylightnebula.meld.server.networking.ServerLink
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.io.readFloat
+import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.json.JsonObject
+import net.benwoodworth.knbt.NbtCompound
 import okio.Buffer
 import kotlin.experimental.and
 import kotlin.uuid.ExperimentalUuidApi
@@ -17,7 +26,7 @@ import kotlin.uuid.Uuid
 abstract class AbstractReader {
     // important abstract functions
     abstract fun readByte(): Byte
-    abstract fun readArray(count: Int): ByteArray
+    abstract fun readBytes(count: Int): ByteArray
     abstract fun reset()
     abstract fun hasNext(): Boolean
     abstract fun remaining(): Int
@@ -58,21 +67,19 @@ abstract class AbstractReader {
         return value
     }
 
+    fun readAngle() = readUByte().toInt().toFloat() / 256f * 360f
+
     // simple primitive reads
     fun readBoolean(): Boolean = readByte() > 0
     fun readUByte(): UByte = readByte().toUByte()
-
-//    fun readShort(): Short = ByteBuffer.wrap(readArray(2)).getShort()
-    fun readShort(): Short = Buffer().write(readArray(2)).readShort()
+    fun readShort(): Short = Buffer().write(readBytes(2)).readShort()
     fun readUShort(): UShort = readShort().toUShort()
-
     fun read3Int(): Int = readByte() + (readByte().toInt() shl 8) + (readByte().toInt() shl 16) // reknet sends 3 byte integers sometimes
-    fun readInt(): Int = Buffer().write(readArray(4)).readInt()
-
+    fun readInt(): Int = Buffer().write(readBytes(4)).readInt()
     fun readFloat(): Float = Float.fromBits(readInt())
     fun readDouble(): Double = Double.fromBits(readLong())
-
-    fun readLong() = Buffer().write(readArray(8)).readLong()
+    fun readLong() = Buffer().write(readBytes(8)).readLong()
+    fun readFloat3() = Float3(readFloat(), readFloat(), readFloat())
 
     fun readBlockPosition(): Float3 {
         val value: Long = readLong()
@@ -82,18 +89,34 @@ abstract class AbstractReader {
         return Float3(x, y, z)
     }
 
-    fun readByteArray() = readArray(remaining())
-
     // complex object reads
-    fun readString(): String = String(readArray(readVarInt()))
-    fun readShortString(): String = String(readArray(readUShort().toInt()))
-
+    fun readByteArray() = readBytes(remaining())
+    fun readString(): String = String(readBytes(readVarInt()))
+    fun readShortString(): String = String(readBytes(readUShort().toInt()))
     fun readJsonObject(): JsonObject = meldJson.decodeFromString(readString())
+    fun readNBT(): NbtCompound = meldNbt.decodeFromByteArray(readByteArray())
 
     @OptIn(ExperimentalUuidApi::class)
     fun readUUID(): Uuid = Uuid.fromLongs(readLong(), readLong())
+    @OptIn(ExperimentalUuidApi::class)
+    fun readUuid() = readUUID()
 
-    // todo read NBT
+    fun <T> readOptional(read: () -> T?): T? = if (readBoolean()) read() else null
+    inline fun <reified T> readArray(read: () -> T): Array<T> = Array(readVarInt()) { read() }
+
+    fun readLoginEntry() = LoginEntry(
+        name = readString(),
+        value = readString(),
+        signature = readOptional { readString() }
+    )
+
+    fun readKnownPack() = KnownPack(readString(), readString(), readString())
+    fun readCustomReportDetail() = CustomReportDetail(readString(), readString())
+    fun readServerLink() = ServerLink(readBoolean(), readVarInt(), readString())
+    fun readAwardStatsEntry() = AwardStatsEntry(readVarInt(), readVarInt(), readVarInt())
+    fun readCommandNode(): CommandNode = TODO()
+    fun readChunkBiomeData() = ChunkBiomeData(readVarInt(), readVarInt(), readArray { readByte() })
+    fun readCommandSuggestion() = CommandSuggestion(readString(), readOptional { readJsonObject() })
 }
 
 class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
@@ -101,7 +124,7 @@ class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
         return runBlocking { channel.readByte() }
     }
 
-    override fun readArray(count: Int): ByteArray {
+    override fun readBytes(count: Int): ByteArray {
         return runBlocking {
             val array = ByteArray(count)
             try { channel.readFully(array, 0, count) } catch (_: Exception) {}
@@ -128,7 +151,7 @@ class ByteArrayReader(private val array: ByteArray): AbstractReader() {
         return array[currentByte++]
     }
 
-    override fun readArray(count: Int): ByteArray {
+    override fun readBytes(count: Int): ByteArray {
         val startIndex = currentByte
         currentByte += count
         return array.sliceArray(startIndex until startIndex + count)
@@ -147,7 +170,7 @@ class ByteArrayReader(private val array: ByteArray): AbstractReader() {
 
 class ByteReadPacketReader(val packet: ByteReadPacket): AbstractReader() {
     override fun readByte(): Byte = packet.readByte()
-    override fun readArray(count: Int): ByteArray = packet.readBytes(count)
+    override fun readBytes(count: Int): ByteArray = packet.readBytes(count)
     override fun reset() { throw NotImplementedException("") }
     override fun hasNext(): Boolean {
         return !packet.endOfInput

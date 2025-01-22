@@ -1,5 +1,7 @@
 package io.github.daylightnebula.meld.server.networking.java.generated
 
+import dev.romainguy.kotlin.math.*
+import io.github.daylightnebula.meld.server.networking.*
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
@@ -7,15 +9,20 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import kotlinx.serialization.json.JsonObject
 import net.benwoodworth.knbt.NbtCompound
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 class ClientPlaySetTime(
-	timeOfDayIncreasing: Boolean
+	val worldAge: Long,
+	val timeOfDay: Long,
+	val timeOfDayIncreasing: Boolean
 ): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlaySetTime> {
         override val ID: Int = 0x6B
         override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
         override fun decode(reader: AbstractReader): ClientPlaySetTime = ClientPlaySetTime(
+			worldAge = reader.readLong(),
+			timeOfDay = reader.readLong(),
 			timeOfDayIncreasing = reader.readBoolean()
 		)
     }
@@ -24,5 +31,8 @@ class ClientPlaySetTime(
     override val STATE: JavaConnectionState = Companion.STATE
     
     override fun encode(writer: ByteWriter) {
-    }
+		writer.writeLong(worldAge)
+		writer.writeLong(timeOfDay)
+		writer.writeBoolean(timeOfDayIncreasing)
+	}
 }

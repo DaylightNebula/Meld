@@ -22,6 +22,6 @@ class JavaConfigMessagePacket(
     }
     override fun decode(reader: AbstractReader) {
         channel = reader.readVarString()
-        data = reader.readArray(reader.remaining())
+        data = reader.readBytes(reader.remaining())
     }
 }

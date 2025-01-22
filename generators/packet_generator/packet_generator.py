@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import processor
 import os
 import re
@@ -6,6 +8,8 @@ import re
 code_base_path = "./src/commonMain/kotlin/io/github/daylightnebula/meld/server/networking/java/generated/"
 kt_header = """package io.github.daylightnebula.meld.server.networking.java.generated
 
+import dev.romainguy.kotlin.math.*
+import io.github.daylightnebula.meld.server.networking.*
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
@@ -13,6 +17,7 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import kotlinx.serialization.json.JsonObject
 import net.benwoodworth.knbt.NbtCompound
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 """
 
 
@@ -25,103 +30,109 @@ def to_lower_camel_case(snake_str) -> str:
     return upper_camel[0].lower() + upper_camel[1:]
 
 
-def get_kt_type(type: str, mc_pref: bool, name: str) -> str:
-    if type == "Byte Array":
-        type = "ByteArray"
-    if type == "ID or Sound Event":
-        type = "VarInt"
-    if type == "Text Component":
-        type = "TextComponent"
-    if type == "Fixed BitSet":
-        type = "BitSet"
-    if type.startswith("of "):
-        type = type[3:]
-    if type.startswith("Prefixed Optional"):
-        type = "Optional" + type[len("Prefixed Optional"):]
-    if type.startswith("Prefixed Array"):
-        type = "Array" + type[len("Prefixed Array"):]
-    if type.startswith("Optionalof"):
-        tokens = type.split("of")
-    else:
-        tokens = type.split(" ")
-    print(name, "Tokens", type, tokens)
-    match tokens[0]:
-        case "":
-            return ""
-        case "Boolean":
-            return "Boolean"
+@dataclass
+class KtType:
+    type: str
+    read_func: str
+    write_func: str
+
+
+def get_kt_type(name: str, type: list[str]) -> KtType:
+    if type[0].startswith("Unsigned"):
+        raw_type = type[0][len("Unsigned "):]
+        type[0] = f"U{raw_type}"
+
+    match type[0]:
         case "String" | "Identifier":
-            return "String"
-        case "Long":
-            return "Long"
-        case "Int":
-            return "Int"
-        case "Short":
-            return "Short"
-        case "Byte":
-            return "Byte"
-        case "Float":
-            return "Float"
-        case "Double":
-            return "Double"
+            return KtType(
+                type="String",
+                read_func="reader.readString()",
+                write_func="writer.writeString(<var>)"
+            )
         case "NBT":
-            if mc_pref: return "NBT"
-            else: return "NbtCompound"
+            return KtType(
+                type="NbtCompound",
+                read_func="reader.readNBT()",
+                write_func="writer.writeNBT(<var>)"
+            )
         case "Position":
-            if mc_pref: return "Position"
-            else: return "Float3"
-        case "Slot":
-            return "Slot"
-        case "ExplosionData":
-            return "ExplosionData"
+            return KtType(
+                type="Float3",
+                read_func="reader.readFloat3()",
+                write_func="writer.writeFloat3(<var>)"
+            )
         case "Angle":
-            if mc_pref: return "Angle"
-            else: return "Float"
-        case "ByteArray":
-            return "ByteArray"
-        case "PlayerInfoUpdateData":
-            return "PlayerInfoUpdateData"
-        case "Unsigned":
-            return f"U{get_kt_type(' '.join(tokens[1:]), mc_pref, name)}"
-        case "UUID":
-            return "Uuid"
-        case "Chunk":
-            return "Chunk"
-        case "Light":
-            return "LightData"
-        case "ParticleData":
-            return "ParticleData"
-        case "Recipe":
-            return "Recipe"
-        case "BitSet":
-            return "BitSet"
-        case "EnumSet":
-            return "BitSet"
-        case "EntityMetadata":
-            return "EntityMetadata"
-        case "Advancement":
-            return "Advancement"
+            return KtType(
+                type="Float",
+                read_func="reader.readAngle()",
+                write_func="writer.writeAngle(<var>)"
+            )
+        case "UUID" | "Uuid":
+            return KtType(
+                type="Uuid",
+                read_func="reader.readUuid()",
+                write_func="writer.writeUuid(<var>)"
+            )
         case "VarInt":
-            if mc_pref: return "VarInt"
-            else: return "Int"
+            return KtType(
+                type="Int",
+                read_func="reader.readVarInt()",
+                write_func="writer.writeVarInt(<var>)"
+            )
         case "VarLong":
-            if mc_pref: return "VarLong"
-            else: return "Long"
+            return KtType(
+                type="Long",
+                read_func="reader.readVarLong()",
+                write_func="writer.writeVarLong(<var>)"
+            )
+        case "Byte Array" | "ByteArray":
+            return KtType(
+                type="ByteArray",
+                read_func="reader.readByteArray()",
+                write_func="writer.writeByteArray(<var>)"
+            )
+        case "Text Component" | "TextComponent":
+            return KtType(
+                type="JsonObject",
+                read_func="reader.readJsonObject()",
+                write_func="writer.writeJsonObject(<var>)"
+            )
         case "JSON Text Component" | "JSON" | "TextComponent":
-            return "JsonObject"
-        case "LoginEntry":
-            return "LoginEntry"
-        case "Optional":
-            next = get_kt_type(' '.join(tokens[1:]), mc_pref, name)
-            if mc_pref: return next
-            else: return f"{next}?"
-        case "Array":
-            return f"Array<{get_kt_type(' '.join(tokens[1:]), mc_pref, name)}>"
+            return KtType(
+                type="JsonObject",
+                read_func="reader.readJsonObject()",
+                write_func="writer.writeJsonObject(<var>)"
+            )
+        case "Advancement progress":
+            return KtType(
+                type="AdvancementProgress",
+                read_func="reader.readAdvancementProgress()",
+                write_func="writer.writeAdvancementProgress()"
+            )
+        case "Optional" | "Prefixed Optional":
+            next = get_kt_type(name, type[1:])
+            return KtType(
+                type=f"{next.type}?",
+                read_func=f"reader.readOptional {{ {next.read_func} }}",
+                write_func=f"writer.writeOptional(<var>) {{ <var> -> {next.write_func} }}"
+            )
+        case "Array" | "Prefixed Array":
+            print(name, "Typing", type)
+            next = get_kt_type(name, type[1:])
+            return KtType(
+                type=f"Array<{next.type}>",
+                read_func=f"reader.readArray {{ {next.read_func} }}",
+                write_func=f"writer.writeArray(<var>) {{ <var> -> {next.write_func} }}"
+            )
         case _:
-            raise Exception(f"Could not convert \"{tokens[0]}\" to kotlin type")
+            return KtType(
+                type=type[0],
+                read_func=f"reader.read{type[0]}()",
+                write_func=f"writer.write{type[0]}(<var>)"
+            )
 
 
-def build_script_file(entry: processor.PacketTableEntry):
+def build_script_file(idx: int, entry: processor.PacketTableEntry):
     # create class name and open file
     class_name = entry.bound_to + entry.state + to_camel_case(entry.name)
     file = open(code_base_path + class_name + ".kt", "w")
@@ -141,17 +152,13 @@ def build_script_file(entry: processor.PacketTableEntry):
         case _:
             raise Exception(f"No state {entry.state} registered!")
 
-    # todo packet parameters
-    # todo encode packet
-    # todo decode packet
-
     # define params
     params = []
     for element in entry.content:
         # convert type
         name = to_lower_camel_case(element.name)
-        type = get_kt_type(element.type, False, entry.name)
-        params.append(f"{name}: {type}")
+        type = get_kt_type(entry.name, element.type)
+        params.append(f"val {name}: {type.type}")
     if len(params) > 0:
         rendered_params = "\n\t" + ",\n\t".join(params) + "\n"
     else: rendered_params = ""
@@ -160,12 +167,24 @@ def build_script_file(entry: processor.PacketTableEntry):
     construct = []
     for element in entry.content:
         name = to_lower_camel_case(element.name)
-        type = get_kt_type(element.type, True, entry.name)
-        construct.append(f"{name} = reader.read{type}()")
+        type = get_kt_type(entry.name, element.type)
+        reader = type.read_func.replace("<var>", name)
+        construct.append(f"{name} = {reader}")
     if len(construct) > 0:
         rendered_construct = "\n\t\t\t" + ",\n\t\t\t".join(construct) + "\n\t\t"
     else:
         rendered_construct = ""
+
+    # render encoder
+    encoder = []
+    for element in entry.content:
+        name = to_lower_camel_case(element.name)
+        type = get_kt_type(entry.name, element.type)
+        encoder.append(type.write_func.replace("<var>", name))
+    if len(encoder) > 0:
+        rendered_encoder = "\n\t\t" + "\n\t\t".join(encoder) + "\n\t"
+    else:
+        rendered_encoder = ""
 
     # build and write final file
     file.write(f"""{kt_header}
@@ -180,8 +199,7 @@ class {class_name}({rendered_params}): JavaPacket {{
     override val ID: Int = Companion.ID
     override val STATE: JavaConnectionState = Companion.STATE
     
-    override fun encode(writer: ByteWriter) {{
-    }}
+    override fun encode(writer: ByteWriter) {{{rendered_encoder}}}
 }}
 """)
 
@@ -198,5 +216,5 @@ for root, dirs, files in os.walk(code_base_path):
 
 
 # build all entries
-for entry in processor.table_entries:
-    build_script_file(entry)
+for idx, entry in enumerate(processor.table_entries):
+    build_script_file(idx, entry)

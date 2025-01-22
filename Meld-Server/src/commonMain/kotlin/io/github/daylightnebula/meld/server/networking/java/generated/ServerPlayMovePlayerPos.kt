@@ -1,5 +1,7 @@
 package io.github.daylightnebula.meld.server.networking.java.generated
 
+import dev.romainguy.kotlin.math.*
+import io.github.daylightnebula.meld.server.networking.*
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
@@ -7,15 +9,22 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import kotlinx.serialization.json.JsonObject
 import net.benwoodworth.knbt.NbtCompound
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 class ServerPlayMovePlayerPos(
-	flags: Byte
+	val x: Double,
+	val feetY: Double,
+	val z: Double,
+	val flags: Byte
 ): JavaPacket {
     companion object: JavaPacket.Creator<ServerPlayMovePlayerPos> {
         override val ID: Int = 0x1C
         override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
         override fun decode(reader: AbstractReader): ServerPlayMovePlayerPos = ServerPlayMovePlayerPos(
+			x = reader.readDouble(),
+			feetY = reader.readDouble(),
+			z = reader.readDouble(),
 			flags = reader.readByte()
 		)
     }
@@ -24,5 +33,9 @@ class ServerPlayMovePlayerPos(
     override val STATE: JavaConnectionState = Companion.STATE
     
     override fun encode(writer: ByteWriter) {
-    }
+		writer.writeDouble(x)
+		writer.writeDouble(feetY)
+		writer.writeDouble(z)
+		writer.writeByte(flags)
+	}
 }

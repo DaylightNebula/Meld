@@ -1,5 +1,7 @@
 package io.github.daylightnebula.meld.server.networking.java.generated
 
+import dev.romainguy.kotlin.math.*
+import io.github.daylightnebula.meld.server.networking.*
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
@@ -7,16 +9,19 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import kotlinx.serialization.json.JsonObject
 import net.benwoodworth.knbt.NbtCompound
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 class ClientConfigurationStoreCookie(
-	payload: Array<Byte>
+	val key: String,
+	val payload: Array<Byte>
 ): JavaPacket {
     companion object: JavaPacket.Creator<ClientConfigurationStoreCookie> {
         override val ID: Int = 0x0A
         override val STATE: JavaConnectionState = JavaConnectionState.CONFIG
         override fun decode(reader: AbstractReader): ClientConfigurationStoreCookie = ClientConfigurationStoreCookie(
-			payload = reader.readArray<Byte>()
+			key = reader.readString(),
+			payload = reader.readArray { reader.readByte() }
 		)
     }
     
@@ -24,5 +29,7 @@ class ClientConfigurationStoreCookie(
     override val STATE: JavaConnectionState = Companion.STATE
     
     override fun encode(writer: ByteWriter) {
-    }
+		writer.writeString(key)
+		writer.writeArray(payload) { payload -> writer.writeByte(payload) }
+	}
 }

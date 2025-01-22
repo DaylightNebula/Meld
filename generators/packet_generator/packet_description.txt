@@ -387,17 +387,8 @@ See [[Minecraft Wiki:Projects/wiki.vg merge/Protocol Encryption|Protocol Encrypt
  | colspan="2"| {{Type|String}} (16)
  | colspan="2"|
  |-
- | rowspan="3"| Property
- | Name
- | rowspan="3"| {{Type|Prefixed Array}} of {{Type|LoginEntry}}
- | colspan="2"|
- |-
- | Value
- | {{Type|String}} (32767)
- | colspan="1"|
- |-
- | Signature
- | {{Type|Prefixed Optional}} {{Type|String}} (1024)
+ | Property
+ | {{Type|Prefixed Array}} of {{Type|LoginEntry}}
  |
  |}
 
@@ -760,8 +751,7 @@ See [[Minecraft Wiki:Projects/wiki.vg merge/Registry_Data|Registry Data]] for de
  |-
  | rowspan="2"| Entries
  | Entry ID
- | rowspan="2"| {{Type|Prefixed Array}}
- | {{Type|Identifier}}
+ | rowspan="2"| {{Type|Prefixed Array}} {{Type|Identifier}}
  |
  |-
  | Data
@@ -909,8 +899,7 @@ For the other feature flags, which may change between versions, see [[Experiment
  | rowspan="2"| Client
  | rowspan="2"| Array of tags
  | Registry
- | rowspan="2"| {{Type|Prefixed Array}}
- | {{Type|Identifier}}
+ | rowspan="2"| {{Type|Prefixed Array}} {{Type|Identifier}}
  | Registry identifier (Vanilla expects tags for the registries <code>minecraft:block</code>, <code>minecraft:item</code>, <code>minecraft:fluid</code>, <code>minecraft:entity_type</code>, and <code>minecraft:game_event</code>)
  |-
  | Array of Tag
@@ -927,8 +916,7 @@ Tag arrays look like:
  |-
  | rowspan="2"| Tags
  | Tag name
- | rowspan="2"| {{Type|Prefixed Array}}
- | {{Type|Identifier}}
+ | rowspan="2"| {{Type|Prefixed Array}} {{Type|Identifier}}
  |
  |-
  | Entries
@@ -959,17 +947,7 @@ The Notchian client requires the <code>minecraft:core</code> pack with version <
  | rowspan="3"| Client
  | rowspan="3"| Known Packs
  | Namespace
- | rowspan="3"| {{Type|Prefixed Array}}
- | {{Type|String}}
- |
- |-
- | ID
- | {{Type|String}}
- |
- |-
- | Version
- | {{Type|String}}
- |
+ | {{Type|Prefixed Array}} {{Type|KnownPack}} ID Namespace Version
  |}
 
 ==== Custom Report Details (configuration) ====
@@ -989,13 +967,7 @@ Contains a list of key-value text entries that are included in any crash or disc
  | rowspan="2"| Client
  | rowspan="2"| Details
  | Title
- | rowspan="2"| {{Type|Prefixed Array}} (32)
- | {{Type|String}} (128)
- |
- |-
- | Description
- | {{Type|String}} (4096)
- |
+ | rowspan="2"| {{Type|Prefixed Array}} {{Type|CustomReportDetail}} (32) Title Description
 |}
 
 ==== Server Links (configuration) ====
@@ -1015,17 +987,7 @@ This packet contains a list of links that the Notchian client will display in th
  | rowspan="3"| Client
  | rowspan="3"| Links
  | Is built-in
- | rowspan="3"| {{Type|Prefixed Array}}
- | {{Type|Boolean}}
- | True if Label is an enum (built-in label), false if it's a text component (custom label).
- |-
- | Label
- | {{Type|VarInt}} {{Type|Enum}} / {{Type|Text Component}}
- | See below.
- |-
- | URL
- | {{Type|String}}
- | Valid URL.
+ | rowspan="3"| {{Type|Prefixed Array}} {{Type|ServerLink}}
 |}
 
 
@@ -1330,8 +1292,7 @@ If the client specifies a pack in this packet, the server should omit its contai
  | rowspan="3"| Server
  | rowspan="3"| Known Packs
  | Namespace
- | rowspan="3"| {{Type|Prefixed Array}}
- | {{Type|String}}
+ | rowspan="3"| {{Type|Prefixed Array}} {{Type|String}}
  |
  |-
  | ID
@@ -1544,17 +1505,8 @@ Sent as a response to [[#Client Status|Client Status]] (id 1). Will only send th
  | rowspan="3"| Client
  | rowspan="3"| Statistic
  | Category ID
- | rowspan="3"| {{Type|Prefixed Array}}
- | {{Type|VarInt}}
- | See below.
- |-
- | Statistic ID
- | {{Type|VarInt}}
- | See below.
- |-
- | Value
- | {{Type|VarInt}}
- | The amount to set it to.
+ | rowspan="3"| {{Type|Prefixed Array}} {{Type|AwardStatsEntry}}
+ |
  |}
 
 Categories (these are namespaced, but with <code>:</code> replaced with <code>.</code>):
@@ -2021,11 +1973,11 @@ See [[Minecraft Wiki:Projects/wiki.vg merge/Block Actions|Block Actions]] for a 
  | {{Type|Position}}
  | Block coordinates.
  |-
- | Action ID (Byte 1)
+ | Action ID
  | {{Type|Unsigned Byte}}
  | Varies depending on block — see [[Minecraft Wiki:Projects/wiki.vg merge/Block Actions|Block Actions]].
  |-
- | Action Parameter (Byte 2)
+ | Action Parameter
  | {{Type|Unsigned Byte}}
  | Varies depending on block — see [[Minecraft Wiki:Projects/wiki.vg merge/Block Actions|Block Actions]].
  |-
@@ -2262,17 +2214,7 @@ Marks the start of a chunk batch. The Notchian client marks and stores the time 
  | rowspan="3"| Client
  | rowspan="3"| Chunk biome data
  | Chunk Z
- | rowspan="3"| {{Type|Prefixed Array}}
- | {{Type|Int}}
- | Chunk coordinate (block coordinate divided by 16, rounded down)
- |-
- | Chunk X
- | {{Type|Int}}
- | Chunk coordinate (block coordinate divided by 16, rounded down)
- |-
- | Data
- | {{Type|Prefixed Array}} of {{Type|Byte}}
- | Chunk [[Minecraft Wiki:Projects/wiki.vg merge/Chunk Format#Data structure|data structure]], with [[Minecraft Wiki:Projects/wiki.vg merge/Chunk Format#Chunk_Section|sections]] containing only the <code>Biomes</code> field
+ | rowspan="3"| {{Type|Prefixed Array}} {{Type|ChunkBiomeData}}
  |}
 
 Note: The order of X and Z is inverted, because the client reads them as one big-endian {{Type|Long}}, with Z being the upper 32 bits.
@@ -2326,13 +2268,8 @@ The server responds with a list of auto-completions of the last word sent to it.
  |-
  | rowspan="2"| Matches
  | Match
- | rowspan="2"| {{Type|Prefixed Array}}
- | {{Type|String}} (32767)
- | One eligible value to insert, note that each command is sent separately instead of in a single string, hence the need for Count.  Note that for instance this doesn't include a leading <code>/</code> on commands.
- |-
- | Tooltip
- | {{Type|Prefixed Optional}} {{Type|Text Component}}
- | Tooltip to display.
+ | rowspan="2"| {{Type|Prefixed Array}} {{Type|CommandSuggestion}}
+ |
  |}
 
 ==== Commands ====
@@ -2353,7 +2290,7 @@ This is a directed graph, with one root node.  Each redirect or child node must 
  | rowspan="2"| Play
  | rowspan="2"| Client
  | Nodes
- | {{Type|Prefixed Array}} of [[Minecraft Wiki:Projects/wiki.vg merge/Command Data#Node Format|Node]]
+ | {{Type|Prefixed Array}} of {{Type|CommandNode}}
  | An array of nodes.
  |-
  | Root index
@@ -2868,14 +2805,11 @@ In Notchian client, the maximum data length is 1048576 bytes.
  |-
  | colspan="2"| Source Direct ID
  | colspan="2"| {{Type|VarInt}}
- | The ID + 1 of the entity that directly dealt the damage, if present. If not present, the value is 0. If this field is present:
-* and damage was dealt indirectly, such as by the use of a projectile, this field will contain the ID of such projectile;
-* and damage was dealt dirctly, such as by manually attacking, this field will contain the same value as Source Cause ID.
+ | The ID + 1 of the entity that directly dealt the damage, if present. If not present, the value is 0. If this field is present and damage was dealt indirectly, such as by the use of a projectile, this field will contain the ID of such projectile and damage was dealt dirctly, such as by manually attacking, this field will contain the same value as Source Cause ID.
  |-
  | colspan="2"| Has Source Position
  | colspan="2"| {{Type|Boolean}}
- | Indicates the presence of the three following fields.
-The Notchian server sends the Source Position when the damage was dealt by the /damage command and a position was specified
+ | Indicates the presence of the three following fields. The Notchian server sends the Source Position when the damage was dealt by the /damage command and a position was specified
  |-
  | colspan="2"| Source Position X
  | colspan="2"| {{Type|Optional}} {{Type|Double}}
@@ -4237,7 +4171,7 @@ The list of trades a villager NPC is offering.
  |-
  | rowspan="10"| Trades
  | Input item 1
- | rowspan="10"| {{Type|Prefixed Array}}
+ | rowspan="10"| {{Type|Prefixed Array}} {{Type|TradeItem}}
  | Trade Item
  | See below. The first item the player has to supply for this villager trade. The count of the item stack is the default "price" of this trade.
  |-
@@ -4246,7 +4180,7 @@ The list of trades a villager NPC is offering.
  | The item the player will receive from this villager trade.
  |-
  | Input item 2
- | {{Type|Prefixed Optional}} Trade Item
+ | {{Type|Prefixed Optional}} {{Type|TradeItem}}
  | The second item the player has to supply for this villager trade.
  |-
  | Trade disabled
@@ -7075,7 +7009,7 @@ Sets [[Attribute|attributes]] on the given entity.
  | See below.
  |-
  | Modifiers
- | {{Type|Prefixed Array}} of Modifier Data
+ | {{Type|Prefixed Array}} of {{Type|ModifierData}}
  | See [[Attribute#Modifiers]]. Modifier Data defined below.
  |}
 
@@ -7205,7 +7139,7 @@ Within flags:
  | Registry identifier (Vanilla expects tags for the registries <code>minecraft:block</code>, <code>minecraft:item</code>, <code>minecraft:fluid</code>, <code>minecraft:entity_type</code>, and <code>minecraft:game_event</code>)
  |-
  | Tags
- | {{Type|Prefixed Array}} of Tag (See below)
+ | {{Type|Prefixed Array}} of {{Type|RegistryTag}}
  |
  |}
 
@@ -7265,15 +7199,9 @@ Contains a list of key-value text entries that are included in any crash or disc
  | rowspan="2"| Play
  | rowspan="2"| Client
  | rowspan="2"| Details
- | Title
- | rowspan="2"| {{Type|Prefixed Array}} (32)
- | {{Type|String}} (128)
+ | rowspan="2"| {{Type|Prefixed Array}} {{Type|CustomReportDetail}}
  |
- |-
- | Description
- | {{Type|String}} (4096)
- |
-|}
+ |}
 
 ==== Server Links ====
 
@@ -7869,8 +7797,7 @@ This packet is sent by the client when the player clicks on a slot in a window.
  |-
  | rowspan="2"| Array of changed slots
  | Slot number
- | rowspan="2"| {{Type|Prefixed Array}} (128)
- | {{Type|Short}}
+ | rowspan="2"| {{Type|Prefixed Array}} {{Type|Short}}
  |
  |-
  | Slot data

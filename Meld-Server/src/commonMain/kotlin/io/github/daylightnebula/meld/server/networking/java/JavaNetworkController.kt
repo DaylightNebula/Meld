@@ -50,7 +50,7 @@ object JavaNetworkController: INetworkController {
                     val packetID = read.readVarInt()
 
                     // try catch due to packet 122 in status state
-                    val data = ByteArrayReader(read.readArray(length - 1))
+                    val data = ByteArrayReader(read.readBytes(length - 1))
 
                     PacketManager.handleJavaPacket(connection, packetID, data)
                 }

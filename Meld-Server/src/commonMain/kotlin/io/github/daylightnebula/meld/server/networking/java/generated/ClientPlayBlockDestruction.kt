@@ -1,5 +1,7 @@
 package io.github.daylightnebula.meld.server.networking.java.generated
 
+import dev.romainguy.kotlin.math.*
+import io.github.daylightnebula.meld.server.networking.*
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
@@ -7,15 +9,20 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import kotlinx.serialization.json.JsonObject
 import net.benwoodworth.knbt.NbtCompound
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 class ClientPlayBlockDestruction(
-	destroyStage: UByte
+	val entityId: Int,
+	val location: Float3,
+	val destroyStage: UByte
 ): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlayBlockDestruction> {
         override val ID: Int = 0x06
         override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
         override fun decode(reader: AbstractReader): ClientPlayBlockDestruction = ClientPlayBlockDestruction(
+			entityId = reader.readVarInt(),
+			location = reader.readFloat3(),
 			destroyStage = reader.readUByte()
 		)
     }
@@ -24,5 +31,8 @@ class ClientPlayBlockDestruction(
     override val STATE: JavaConnectionState = Companion.STATE
     
     override fun encode(writer: ByteWriter) {
-    }
+		writer.writeVarInt(entityId)
+		writer.writeFloat3(location)
+		writer.writeUByte(destroyStage)
+	}
 }

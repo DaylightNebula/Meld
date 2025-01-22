@@ -4,7 +4,6 @@ import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
-import io.github.daylightnebula.meld.server.noEncode
 
 class JavaPluginMessagePacket(
     var channel: String = "",
@@ -23,6 +22,6 @@ class JavaPluginMessagePacket(
     }
     override fun decode(reader: AbstractReader) {
         channel = reader.readVarString()
-        data = reader.readArray(reader.remaining())
+        data = reader.readBytes(reader.remaining())
     }
 }

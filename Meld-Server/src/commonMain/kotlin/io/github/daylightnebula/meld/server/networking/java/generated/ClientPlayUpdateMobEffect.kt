@@ -1,5 +1,7 @@
 package io.github.daylightnebula.meld.server.networking.java.generated
 
+import dev.romainguy.kotlin.math.*
+import io.github.daylightnebula.meld.server.networking.*
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
@@ -7,15 +9,24 @@ import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import kotlinx.serialization.json.JsonObject
 import net.benwoodworth.knbt.NbtCompound
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 class ClientPlayUpdateMobEffect(
-	flags: Byte
+	val entityId: Int,
+	val effectId: Int,
+	val amplifier: Int,
+	val duration: Int,
+	val flags: Byte
 ): JavaPacket {
     companion object: JavaPacket.Creator<ClientPlayUpdateMobEffect> {
         override val ID: Int = 0x7D
         override val STATE: JavaConnectionState = JavaConnectionState.IN_GAME
         override fun decode(reader: AbstractReader): ClientPlayUpdateMobEffect = ClientPlayUpdateMobEffect(
+			entityId = reader.readVarInt(),
+			effectId = reader.readVarInt(),
+			amplifier = reader.readVarInt(),
+			duration = reader.readVarInt(),
 			flags = reader.readByte()
 		)
     }
@@ -24,5 +35,10 @@ class ClientPlayUpdateMobEffect(
     override val STATE: JavaConnectionState = Companion.STATE
     
     override fun encode(writer: ByteWriter) {
-    }
+		writer.writeVarInt(entityId)
+		writer.writeVarInt(effectId)
+		writer.writeVarInt(amplifier)
+		writer.writeVarInt(duration)
+		writer.writeByte(flags)
+	}
 }

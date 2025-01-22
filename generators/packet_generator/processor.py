@@ -36,7 +36,7 @@ for line in base_text:
 @dataclass
 class PacketElement:
     name: str
-    type: str
+    type: list[str]
     notes: str
 
 @dataclass
@@ -100,27 +100,26 @@ def convert_table_to_entry(table: list[str]) -> PacketTableEntry:
             if len(cluster) < 3: cluster.append("|")
 
             # decode type
+            type = []
             type_tokens = [s for s in cluster if "| {{Type" in s]
             if len(type_tokens) > 0:
-                tokens = re.findall(r"\{\{Type\|(.*?)\}\}", type_tokens[0])
-                if len(tokens) > 1:
-                    type = f"{tokens[0]} {tokens[1]}"
-                else:
-                    type = tokens[0]
+                for type_tokens in type_tokens:
+                    type.extend(re.findall(r"\{\{Type\|(.*?)\}\}", type_tokens))
             else:
-                type = cluster[-2][2:]
+                type.append(cluster[-2][2:])
 
-        # decode name
-        entry_name = cluster[-3][2:].split("|")[-1]
-        if entry_name[-1] == "?":
-            entry_name = entry_name[:-1]
+            # decode name
+            entry_name = cluster[-3][2:].split("|")[-1]
+            if entry_name[-1] == "?":
+                entry_name = entry_name[:-1]
 
-        # add entry
-        entries.append(PacketElement(
-            name = entry_name,
-            type = type,
-            notes = cluster[-1]
-        ))
+            # add entry
+            if len(type) > 0:
+                entries.append(PacketElement(
+                    name = entry_name,
+                    type = type,
+                    notes = cluster[-1]
+                ))
 
     # find state
     state = clusters[1][clusters[0].index("! State")].split("|")[-1].strip()
