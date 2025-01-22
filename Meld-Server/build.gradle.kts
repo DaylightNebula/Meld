@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform") version "2.1.0"
     kotlin("plugin.serialization") version "2.1.0"
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
 }
 
 group = "io.github.daylightnebula"
@@ -21,6 +22,8 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir(file("$buildDir/generated/ksp/metadata/commonMain/kotlin"))
+
             dependencies {
                 // kotlin
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
@@ -43,6 +46,14 @@ kotlin {
             }
         }
     }
+}
+
+dependencies {
+//    ksp(project(":Meld-KSP"))
+
+    add("kspCommonMainMetadata", project(":Meld-KSP"))
+    add("kspJvm", project(":Meld-KSP"))
+//    add("kspMingwX64", project(":Meld-KSP"))
 }
 
 task<Exec>("generate-packets") {

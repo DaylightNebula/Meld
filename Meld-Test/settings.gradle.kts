@@ -1,3 +1,6 @@
+include(":Meld-KSP")
+project(":Meld-KSP").projectDir = file("../Meld-KSP")
+
 include(":Meld-Server")
 project(":Meld-Server").projectDir = file("../Meld-Server")
 
