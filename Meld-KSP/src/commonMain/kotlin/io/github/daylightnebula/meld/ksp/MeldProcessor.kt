@@ -1,18 +1,18 @@
 package io.github.daylightnebula.meld.ksp
 
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSName
+import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.ksp.writeTo
+import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
 import kotlinx.serialization.json.Json
+import java.io.File
 
 class MeldProcessor(
     val codeGenerator: CodeGenerator,
@@ -29,37 +29,73 @@ class MeldProcessor(
     // todo add types and params to packets
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val protocol: ProtocolFile = json.decodeFromString(downloadProtocol() ?: return emptyList())
-        genPacketContainer(resolver, protocol.handshaking, "Handshake")
-        genPacketContainer(resolver, protocol.status, "Status")
-        genPacketContainer(resolver, protocol.configuration, "Config")
-        genPacketContainer(resolver, protocol.login, "Login")
-        genPacketContainer(resolver, protocol.play, "Play")
+        resolver.getSymbolsWithAnnotation(BuildJavaPackets::class.qualifiedName!!)
+            .forEach { if (it is KSFile) buildPacketsFile(it) }
 
         return emptyList<KSAnnotated>()
     }
 
-    fun genPacketContainer(resolver: Resolver, container: SCPacketContainer, name: String) {
-        genPacketTypes(resolver, container.toServer, "Server${name}")
-        genPacketTypes(resolver, container.toClient, "Client${name}")
+    private fun buildPacketsFile(file: KSFile) {
+        // get types
+        val protocol: ProtocolFile = json.decodeFromString(downloadProtocol())
+        val types = genPacketContainer(protocol.handshaking, "Handshake") +
+            genPacketContainer(protocol.status, "Status") +
+            genPacketContainer(protocol.configuration, "Config") +
+            genPacketContainer(protocol.login, "Login") +
+            genPacketContainer(protocol.play, "Play")
+
+        // build final output
+        val collection = FileSpec.builder(file.packageName.asString(), "JavaData")
+            .addTypes(types)
+            .build()
+
+        // save final output
+        val numDrops = file.packageName.asString().count { it == '.' } + 2 // +2 to deal with types
+        logger.warn("File path: ${file.filePath}")
+        logger.warn("Rel path: ${file.packageName.asString()}")
+        var outFile = File(file.filePath)
+        (0 until numDrops).forEach { outFile = outFile.parentFile }
+        if (!outFile.exists()) {
+            outFile.mkdirs()
+        }
+        collection.writeTo(outFile)
     }
 
-    fun genPacketTypes(resolver: Resolver, types: PacketTypes, name: String) =
-        types.types.forEach { (key, _) ->
+    private fun genPacketContainer(
+        container: SCPacketContainer,
+        name: String
+    ): List<TypeSpec> =
+        genPacketTypes(container.toServer, "Server${name}") +
+        genPacketTypes(container.toClient, "Client${name}")
+
+    private fun genPacketTypes(
+        types: PacketTypes,
+        name: String
+    ): List<TypeSpec> = types.types.map { (key, _) ->
             val className =
                 if (key == "packet") name
                 else "${name}${snakeToCamelCase(key.substring(7 until key.length))}"
 
-            if (resolver.getClassDeclarationByName(resolver.getKSNameFromString(className)) != null)
-                return@forEach
-
-            try {
-                val fileSpec = FileSpec.builder("io.github.daylightnebula.meld.protocol", className)
-                    .addType(TypeSpec.classBuilder(className).build())
-                    .build()
-                fileSpec.writeTo(codeGenerator, aggregating = true)
-            } catch (e: FileAlreadyExistsException) {}
+            // open up file and add new types
+            TypeSpec.classBuilder(className).build()
         }
+//        types.types.forEach { (key, _) ->
+//            val className =
+//                if (key == "packet") name
+//                else "${name}${snakeToCamelCase(key.substring(7 until key.length))}"
+//
+//            // open up file and add new types
+//            val pkg = file.packageName.asString().split(".")
+//            val fileSpec = FileSpec.builder(pkg.subList(0, pkg.size - 1).joinToString { "." }, "JavaData")
+//                .addType(TypeSpec.classBuilder(className).build())
+//                .build()
+//
+//            // attempt to find the class file to write too
+//            val outputFile = File(File(file.filePath).parentFile, "JavaData.kt")
+//
+//            // write to the found output file
+//            fileSpec.writeTo(outputFile)
+//        }
 
     fun snakeToCamelCase(input: String) = input
         .split("_")

@@ -1,7 +1,12 @@
+@file:BuildJavaPackets(
+    className = "JavaData",
+    version = "1.21.4",
+    header = "Java"
+)
+
 package io.github.daylightnebula.meld.server
 
-import io.github.daylightnebula.meld.protocol.ServerConfigKeepAlive
-import io.github.daylightnebula.meld.protocol.ServerPlayKeepAlive
+import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.modules.MeldModule
 import io.github.daylightnebula.meld.server.modules.ModuleLoader
