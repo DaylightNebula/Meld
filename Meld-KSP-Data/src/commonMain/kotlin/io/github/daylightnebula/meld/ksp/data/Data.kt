@@ -1,5 +1,7 @@
 package io.github.daylightnebula.meld.ksp.data
 
+import kotlin.reflect.KClass
+
 interface IReader {
     fun read(): Byte
     fun readMany(count: Int): ByteArray
@@ -14,4 +16,4 @@ interface Codec<T> {
 annotation class BuildJavaPackets
 
 @Target(AnnotationTarget.CLASS)
-annotation class RegisterCodec(val target: String)
+annotation class RegisterCodec(val target: String, val type: KClass<*>)

@@ -9,8 +9,10 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ksp.toClassName
 import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
 import kotlinx.serialization.json.Json
@@ -18,6 +20,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 class MeldProcessor(
@@ -31,14 +34,12 @@ class MeldProcessor(
 
     // todo download protocol.json
 
-    // todo register native types
     // todo implement codecs for all native types
-    // todo have packets generate with only codecs we have
-    // todo have packets generate their encoders
-    // todo have packets generate their decoders
     // todo remove old AbstractReader and ByteWriter implementations
 
     // todo add types and params to packets
+
+    data class CodecEntry(val type: ClassName, val codec: ClassName)
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         // register native types
@@ -48,9 +49,12 @@ class MeldProcessor(
             val annotation = clazz.annotations
                 .filter { it.shortName == resolver.getKSNameFromString("RegisterCodec") }
                 .first()
-            val argument = annotation.arguments.first { it.name == resolver.getKSNameFromString("target") }
+            val arguments = annotation.arguments.associate { (it.name?.asString() ?: "") to it }
+            val target = arguments["target"]!!.value as String
+            val type = (arguments["type"]!!.value as KSType).toClassName()
+            val codec = it.toClassName()
 
-            (argument.value as String) to clazz.qualifiedName!!.asString()
+            target to CodecEntry(type, codec)
         }.toMap()
 
         // build packet classes
@@ -60,7 +64,7 @@ class MeldProcessor(
         return emptyList<KSAnnotated>()
     }
 
-    private fun buildPacketsClasses(file: KSClassDeclaration, codecs: Map<String, String>) {
+    private fun buildPacketsClasses(file: KSClassDeclaration, codecs: Map<String, CodecEntry>) {
         // get types
         val protocol: ProtocolFile = json.decodeFromString(downloadProtocol())
         val types = genPacketContainer(protocol.handshaking, codecs, "Handshake") +
@@ -86,7 +90,7 @@ class MeldProcessor(
 
     private fun genPacketContainer(
         container: SCPacketContainer,
-        codecs: Map<String, String>,
+        codecs: Map<String, CodecEntry>,
         name: String
     ): List<TypeSpec> =
         genPacketTypes(container.toServer, codecs, "Server${name}", name) +
@@ -94,7 +98,7 @@ class MeldProcessor(
 
     private fun genPacketTypes(
         types: PacketTypes,
-        codecs: Map<String, String>,
+        codecs: Map<String, CodecEntry>,
         name: String,
         state: String
     ): List<TypeSpec> = types.types.mapNotNull { (key, value) ->
@@ -105,14 +109,19 @@ class MeldProcessor(
         val myClass = ClassName("io.github.daylightnebula.meld.server", "Java$className")
 
         // load named types
-        val params = mutableListOf<PropertySpec>()
+//        val params = mutableListOf<PropertySpec>()
         val namedTypes = (value as? ProtocolType.Container)?.contained ?: emptyList()
-        namedTypes.forEach { type ->
-            val prop = PropertySpec
-                .builder(type.name ?: return@forEach, ClassName("kotlin", "String"))
-                .initializer(type.name)
+        val nameTypeClasses = namedTypes.mapNotNull { type ->
+            (type.name ?: return@mapNotNull null) to (when(type.type) {
+                is ProtocolType.Simple -> codecs[type.type.text] ?: throw java.lang.IllegalStateException("No codec for ${type.type.text}")
+                else -> TODO("ProtocolType CodecEntry finder not implemented for ${type.type}")
+            })
+        }.toMap()
+        val params = nameTypeClasses.mapNotNull { (name, entry) ->
+            PropertySpec
+                .builder(name, entry.type)
+                .initializer(name)
                 .build()
-            params.add(prop)
         }
 
         // add ID
@@ -148,16 +157,25 @@ class MeldProcessor(
             .build()
 
         // add create function
+        val decodeReturnPre = nameTypeClasses.map { (name, entry) ->
+            "\t$name = ${entry.codec.simpleName}.decode(reader)"
+        }.joinToString(",\n")
+        val decodeReturn = if (nameTypeClasses.isNotEmpty()) "\n$decodeReturnPre\n" else ""
         val decodeFun = FunSpec.builder("decode")
             .addModifiers(KModifier.OVERRIDE)
             .addParameter("reader", ClassName("io.github.daylightnebula.meld.ksp.data", "IReader"))
+            .addCode("return ${myClass.simpleName}($decodeReturn)")
             .returns(myClass)
             .build()
 
         // add encode function
+        val encodeReturnPre = nameTypeClasses.map { (name, entry) ->
+            entry.codec.simpleName + ".encode($name)"
+        }.joinToString(" +\n ")
+        val encodeReturn = if (nameTypeClasses.isNotEmpty()) encodeReturnPre else "byteArrayOf()"
         val encodeFun = FunSpec.builder("encode")
             .addModifiers(KModifier.OVERRIDE)
-            .addCode("return byteArrayOf() + byteArrayOf()")
+            .addCode("return $encodeReturn")
             .returns(ByteArray::class)
             .build()
 

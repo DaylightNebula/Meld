@@ -33,12 +33,6 @@ import kotlin.uuid.Uuid
 
 @BuildJavaPackets
 
-@RegisterCodec("i32")
-object IntCodec: Codec<Int> {
-    override fun decode(reader: IReader) = Buffer().write(reader.readMany(4)).readInt()
-    override fun encode(data: Int) = Buffer().writeInt(data).readByteArray()
-}
-
 @Serializable
 data class MeldConfig (
     // java specific

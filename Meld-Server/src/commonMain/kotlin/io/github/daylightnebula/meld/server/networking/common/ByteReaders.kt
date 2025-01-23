@@ -2,6 +2,8 @@ package io.github.daylightnebula.meld.server.networking.common
 
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.ksp.data.IReader
+import io.github.daylightnebula.meld.server.CONTINUE_BIT
+import io.github.daylightnebula.meld.server.SEGMENT_BITS
 import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.meldNbt
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
@@ -23,8 +25,6 @@ abstract class AbstractReader: IReader {
 
     // constants
     companion object {
-        const val SEGMENT_BITS = 0x7F
-        const val CONTINUE_BIT = 0x80
     }
 
     // read a variable int from the above abstract functions

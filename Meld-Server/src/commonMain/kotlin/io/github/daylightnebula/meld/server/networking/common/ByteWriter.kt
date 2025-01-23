@@ -1,10 +1,10 @@
 package io.github.daylightnebula.meld.server.networking.common
 
 import dev.romainguy.kotlin.math.Float3
+import io.github.daylightnebula.meld.server.CONTINUE_BIT
+import io.github.daylightnebula.meld.server.SEGMENT_BITS
 import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.meldNbt
-import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.CONTINUE_BIT
-import io.github.daylightnebula.meld.server.networking.common.AbstractReader.Companion.SEGMENT_BITS
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.encodeToByteArray
