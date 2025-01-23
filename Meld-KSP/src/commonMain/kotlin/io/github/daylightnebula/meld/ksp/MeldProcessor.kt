@@ -41,8 +41,6 @@ class MeldProcessor(
     // todo have packets generate with only codecs we have
     // todo have packets generate their encoders
     // todo have packets generate their decoders
-    // todo filter packets and packet ID
-    // todo find packet IDs
     // todo remove old AbstractReader and ByteWriter implementations
 
     // todo add types and params to packets
@@ -114,9 +112,15 @@ class MeldProcessor(
         // load named types
         val namedTypes = (value as? ProtocolType.Container)?.contained
 
-        // add ID todo find packet IDs
+        // add ID
+        val init = (
+            (types.types["packet"]!! as ProtocolType.Container)
+                .contained.first { it.name == "name" }
+                .type as ProtocolType.Mapping
+            ).mappings
+            .firstNotNullOf { if (it.value == key.substring(7 until key.length)) it.key else null }
         val idProp = PropertySpec.builder("ID", Int::class)
-            .initializer("0x00")
+            .initializer(init)
             .addModifiers(KModifier.OVERRIDE)
             .build()
 

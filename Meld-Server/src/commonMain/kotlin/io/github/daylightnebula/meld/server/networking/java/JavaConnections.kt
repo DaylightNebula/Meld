@@ -22,7 +22,8 @@ class JavaConnection(
         val writer = ByteWriter(packet.ID, DataPacketMode.JAVA)
 
         // encode packet
-        packet.encode(writer)
+        val data = packet.encode()
+        writer.writeByteArray(data)
 
         // send byte array to client
         val bytes = writer.getData()
@@ -57,5 +58,5 @@ interface JavaPacket {
 
     val ID: Int
     val STATE: JavaConnectionState
-    fun encode(writer: ByteWriter)
+    fun encode(): ByteArray
 }
