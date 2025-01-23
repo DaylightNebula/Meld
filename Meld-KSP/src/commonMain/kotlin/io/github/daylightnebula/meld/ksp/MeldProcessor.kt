@@ -9,13 +9,8 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
 import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
 import kotlinx.serialization.json.Json
@@ -110,7 +105,15 @@ class MeldProcessor(
         val myClass = ClassName("io.github.daylightnebula.meld.server", "Java$className")
 
         // load named types
-        val namedTypes = (value as? ProtocolType.Container)?.contained
+        val params = mutableListOf<PropertySpec>()
+        val namedTypes = (value as? ProtocolType.Container)?.contained ?: emptyList()
+        namedTypes.forEach { type ->
+            val prop = PropertySpec
+                .builder(type.name ?: return@forEach, ClassName("kotlin", "String"))
+                .initializer(type.name)
+                .build()
+            params.add(prop)
+        }
 
         // add ID
         val init = (
@@ -137,6 +140,13 @@ class MeldProcessor(
             .addModifiers(KModifier.OVERRIDE)
             .build()
 
+        // add constructor
+        val construct = FunSpec.constructorBuilder()
+            .addParameters(params.map {
+                ParameterSpec.builder(it.name, it.type).build()
+            })
+            .build()
+
         // add create function
         val decodeFun = FunSpec.builder("decode")
             .addModifiers(KModifier.OVERRIDE)
@@ -147,6 +157,7 @@ class MeldProcessor(
         // add encode function
         val encodeFun = FunSpec.builder("encode")
             .addModifiers(KModifier.OVERRIDE)
+            .addCode("return byteArrayOf() + byteArrayOf()")
             .returns(ByteArray::class)
             .build()
 
@@ -167,6 +178,8 @@ class MeldProcessor(
             .addType(companion)
             .addProperty(idProp)
             .addProperty(stateProp)
+            .addProperties(params)
+            .primaryConstructor(construct)
             .addFunction(encodeFun)
             .build()
     }
