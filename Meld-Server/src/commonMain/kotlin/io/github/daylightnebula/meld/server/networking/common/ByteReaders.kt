@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.server.networking.common
 
 import dev.romainguy.kotlin.math.Float3
+import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.server.meldJson
 import io.github.daylightnebula.meld.server.meldNbt
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
@@ -15,13 +16,10 @@ import kotlin.experimental.and
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-abstract class AbstractReader {
+abstract class AbstractReader: IReader {
     // important abstract functions
-    abstract fun readByte(): Byte
-    abstract fun readBytes(count: Int): ByteArray
     abstract fun reset()
     abstract fun hasNext(): Boolean
-    abstract fun remaining(): Int
 
     // constants
     companion object {
@@ -35,7 +33,7 @@ abstract class AbstractReader {
         var position = 0
         var currentByte: Byte
         while (true) {
-            currentByte = readByte()
+            currentByte = read()
             value = value or (currentByte.toInt() and SEGMENT_BITS shl position)
             if (currentByte.toInt() and CONTINUE_BIT == 0) break
             position += 7
@@ -50,7 +48,7 @@ abstract class AbstractReader {
         var position = 0
         var currentByte: Byte
         while (true) {
-            currentByte = readByte()
+            currentByte = read()
             value = value or ((currentByte and SEGMENT_BITS.toByte()).toLong() shl position)
             if (currentByte.toInt() and CONTINUE_BIT == 0) break
             position += 7
@@ -62,15 +60,15 @@ abstract class AbstractReader {
     fun readAngle() = readUByte().toInt().toFloat() / 256f * 360f
 
     // simple primitive reads
-    fun readBoolean(): Boolean = readByte() > 0
-    fun readUByte(): UByte = readByte().toUByte()
-    fun readShort(): Short = Buffer().write(readBytes(2)).readShort()
+    fun readBoolean(): Boolean = read() > 0
+    fun readUByte(): UByte = read().toUByte()
+    fun readShort(): Short = Buffer().write(readMany(2)).readShort()
     fun readUShort(): UShort = readShort().toUShort()
-    fun read3Int(): Int = readByte() + (readByte().toInt() shl 8) + (readByte().toInt() shl 16) // reknet sends 3 byte integers sometimes
-    fun readInt(): Int = Buffer().write(readBytes(4)).readInt()
+    fun read3Int(): Int = read() + (read().toInt() shl 8) + (read().toInt() shl 16) // reknet sends 3 byte integers sometimes
+    fun readInt(): Int = Buffer().write(readMany(4)).readInt()
     fun readFloat(): Float = Float.fromBits(readInt())
     fun readDouble(): Double = Double.fromBits(readLong())
-    fun readLong() = Buffer().write(readBytes(8)).readLong()
+    fun readLong() = Buffer().write(readMany(8)).readLong()
     fun readFloat3() = Float3(readFloat(), readFloat(), readFloat())
 
     fun readBlockPosition(): Float3 {
@@ -82,9 +80,9 @@ abstract class AbstractReader {
     }
 
     // complex object reads
-    fun readByteArray() = readBytes(remaining())
-    fun readString(): String = String(readBytes(readVarInt()))
-    fun readShortString(): String = String(readBytes(readUShort().toInt()))
+    fun readByteArray() = readMany(remaining())
+    fun readString(): String = String(readMany(readVarInt()))
+    fun readShortString(): String = String(readMany(readUShort().toInt()))
     fun readJsonObject(): JsonObject = meldJson.decodeFromString(readString())
     fun readNBT(): NbtCompound = meldNbt.decodeFromByteArray(readByteArray())
 
@@ -98,11 +96,11 @@ abstract class AbstractReader {
 }
 
 class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
-    override fun readByte(): Byte {
+    override fun read(): Byte {
         return runBlocking { channel.readByte() }
     }
 
-    override fun readBytes(count: Int): ByteArray {
+    override fun readMany(count: Int): ByteArray {
         return runBlocking {
             val array = ByteArray(count)
             try { channel.readFully(array, 0, count) } catch (_: Exception) {}
@@ -125,11 +123,11 @@ class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
 class ByteArrayReader(private val array: ByteArray): AbstractReader() {
     private var currentByte = 0
 
-    override fun readByte(): Byte {
+    override fun read(): Byte {
         return array[currentByte++]
     }
 
-    override fun readBytes(count: Int): ByteArray {
+    override fun readMany(count: Int): ByteArray {
         val startIndex = currentByte
         currentByte += count
         return array.sliceArray(startIndex until startIndex + count)
@@ -147,8 +145,8 @@ class ByteArrayReader(private val array: ByteArray): AbstractReader() {
 }
 
 class ByteReadPacketReader(val packet: ByteReadPacket): AbstractReader() {
-    override fun readByte(): Byte = packet.readByte()
-    override fun readBytes(count: Int): ByteArray = packet.readBytes(count)
+    override fun read(): Byte = packet.readByte()
+    override fun readMany(count: Int): ByteArray = packet.readBytes(count)
     override fun reset() { throw NotImplementedException("") }
     override fun hasNext(): Boolean {
         return !packet.endOfInput

@@ -18,6 +18,6 @@ class JavaReceivePlayerAbilitiesPacket(
     override val OUTGOING_ID: Int = 0x3A
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
-        flags = reader.readByte()
+        flags = reader.read()
     }
 }

@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.server.networking.java
 
+import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.events.EventBus
@@ -51,7 +52,7 @@ interface JavaPacket {
     interface Creator<T: JavaPacket> {
         val ID: Int
         val STATE: JavaConnectionState
-        fun decode(reader: AbstractReader): T
+        fun decode(reader: IReader): T
     }
 
     val ID: Int

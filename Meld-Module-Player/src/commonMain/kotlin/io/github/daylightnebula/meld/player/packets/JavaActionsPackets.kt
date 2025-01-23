@@ -47,7 +47,7 @@ class JavaBlockActionPacket(
     override fun decode(reader: AbstractReader) {
         action = PlayerBlockAction.values()[reader.readVarInt()]
         blockPosition = reader.readBlockPosition()
-        face = BlockFace.values()[reader.readByte().toInt()]
+        face = BlockFace.values()[reader.read().toInt()]
         sequence = reader.readVarInt()
     }
 }

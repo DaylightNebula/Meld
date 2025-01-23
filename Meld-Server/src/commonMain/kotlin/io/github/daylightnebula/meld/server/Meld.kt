@@ -1,11 +1,16 @@
-@file:BuildJavaPackets
-
 package io.github.daylightnebula.meld.server
 
 import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
+import io.github.daylightnebula.meld.ksp.data.Codec
+import io.github.daylightnebula.meld.ksp.data.IReader
+import io.github.daylightnebula.meld.ksp.data.RegisterCodec
+import io.github.daylightnebula.meld.protocol.ServerConfigKeepAlive
+import io.github.daylightnebula.meld.protocol.ServerPlayKeepAlive
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.modules.MeldModule
 import io.github.daylightnebula.meld.server.modules.ModuleLoader
+import io.github.daylightnebula.meld.server.networking.common.AbstractReader
+import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.*
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -18,12 +23,21 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.benwoodworth.knbt.*
+import okio.Buffer
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.SYSTEM
 import kotlin.random.Random
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+
+@BuildJavaPackets
+
+@RegisterCodec("i32")
+object IntCodec: Codec<Int> {
+    override fun decode(reader: IReader) = Buffer().write(reader.readMany(4)).readInt()
+    override fun encode(data: Int) = Buffer().writeInt(data).readByteArray()
+}
 
 @Serializable
 data class MeldConfig (

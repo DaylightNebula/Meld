@@ -26,10 +26,10 @@ class JavaClientInfoPacket(
     override fun encode(writer: ByteWriter) = noEncode()
     override fun decode(reader: AbstractReader) {
         locale = reader.readVarString()
-        viewDistance = reader.readByte().toInt()
+        viewDistance = reader.read().toInt()
         chatMode = reader.readVarInt()
         chatColorsEnabled = reader.readBoolean()
-        skinParts = reader.readByte()
+        skinParts = reader.read()
         mainHand = reader.readVarInt()
         textFilterEnabled = reader.readBoolean()
         allowServerListings = reader.readBoolean()
