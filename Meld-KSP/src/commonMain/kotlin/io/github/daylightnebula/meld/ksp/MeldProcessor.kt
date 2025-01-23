@@ -51,8 +51,6 @@ class MeldProcessor(
 
         // save final output
         val numDrops = file.packageName.asString().count { it == '.' } + 2 // +2 to deal with types
-        logger.warn("File path: ${file.filePath}")
-        logger.warn("Rel path: ${file.packageName.asString()}")
         var outFile = File(file.filePath)
         (0 until numDrops).forEach { outFile = outFile.parentFile }
         if (!outFile.exists()) {
@@ -71,31 +69,17 @@ class MeldProcessor(
     private fun genPacketTypes(
         types: PacketTypes,
         name: String
-    ): List<TypeSpec> = types.types.map { (key, _) ->
-            val className =
-                if (key == "packet") name
-                else "${name}${snakeToCamelCase(key.substring(7 until key.length))}"
+    ): List<TypeSpec> = types.types.map { (key, arr) ->
+        val className =
+            if (key == "packet") name
+            else "${name}${snakeToCamelCase(key.substring(7 until key.length))}"
 
-            // open up file and add new types
-            TypeSpec.classBuilder(className).build()
-        }
-//        types.types.forEach { (key, _) ->
-//            val className =
-//                if (key == "packet") name
-//                else "${name}${snakeToCamelCase(key.substring(7 until key.length))}"
-//
-//            // open up file and add new types
-//            val pkg = file.packageName.asString().split(".")
-//            val fileSpec = FileSpec.builder(pkg.subList(0, pkg.size - 1).joinToString { "." }, "JavaData")
-//                .addType(TypeSpec.classBuilder(className).build())
-//                .build()
-//
-//            // attempt to find the class file to write too
-//            val outputFile = File(File(file.filePath).parentFile, "JavaData.kt")
-//
-//            // write to the found output file
-//            fileSpec.writeTo(outputFile)
-//        }
+        logger.warn("Array $arr")
+
+        // open up file and add new types
+        TypeSpec.classBuilder(className)
+            .build()
+    }
 
     fun snakeToCamelCase(input: String) = input
         .split("_")

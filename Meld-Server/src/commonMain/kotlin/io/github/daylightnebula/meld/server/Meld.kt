@@ -1,8 +1,4 @@
-@file:BuildJavaPackets(
-    className = "JavaData",
-    version = "1.21.4",
-    header = "Java"
-)
+@file:BuildJavaPackets
 
 package io.github.daylightnebula.meld.server
 
