@@ -40,12 +40,7 @@ val protocolJson = """
             "countType": "varint"
           }
         ],
-        "string": [
-          "pstring",
-          {
-            "countType": "varint"
-          }
-        ],
+        "string": "native",
         "vec2f": [
           "container",
           [

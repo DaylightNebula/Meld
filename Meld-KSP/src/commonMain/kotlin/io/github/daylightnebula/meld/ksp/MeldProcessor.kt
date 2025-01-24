@@ -1,12 +1,6 @@
 package io.github.daylightnebula.meld.ksp
 
-import com.google.devtools.ksp.getClassDeclarationByName
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.processing.SymbolProcessor
-import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.google.devtools.ksp.processing.SymbolProcessorProvider
+import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
@@ -16,12 +10,8 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
+import kotlin.uuid.ExperimentalUuidApi
 
 class MeldProcessor(
     val codeGenerator: CodeGenerator,
@@ -39,7 +29,7 @@ class MeldProcessor(
 
     // todo add types and params to packets
 
-    data class CodecEntry(val type: ClassName, val codec: ClassName)
+    data class CodecEntry(val type: ClassName, val codec: ClassName, val manuallyCreated: Boolean)
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         // register native types
@@ -54,8 +44,8 @@ class MeldProcessor(
             val type = (arguments["type"]!!.value as KSType).toClassName()
             val codec = it.toClassName()
 
-            target to CodecEntry(type, codec)
-        }.toMap()
+            target to CodecEntry(type, codec, true)
+        }.toMap().toMutableMap()
 
         // build packet classes
         resolver.getSymbolsWithAnnotation(BuildJavaPackets::class.qualifiedName!!)
@@ -64,10 +54,12 @@ class MeldProcessor(
         return emptyList<KSAnnotated>()
     }
 
-    private fun buildPacketsClasses(file: KSClassDeclaration, codecs: Map<String, CodecEntry>) {
+    private fun buildPacketsClasses(file: KSClassDeclaration, codecs: MutableMap<String, CodecEntry>) {
         // get types
         val protocol: ProtocolFile = json.decodeFromString(downloadProtocol())
-        val types = genPacketContainer(protocol.handshaking, codecs, "Handshake") +
+        val types =
+            genTypeContainers(protocol.types, codecs) +
+            genPacketContainer(protocol.handshaking, codecs, "Handshake") +
             genPacketContainer(protocol.status, codecs, "Status") +
             genPacketContainer(protocol.configuration, codecs, "Config") +
             genPacketContainer(protocol.login, codecs, "Login") +
@@ -88,6 +80,37 @@ class MeldProcessor(
         collection.writeTo(outFile)
     }
 
+    private fun genTypeContainers(
+        types: Map<String, ProtocolType>,
+        codecs: MutableMap<String, CodecEntry>
+    ) = types.mapNotNull { (key, type) ->
+        // make sure container
+        if (type !is ProtocolType.Container) return@mapNotNull null
+
+        // add id prop
+        val idProp = PropertySpec.builder("ID", Int::class)
+            .initializer("0x00")
+            .addModifiers(KModifier.OVERRIDE)
+            .build()
+
+        // add state
+        val stateProp = PropertySpec.builder("STATE", ClassName("io.github.daylightnebula.meld.server.networking.java", "JavaConnectionState"))
+            .initializer("JavaConnectionState.HANDSHAKE")
+            .addModifiers(KModifier.OVERRIDE)
+            .build()
+
+        // generate container
+        val myClass = ClassName("io.github.daylightnebula.meld.server", snakeToCamelCase(key))
+        codecs[key] = CodecEntry(myClass, myClass, false)
+        genContainer(
+            codecs = codecs,
+            value = type,
+            myClass = myClass,
+            idProp = idProp,
+            stateProp = stateProp
+        )
+    }
+
     private fun genPacketContainer(
         container: SCPacketContainer,
         codecs: Map<String, CodecEntry>,
@@ -96,40 +119,258 @@ class MeldProcessor(
         genPacketTypes(container.toServer, codecs, "Server${name}", name) +
         genPacketTypes(container.toClient, codecs, "Client${name}", name)
 
+    private fun getPrimaryCodec(
+        codecs: Map<String, CodecEntry>,
+        inType: ProtocolType,
+    ): CodecEntry? = when(inType) {
+        is ProtocolType.Simple -> codecs[inType.text] //throw java.lang.IllegalStateException("Could not find codec for ${inType.text}")
+        is ProtocolType.Array -> getPrimaryCodec(codecs, inType.type)
+        is ProtocolType.Buffer -> null
+        is ProtocolType.Container -> null
+//        is ProtocolType.Mapping -> TODO("Primary Codec Mapping")
+//        is ProtocolType.BitFlags -> TODO("Primary Codec Bit Flags")
+//        is ProtocolType.BitFields -> TODO("Primary Codec Bit Fields")
+//        is ProtocolType.Option -> TODO("Primary Codec Option")
+//        is ProtocolType.CompareTo -> TODO("Primary Codec Compare To")
+//        is ProtocolType.Complex -> TODO("Primary Codec Complex")
+//        is ProtocolType.TopBitSetTerminatedArray -> TODO("Primary Codec Top Bit Set Terminated Array")
+        else -> null //throw IllegalStateException("Could not find primary codec for protocol type $inType")
+    }
+
+    private fun getKtType(
+        codecs: Map<String, CodecEntry>,
+        typeBuilder: TypeSpec.Builder,
+        inType: ProtocolType,
+        idProp: PropertySpec,
+        stateProp: PropertySpec,
+        packetClass: ClassName,
+        name: String
+    ): PropertySpec? {
+        return when(inType) {
+            is ProtocolType.Simple -> getPrimaryCodec(codecs, inType)
+                .let { codec -> PropertySpec.builder(name, codec?.type ?: return null).initializer(name).build() }
+
+            is ProtocolType.Array -> {
+                val internalType = getKtType(
+                    codecs = codecs,
+                    typeBuilder = typeBuilder,
+                    inType = inType.type,
+                    idProp = idProp,
+                    stateProp = stateProp,
+                    packetClass = packetClass,
+                    name = name
+                )?.type ?: return null
+
+                PropertySpec.builder(
+                    name = name,
+                    type = ClassName("kotlin", "Array").parameterizedBy(internalType)
+                ).initializer(name).build()
+            }
+
+            is ProtocolType.Buffer -> PropertySpec.builder(name, ByteArray::class)
+                .initializer(name)
+                .build()
+
+            is ProtocolType.Container -> {
+                val containerClass = ClassName("", snakeToCamelCase(name))
+
+                // add container type
+                typeBuilder.addType(genContainer(
+                    codecs = codecs,
+                    value = inType,
+                    myClass = containerClass,
+                    idProp = idProp,
+                    stateProp = stateProp
+                ))
+
+                // add property
+                PropertySpec.builder(name, containerClass)
+                    .initializer(name)
+                    .build()
+            }
+
+    //        is ProtocolType.Mapping -> TODO("KT Type Mapping")
+    //        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
+    //        is ProtocolType.BitFields -> TODO("KT Type Bit Fields")
+    //        is ProtocolType.Option -> TODO("KT Type Option")
+    //        is ProtocolType.CompareTo -> TODO("KT Type Compare To")
+    //        is ProtocolType.Complex -> TODO("KT Type Complex")
+    //        is ProtocolType.TopBitSetTerminatedArray -> TODO("KT Type Top Bit Set Terminated Array")
+            else -> null //throw IllegalStateException("Could not find kt type for protocol type $inType")
+        }
+    }
+
+    fun encodeString(
+        codecs: Map<String, CodecEntry>,
+        type: ProtocolType,
+        name: String
+    ): String? = when(type) {
+        is ProtocolType.Simple -> {
+            val codec = getPrimaryCodec(codecs, type) ?: return null
+            if (codec.manuallyCreated) "${codec.codec.simpleName}.encode($name)"
+            else "$name.encode()"
+        }
+
+        is ProtocolType.Array -> {
+            val child = encodeString(codecs, type.type, name) ?: return null
+            "$name.map { $name -> $child }.fold(byteArrayOf()) { acc, bytes -> acc + bytes }"
+        }
+
+        is ProtocolType.Container -> "$name.encode()"
+
+        is ProtocolType.Buffer -> name
+        //        is ProtocolType.Mapping -> TODO("KT Type Mapping")
+        //        is ProtocolType.Buffer -> TODO("KT Type Buffer")
+        //        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
+        //        is ProtocolType.BitFields -> TODO("KT Type Bit Fields")
+        //        is ProtocolType.Option -> TODO("KT Type Option")
+        //        is ProtocolType.CompareTo -> TODO("KT Type Compare To")
+        //        is ProtocolType.Complex -> TODO("KT Type Complex")
+        //        is ProtocolType.TopBitSetTerminatedArray -> TODO("KT Type Top Bit Set Terminated Array")
+        else -> null
+    }
+
+    fun decodeString(
+        codecs: Map<String, CodecEntry>,
+        type: ProtocolType,
+        name: String,
+    ): String? = when(type) {
+        is ProtocolType.Simple -> {
+            val codec = getPrimaryCodec(codecs, type)?.codec ?: return null
+            "${codec.simpleName}.decode(reader)"
+        }
+
+        is ProtocolType.Array ->
+            "(0 until VarIntCodec.decode(reader)).map { ${decodeString(codecs, type.type, name)} }.toTypedArray()"
+
+        is ProtocolType.Buffer ->
+            "reader.readMany(VarIntCodec.decode(reader))"
+
+        is ProtocolType.Container -> "${snakeToCamelCase(name)}.decode(reader)"
+
+        //        is ProtocolType.Container -> TODO("KT Type Container")
+        //        is ProtocolType.Mapping -> TODO("KT Type Mapping")
+        //        is ProtocolType.Buffer -> TODO("KT Type Buffer")
+        //        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
+        //        is ProtocolType.BitFields -> TODO("KT Type Bit Fields")
+        //        is ProtocolType.Option -> TODO("KT Type Option")
+        //        is ProtocolType.CompareTo -> TODO("KT Type Compare To")
+        //        is ProtocolType.Complex -> TODO("KT Type Complex")
+        //        is ProtocolType.TopBitSetTerminatedArray -> TODO("KT Type Top Bit Set Terminated Array")
+        else -> null
+    }
+
+    private fun genContainer(
+        codecs: Map<String, CodecEntry>,
+        value: ProtocolType.Container,
+        myClass: ClassName,
+        idProp: PropertySpec,
+        stateProp: PropertySpec
+    ): TypeSpec {
+        // create builder
+        val builder = TypeSpec.classBuilder(myClass.simpleName)
+            .addSuperinterface(ClassName("io.github.daylightnebula.meld.server.networking.java", "JavaPacket"))
+            .addProperty(idProp)
+            .addProperty(stateProp)
+            .addAnnotation(
+                AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+                    .addMember("%T::class", ExperimentalUuidApi::class)
+                    .build()
+            )
+
+        // load named types
+        val namedTypes = value.contained
+        val params = namedTypes.mapNotNull { type ->
+            (type.name ?: "error") to (
+                getKtType(
+                    codecs = codecs,
+                    typeBuilder = builder,
+                    inType = type.type,
+                    idProp = idProp,
+                    stateProp = stateProp,
+                    packetClass = myClass,
+                    name = type.name ?: "error"
+                ) ?: return@mapNotNull null
+            ) }.toMap()
+        builder.addProperties(params.values)
+
+        // add constructor
+        val construct = FunSpec.constructorBuilder()
+            .addParameters(params.values.map { prop ->
+                ParameterSpec.builder(prop.name, prop.type).build()
+            })
+            .build()
+        builder.primaryConstructor(construct)
+
+        // add create function
+        val decodeReturnPre = namedTypes.mapNotNull { pair ->
+            decodeString(
+                codecs = codecs,
+                type = pair.type,
+                name = pair.name ?: return@mapNotNull null
+            )?.let { "\t${pair.name} = $it" }
+        }.joinToString(",\n")
+        val decodeReturn = if (decodeReturnPre.length > 2) "\n$decodeReturnPre\n" else ""
+        val decodeFun = FunSpec.builder("decode")
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameter("reader", ClassName("io.github.daylightnebula.meld.ksp.data", "IReader"))
+            .addCode("return ${myClass.simpleName}($decodeReturn)")
+            .returns(myClass)
+            .build()
+
+        // add encode function
+        val encodeReturnPre = namedTypes.mapNotNull { pair ->
+            encodeString(
+                codecs = codecs,
+                type = pair.type,
+                name = pair.name ?: return@mapNotNull null
+            )
+        }.joinToString(" +\n ")
+        val encodeReturn = if (encodeReturnPre.length > 2) encodeReturnPre else "byteArrayOf()"
+        val encodeFun = FunSpec.builder("encode")
+            .addModifiers(KModifier.OVERRIDE)
+            .addCode("return $encodeReturn")
+            .returns(ByteArray::class)
+            .build()
+        builder.addFunction(encodeFun)
+
+        // create companion
+        builder.addType(
+            TypeSpec.companionObjectBuilder()
+                .addSuperinterface(
+                    ClassName("io.github.daylightnebula.meld.server.networking.java.JavaPacket", "Creator")
+                        .parameterizedBy(myClass)
+                )
+                .addProperty(idProp)
+                .addProperty(stateProp)
+                .addFunction(decodeFun)
+                .build()
+        )
+
+        // save type
+        return builder.build()
+    }
+
     private fun genPacketTypes(
         types: PacketTypes,
         codecs: Map<String, CodecEntry>,
         name: String,
         state: String
-    ): List<TypeSpec> = types.types.mapNotNull { (key, value) ->
-        // get class name
+    ) = types.types.mapNotNull { (key, value) ->
+        val container = value as? ProtocolType.Container ?: return@mapNotNull null
+
+        // generate class name descriptor or skip
         val className =
             if (key.startsWith("packet_")) "${name}${snakeToCamelCase(key.substring(7 until key.length))}"
             else return@mapNotNull null
         val myClass = ClassName("io.github.daylightnebula.meld.server", "Java$className")
 
-        // load named types
-//        val params = mutableListOf<PropertySpec>()
-        val namedTypes = (value as? ProtocolType.Container)?.contained ?: emptyList()
-        val nameTypeClasses = namedTypes.mapNotNull { type ->
-            (type.name ?: return@mapNotNull null) to (when(type.type) {
-                is ProtocolType.Simple -> codecs[type.type.text] ?: throw java.lang.IllegalStateException("No codec for ${type.type.text}")
-                else -> TODO("ProtocolType CodecEntry finder not implemented for ${type.type}")
-            })
-        }.toMap()
-        val params = nameTypeClasses.mapNotNull { (name, entry) ->
-            PropertySpec
-                .builder(name, entry.type)
-                .initializer(name)
-                .build()
-        }
-
         // add ID
         val init = (
-            (types.types["packet"]!! as ProtocolType.Container)
-                .contained.first { it.name == "name" }
-                .type as ProtocolType.Mapping
-            ).mappings
+                (types.types["packet"]!! as ProtocolType.Container)
+                    .contained.first { it.name == "name" }
+                    .type as ProtocolType.Mapping
+                ).mappings
             .firstNotNullOf { if (it.value == key.substring(7 until key.length)) it.key else null }
         val idProp = PropertySpec.builder("ID", Int::class)
             .initializer(init)
@@ -149,57 +390,8 @@ class MeldProcessor(
             .addModifiers(KModifier.OVERRIDE)
             .build()
 
-        // add constructor
-        val construct = FunSpec.constructorBuilder()
-            .addParameters(params.map {
-                ParameterSpec.builder(it.name, it.type).build()
-            })
-            .build()
-
-        // add create function
-        val decodeReturnPre = nameTypeClasses.map { (name, entry) ->
-            "\t$name = ${entry.codec.simpleName}.decode(reader)"
-        }.joinToString(",\n")
-        val decodeReturn = if (nameTypeClasses.isNotEmpty()) "\n$decodeReturnPre\n" else ""
-        val decodeFun = FunSpec.builder("decode")
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameter("reader", ClassName("io.github.daylightnebula.meld.ksp.data", "IReader"))
-            .addCode("return ${myClass.simpleName}($decodeReturn)")
-            .returns(myClass)
-            .build()
-
-        // add encode function
-        val encodeReturnPre = nameTypeClasses.map { (name, entry) ->
-            entry.codec.simpleName + ".encode($name)"
-        }.joinToString(" +\n ")
-        val encodeReturn = if (nameTypeClasses.isNotEmpty()) encodeReturnPre else "byteArrayOf()"
-        val encodeFun = FunSpec.builder("encode")
-            .addModifiers(KModifier.OVERRIDE)
-            .addCode("return $encodeReturn")
-            .returns(ByteArray::class)
-            .build()
-
-        // create companion
-        val companion = TypeSpec.companionObjectBuilder()
-            .addSuperinterface(
-                ClassName("io.github.daylightnebula.meld.server.networking.java.JavaPacket", "Creator")
-                    .parameterizedBy(myClass)
-            )
-            .addProperty(idProp)
-            .addProperty(stateProp)
-            .addFunction(decodeFun)
-            .build()
-
-        // open up file and add new types
-        TypeSpec.classBuilder("Java$className")
-            .addSuperinterface(ClassName("io.github.daylightnebula.meld.server.networking.java", "JavaPacket"))
-            .addType(companion)
-            .addProperty(idProp)
-            .addProperty(stateProp)
-            .addProperties(params)
-            .primaryConstructor(construct)
-            .addFunction(encodeFun)
-            .build()
+        // create container
+        genContainer(codecs, container, myClass, idProp, stateProp)
     }
 
     fun snakeToCamelCase(input: String) = input

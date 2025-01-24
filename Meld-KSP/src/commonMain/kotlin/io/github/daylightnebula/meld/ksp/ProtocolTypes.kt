@@ -18,7 +18,7 @@ import java.io.Serial
 
 @Serializable
 data class ProtocolFile(
-//    val types: Map<String, Any>,
+    val types: Map<String, ProtocolType>,
     val handshaking: SCPacketContainer,
     val status: SCPacketContainer,
     val login: SCPacketContainer,
@@ -69,6 +69,9 @@ abstract class ProtocolType {
                     "bitflags" -> Json.decodeFromJsonElement<BitFlags>(element[1])
                     "bitfield" -> BitFields(Json.decodeFromJsonElement<List<BitField>>(element[1]))
                     "topBitSetTerminatedArray" -> Json.decodeFromJsonElement<TopBitSetTerminatedArray>(element[1])
+                    "registryEntryHolderSet" -> Json.decodeFromJsonElement<RegistryEntryHolderSet>(element[1])
+                    "registryEntryHolder" -> Json.decodeFromJsonElement<RegistryEntryHolder>(element[1])
+                    "entityMetadataLoop" -> Json.decodeFromJsonElement<EntityMetadataLoop>(element[1])
                     else -> throw IllegalStateException("ProtocolType Array could not be decoded! ${element[0].jsonPrimitive.content}")
                 }
             }
@@ -119,6 +122,15 @@ abstract class ProtocolType {
 
     @Serializable
     class TopBitSetTerminatedArray(val type: ProtocolType): ProtocolType()
+
+    @Serializable
+    class RegistryEntryHolderSet(val base: NamedType, val otherwise: NamedType): ProtocolType()
+
+    @Serializable
+    class RegistryEntryHolder(val baseName: String, val otherwise: NamedType): ProtocolType()
+
+    @Serializable
+    class EntityMetadataLoop(val endVal: Int, val type: ProtocolType): ProtocolType()
 }
 
 @Serializable

@@ -1,11 +1,6 @@
 package io.github.daylightnebula.meld.server
 
 import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
-import io.github.daylightnebula.meld.ksp.data.Codec
-import io.github.daylightnebula.meld.ksp.data.IReader
-import io.github.daylightnebula.meld.ksp.data.RegisterCodec
-import io.github.daylightnebula.meld.protocol.ServerConfigKeepAlive
-import io.github.daylightnebula.meld.protocol.ServerPlayKeepAlive
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.modules.MeldModule
 import io.github.daylightnebula.meld.server.modules.ModuleLoader
@@ -104,8 +99,8 @@ val keepAliveThread = GlobalScope.launch {
                             JavaConnectionState.HANDSHAKE -> {}
                             JavaConnectionState.STATUS -> {}
                             JavaConnectionState.LOGIN -> {}
-                            JavaConnectionState.CONFIG -> it.sendPacket(ServerConfigKeepAlive(Random.nextLong()))
-                            JavaConnectionState.IN_GAME -> it.sendPacket(ServerPlayKeepAlive(Random.nextLong()))
+                            JavaConnectionState.CONFIG -> it.sendPacket(JavaServerConfigKeepAlive(Random.nextLong()))
+                            JavaConnectionState.IN_GAME -> it.sendPacket(JavaServerPlayKeepAlive(Random.nextLong()))
                         }
                     }
                 }
