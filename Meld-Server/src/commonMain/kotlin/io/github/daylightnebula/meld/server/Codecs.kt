@@ -54,6 +54,12 @@ object UShortCodec: Codec<UShort> {
     override fun encode(data: UShort) = Buffer().writeShort(data.toInt()).readByteArray()
 }
 
+@RegisterCodec("f32", Float::class)
+object FloatCodec: Codec<Float> {
+    override fun encode(data: Float) = Buffer().writeInt(data.toBits()).readByteArray()
+    override fun decode(reader: IReader) = Float.fromBits(Buffer().write(reader.readMany(4)).readInt())
+}
+
 @RegisterCodec("varint", Int::class)
 object VarIntCodec: Codec<Int> {
     override fun decode(reader: IReader): Int {

@@ -1,13 +1,12 @@
 package io.github.daylightnebula.meld.login
 
-import io.github.daylightnebula.meld.login.packets.config.*
-import io.github.daylightnebula.meld.login.packets.login.*
 import io.github.daylightnebula.meld.server.*
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.*
 import io.github.daylightnebula.meld.server.registries.codec.*
+import kotlinx.serialization.encodeToString
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -16,86 +15,114 @@ private val tempUIDStorage = mutableMapOf<IConnection<*>, Uuid>()
 class LoginBundle: PacketBundle {
     override fun registerJavaPackets() = javaPackets(
         javaPacket(
-            creator = JavaHandshakePacket,
+            creator = JavaServerHandshakeSetProtocol,
             execute = this::onHandshake
         ),
 
         javaPacket(
-            creator = JavaStatusStatusPacket,
+            creator = JavaServerStatusPingStart,
             execute = this::onStatusStatus
         ),
 
         javaPacket(
-            creator = JavaStatusPingPacket,
+            creator = JavaServerStatusPing,
             execute = this::onStatusPing
         ),
 
         javaPacket(
-            creator = JavaInitiateLoginPacket,
+            creator = JavaServerLoginLoginStart,
             execute = this::onInitiateLogin
         ),
 
         javaPacket(
-            creator = JavaConfigKeepAlivePacket,
+            creator = JavaServerConfigKeepAlive,
             execute = this::onConfigKeepAlive
         ),
 
         javaPacket(
-            creator = JavaClientInfoPacket,
+            creator = JavaServerConfigSettings,
             execute = this::onClientInfo
         ),
 
         javaPacket(
-            creator = JavaLoginAcknowledge,
+            creator = JavaServerLoginLoginAcknowledged,
             execute = this::onLoginAcknowledged
         ),
 
-        javaPacket(JavaConfigMessagePacket, this::onConfigMessage),
-        javaPacket(JavaFinishConfigPacket, this::onFinishConfig),
-        javaPacket(JavaSelectKnownPackPacket, this::onClientPacksLoaded)
+        javaPacket(JavaServerConfigCustomPayload, this::onConfigMessage),
+        javaPacket(JavaServerConfigFinishConfiguration, this::onFinishConfig),
+        javaPacket(PacketCommonSelectKnownPacks, this::onClientPacksLoaded)
     )
 
-    fun onConfigKeepAlive(connection: JavaConnection, packet: JavaConfigKeepAlivePacket) {}
+    fun onConfigKeepAlive(connection: JavaConnection, packet: JavaServerConfigKeepAlive) {}
 
-    fun onHandshake(connection: JavaConnection, packet: JavaHandshakePacket) =
+    fun onHandshake(connection: JavaConnection, packet: JavaServerHandshakeSetProtocol) =
         when (packet.nextState) {
             1 -> connection.state = JavaConnectionState.STATUS
             2 -> connection.state = JavaConnectionState.LOGIN
             else -> throw IllegalArgumentException("Unknown handshake next state ${packet.nextState}")
         }
 
-    fun onStatusStatus(connection: JavaConnection, packet: JavaStatusStatusPacket) =
-        connection.sendPacket(JavaStatusStatusPacket().apply {
-            json = JavaNetworkController.pingJson()
-        })
+    fun onStatusStatus(connection: JavaConnection, packet: JavaServerStatusPingStart) =
+        connection.sendPacket(
+            JavaClientStatusServerInfo(
+                response = meldJson.encodeToString(JavaNetworkController.pingJson())
+            )
+        )
 
-    fun onStatusPing(connection: JavaConnection, packet: JavaStatusPingPacket) = connection.sendPacket(packet)
+    fun onStatusPing(connection: JavaConnection, packet: JavaServerStatusPing) = connection.sendPacket(JavaClientStatusPing(packet.time))
 
     @OptIn(ExperimentalUuidApi::class)
-    fun onInitiateLogin(connection: JavaConnection, packet: JavaInitiateLoginPacket) {
-        tempUIDStorage[connection] = packet.uuid ?: Uuid.random()
+    fun onInitiateLogin(connection: JavaConnection, packet: JavaServerLoginLoginStart) {
+        tempUIDStorage[connection] = packet.playerUUID
 
         // respond
         connection.sendPacket(
-            JavaLoginSuccessPacket(
+            JavaClientLoginSuccess(
                 uuid = tempUIDStorage[connection]!!,
-                username = packet.username
+                username = packet.username,
+                properties = emptyArray()
             )
         )
     }
 
-    fun onLoginAcknowledged(connection: JavaConnection, packet: JavaLoginAcknowledge) {
+    fun onLoginAcknowledged(connection: JavaConnection, packet: JavaServerLoginLoginAcknowledged) {
         // move to config state
         connection.state = JavaConnectionState.CONFIG
     }
 
-    fun onClientInfo(connection: JavaConnection, packet: JavaClientInfoPacket) {
-        connection.sendPacket(JavaFeatureFlagsPacket())
-        connection.sendPacket(JavaSelectKnownPackPacket())
+    fun onClientInfo(connection: JavaConnection, packet: JavaServerConfigSettings) {
+        connection.sendPacket(JavaClientConfigFeatureFlags(
+            features = arrayOf("minecraft:vanilla")
+        ))
+        connection.sendPacket(PacketCommonSelectKnownPacks(arrayOf(
+            PacketCommonSelectKnownPacks.Packs(
+                namespace = "minecraft",
+                id = "core",
+                version = "1.21.4"
+            )
+        )))
     }
 
-    fun onClientPacksLoaded(connection: JavaConnection, packet: JavaSelectKnownPackPacket) {
-        connection.sendPacket(JavaRegistryDataPacket(BiomeRegistry))
+    fun onClientPacksLoaded(connection: JavaConnection, packet: PacketCommonSelectKnownPacks) {
+//        connection.sendPacket(JavaRegistryDataPacket(BiomeRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(ChatRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(TrimPatternRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(TrimMaterialRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(WolfVariantRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(PaintingVariantRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(DimensionRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(DamageTypeRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(BannerPatternRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(EnchantmentRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(JukeboxSongRegistry))
+//        connection.sendPacket(JavaRegistryDataPacket(InstrumentRegistry))
+//        connection.sendPacket(JavaUpdateTags())
+//        connection.sendPacket(JavaFinishConfigPacket())
+        connection.sendPacket(JavaClientConfigRegistryData(
+            id = BiomeRegistry.name(),
+            entries = BiomeRegistry.build().map { JavaClientConfigRegistryData.Entries() }
+        ))
         connection.sendPacket(JavaRegistryDataPacket(ChatRegistry))
         connection.sendPacket(JavaRegistryDataPacket(TrimPatternRegistry))
         connection.sendPacket(JavaRegistryDataPacket(TrimMaterialRegistry))
@@ -112,15 +139,15 @@ class LoginBundle: PacketBundle {
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    fun onFinishConfig(connection: JavaConnection, packet: JavaFinishConfigPacket) {
+    fun onFinishConfig(connection: JavaConnection, packet: JavaServerConfigFinishConfiguration) {
         connection.state = JavaConnectionState.IN_GAME
         EventBus.callEvent(LoginEvent(connection, tempUIDStorage.remove(connection)!!))
     }
 
-    fun onConfigMessage(connection: JavaConnection, packet: JavaConfigMessagePacket) =
+    fun onConfigMessage(connection: JavaConnection, packet: JavaServerConfigCustomPayload) =
         when (packet.channel) {
             "minecraft:brand" -> {
-                connection.sendPacket(JavaConfigMessagePacket("minecraft:brand", packet.data))
+                connection.sendPacket(JavaClientConfigCustomPayload("minecraft:brand", packet.data))
             }
 
             else -> println("Unknown plugin message channel ${packet.channel}")

@@ -4,6 +4,7 @@ import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.squareup.javapoet.TypeName
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -125,12 +126,11 @@ class MeldProcessor(
     ): CodecEntry? = when(inType) {
         is ProtocolType.Simple -> codecs[inType.text] //throw java.lang.IllegalStateException("Could not find codec for ${inType.text}")
         is ProtocolType.Array -> getPrimaryCodec(codecs, inType.type)
-        is ProtocolType.Buffer -> null
-        is ProtocolType.Container -> null
+        is ProtocolType.Option -> getPrimaryCodec(codecs, inType.type)
+
 //        is ProtocolType.Mapping -> TODO("Primary Codec Mapping")
 //        is ProtocolType.BitFlags -> TODO("Primary Codec Bit Flags")
 //        is ProtocolType.BitFields -> TODO("Primary Codec Bit Fields")
-//        is ProtocolType.Option -> TODO("Primary Codec Option")
 //        is ProtocolType.CompareTo -> TODO("Primary Codec Compare To")
 //        is ProtocolType.Complex -> TODO("Primary Codec Complex")
 //        is ProtocolType.TopBitSetTerminatedArray -> TODO("Primary Codec Top Bit Set Terminated Array")
@@ -189,10 +189,24 @@ class MeldProcessor(
                     .build()
             }
 
+            is ProtocolType.Option -> getKtType(
+                codecs = codecs,
+                typeBuilder = typeBuilder,
+                inType = inType.type,
+                idProp = idProp,
+                stateProp = stateProp,
+                packetClass = packetClass,
+                name = name
+            )?.let { child ->
+                logger.warn("$name Option subtype ${inType.type} $child")
+                PropertySpec.builder(name, child.type.copy(nullable = true))
+                    .initializer(name)
+                    .build()
+            }
+
     //        is ProtocolType.Mapping -> TODO("KT Type Mapping")
     //        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
     //        is ProtocolType.BitFields -> TODO("KT Type Bit Fields")
-    //        is ProtocolType.Option -> TODO("KT Type Option")
     //        is ProtocolType.CompareTo -> TODO("KT Type Compare To")
     //        is ProtocolType.Complex -> TODO("KT Type Complex")
     //        is ProtocolType.TopBitSetTerminatedArray -> TODO("KT Type Top Bit Set Terminated Array")
@@ -216,14 +230,17 @@ class MeldProcessor(
             "$name.map { $name -> $child }.fold(byteArrayOf()) { acc, bytes -> acc + bytes }"
         }
 
-        is ProtocolType.Container -> "$name.encode()"
+        is ProtocolType.Option -> {
+            val child = encodeString(codecs, type.type, name) ?: return null
+            "if ($name != null) { byteArrayOf(0x01) + ($child) } else { byteArrayOf(0x00) }"
+        }
 
+        is ProtocolType.Container -> "$name.encode()"
         is ProtocolType.Buffer -> name
+
         //        is ProtocolType.Mapping -> TODO("KT Type Mapping")
-        //        is ProtocolType.Buffer -> TODO("KT Type Buffer")
         //        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
         //        is ProtocolType.BitFields -> TODO("KT Type Bit Fields")
-        //        is ProtocolType.Option -> TODO("KT Type Option")
         //        is ProtocolType.CompareTo -> TODO("KT Type Compare To")
         //        is ProtocolType.Complex -> TODO("KT Type Complex")
         //        is ProtocolType.TopBitSetTerminatedArray -> TODO("KT Type Top Bit Set Terminated Array")
@@ -248,12 +265,14 @@ class MeldProcessor(
 
         is ProtocolType.Container -> "${snakeToCamelCase(name)}.decode(reader)"
 
-        //        is ProtocolType.Container -> TODO("KT Type Container")
+        is ProtocolType.Option -> {
+            val child = decodeString(codecs, type.type, name)
+            "if (reader.read() > 0) $child else null"
+        }
+
         //        is ProtocolType.Mapping -> TODO("KT Type Mapping")
-        //        is ProtocolType.Buffer -> TODO("KT Type Buffer")
         //        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
         //        is ProtocolType.BitFields -> TODO("KT Type Bit Fields")
-        //        is ProtocolType.Option -> TODO("KT Type Option")
         //        is ProtocolType.CompareTo -> TODO("KT Type Compare To")
         //        is ProtocolType.Complex -> TODO("KT Type Complex")
         //        is ProtocolType.TopBitSetTerminatedArray -> TODO("KT Type Top Bit Set Terminated Array")
