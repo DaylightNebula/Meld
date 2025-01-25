@@ -3,8 +3,10 @@ package io.github.daylightnebula.meld.server
 import io.github.daylightnebula.meld.ksp.data.Codec
 import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
+import io.github.daylightnebula.meld.server.VarIntCodec
 import io.ktor.utils.io.core.String
 import io.ktor.utils.io.core.toByteArray
+import kotlinx.io.readDouble
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
 import net.benwoodworth.knbt.NbtString
@@ -58,6 +60,12 @@ object UShortCodec: Codec<UShort> {
 object FloatCodec: Codec<Float> {
     override fun encode(data: Float) = Buffer().writeInt(data.toBits()).readByteArray()
     override fun decode(reader: IReader) = Float.fromBits(Buffer().write(reader.readMany(4)).readInt())
+}
+
+@RegisterCodec("f64", Double::class)
+object DoubleCodec: Codec<Double> {
+    override fun decode(reader: IReader) = Double.fromBits(LongCodec.decode(reader))
+    override fun encode(data: Double) = LongCodec.encode(data.toBits())
 }
 
 @RegisterCodec("varint", Int::class)
@@ -147,4 +155,37 @@ object RestBufferCodec: Codec<ByteArray> {
 object AnonymousNBT: Codec<NbtTag> {
     override fun encode(data: NbtTag) = meldNbt.encodeToByteArray(data)
     override fun decode(reader: IReader) = TODO()
+}
+
+interface IDSet {
+    fun encode(): ByteArray
+
+    companion object {
+        fun decode(reader: IReader): IDSet {
+            val len = VarIntCodec.decode(reader)
+            return if (len == 0) IDSetIdentifier(StringCodec.decode(reader))
+            else IDSetIDs((0 until (len - 1)).map { VarIntCodec.decode(reader) })
+        }
+    }
+
+    class IDSetIdentifier(val id: String): IDSet {
+        override fun encode() = VarIntCodec.encode(0) + StringCodec.encode(id)
+    }
+
+    class IDSetIDs(val ids: List<Int>): IDSet {
+        override fun encode() = VarIntCodec.encode(ids.size + 1) +
+                ids.map { id -> VarIntCodec.encode(id) }.fold(byteArrayOf()) { acc, bytes -> acc + bytes }
+    }
+}
+
+@RegisterCodec("IDSet", IDSet::class)
+object IDSetCodec: Codec<IDSet> {
+    override fun decode(reader: IReader) = IDSet.decode(reader)
+    override fun encode(data: IDSet) = data.encode()
+}
+
+@RegisterCodec("ByteArray", ByteArray::class)
+object StdByteArrayCodec: Codec<ByteArray> {
+    override fun decode(reader: IReader) = reader.readMany(VarIntCodec.decode(reader))
+    override fun encode(data: ByteArray) = VarIntCodec.encode(data.size) + data
 }
