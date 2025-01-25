@@ -9,6 +9,10 @@ import io.github.daylightnebula.meld.server.registries.Registry
 import io.github.daylightnebula.meld.server.registries.RegistryCodec
 import io.github.daylightnebula.meld.server.registries.codec.*
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -119,8 +123,18 @@ class LoginBundle: PacketBundle {
         connection.sendPacket(registryClientPacket(EnchantmentRegistry))
         connection.sendPacket(registryClientPacket(JukeboxSongRegistry))
         connection.sendPacket(registryClientPacket(InstrumentRegistry))
-        connection.sendPacket(JavaUpdateTags())
-        connection.sendPacket(JavaFinishConfigPacket())
+        connection.sendPacket(JavaClientConfigTags(
+            DefaultTags.defaultTags["tags"]!!.jsonObject.map {
+                JavaClientConfigTags.Tags(it.key, it.value.jsonArray.map { e ->
+                    val entry = e.jsonObject
+                    TypeTags(
+                        tagName = entry["tag_name"]!!.jsonObject["raw_string"]!!.jsonPrimitive.content,
+                        entries = entry["entries"]!!.jsonArray.map { it.jsonPrimitive.int }.toTypedArray()
+                    )
+                }.toTypedArray())
+            }.toTypedArray()
+        ))
+        connection.sendPacket(JavaClientConfigFinishConfiguration())
     }
 
     @OptIn(ExperimentalUuidApi::class)

@@ -29,6 +29,8 @@ class MeldProcessor(
     // todo remove old AbstractReader and ByteWriter implementations
     // todo add types and params to packets
     // todo replace vec2f and vec3f with Float2 and Float3
+    // todo use Lists instead of Arrays
+    // todo test with only Login module
 
     data class CodecEntry(val type: TypeName, val codec: ClassName, val manuallyCreated: Boolean)
 
