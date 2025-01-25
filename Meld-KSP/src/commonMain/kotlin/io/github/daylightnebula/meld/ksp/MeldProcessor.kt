@@ -100,7 +100,9 @@ class MeldProcessor(
                     .build()
 
                 // generate container
-                val myClass = ClassName("io.github.daylightnebula.meld.server", snakeToCamelCase(key))
+                val preName = snakeToCamelCase(key)
+                val className = if (preName.startsWith("packet", ignoreCase = true)) preName else "Type$preName"
+                val myClass = ClassName("io.github.daylightnebula.meld.server", className)
                 codecs[key] = CodecEntry(myClass, myClass, false)
                 genContainer(
                     codecs = codecs,
@@ -170,7 +172,7 @@ class MeldProcessor(
 
                 // get child types
                 val typeCollection = TypeCollection.ListTypeCollection(types)
-                val child = getKtType(codecs, typeCollection, type.type, idProp, stateProp, codecName, typeName)
+                val child = getKtType(codecs, typeCollection, type.type, idProp, stateProp, codecName, "type_" + typeName)
                     ?: throw java.lang.IllegalStateException("getKtType did not return a property for type array generator $key!")
                 val arrayType = ClassName("kotlin", "Array").parameterizedBy(child.type)
                 typeBuilder.addSuperinterface(
@@ -271,7 +273,11 @@ class MeldProcessor(
         ).initializer(name).build()
 
         is ProtocolType.Container -> {
-            val containerClass = ClassName("", snakeToCamelCase(name))
+            val containerClass = ClassName(
+                when(typeBuilder) {
+                    is TypeCollection.ListTypeCollection -> "io.github.daylightnebula.meld.server"
+                    else -> ""
+                }, snakeToCamelCase(name))
 
             // add container type
             typeBuilder.addAll(genContainer(
@@ -402,7 +408,7 @@ class MeldProcessor(
         // load named types
         val namedTypes = value.contained
         val params = namedTypes.mapNotNull { type ->
-            (type.name ?: "error") to (
+            lowerCamelCase(type.name ?: "error") to (
                 getKtType(
                     codecs = codecs,
                     typeBuilder = TypeCollection.InternalTypeCollection(builder),
@@ -410,7 +416,7 @@ class MeldProcessor(
                     idProp = idProp,
                     stateProp = stateProp,
                     packetClass = myClass,
-                    name = type.name ?: "error"
+                    name = lowerCamelCase(type.name ?: "error")
                 ) ?: return@mapNotNull null
             ) }.toMap()
         builder.addProperties(params.values)
@@ -425,11 +431,12 @@ class MeldProcessor(
 
         // add create function
         val decodeReturnPre = namedTypes.mapNotNull { pair ->
+            val pairName = lowerCamelCase(pair.name ?: return@mapNotNull null)
             decodeString(
                 codecs = codecs,
                 type = pair.type,
-                name = pair.name ?: return@mapNotNull null
-            )?.let { "\t${pair.name} = $it" }
+                name = pairName
+            )?.let { "\t${pairName} = $it" }
         }.joinToString(",\n")
         val decodeReturn = if (decodeReturnPre.length > 2) "\n$decodeReturnPre\n" else ""
         val decodeFun = FunSpec.builder("decode")
@@ -444,7 +451,7 @@ class MeldProcessor(
             encodeString(
                 codecs = codecs,
                 type = pair.type,
-                name = pair.name ?: return@mapNotNull null
+                name = lowerCamelCase((pair.name ?: return@mapNotNull null).toString())
             )
         }.joinToString(" +\n ")
         val encodeReturn = if (encodeReturnPre.length > 2) encodeReturnPre else "byteArrayOf()"
@@ -519,6 +526,8 @@ class MeldProcessor(
     fun snakeToCamelCase(input: String) = input
         .split("_")
         .joinToString("") { it.capitalize() }
+
+    fun lowerCamelCase(input: String) = snakeToCamelCase(input).let { it[0].lowercase() + it.substring(1 until it.length) }
 
     fun downloadProtocol() = protocolJson
 

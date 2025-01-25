@@ -5,6 +5,8 @@ import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.*
+import io.github.daylightnebula.meld.server.registries.Registry
+import io.github.daylightnebula.meld.server.registries.RegistryCodec
 import io.github.daylightnebula.meld.server.registries.codec.*
 import kotlinx.serialization.encodeToString
 import kotlin.uuid.ExperimentalUuidApi
@@ -105,35 +107,18 @@ class LoginBundle: PacketBundle {
     }
 
     fun onClientPacksLoaded(connection: JavaConnection, packet: PacketCommonSelectKnownPacks) {
-//        connection.sendPacket(JavaRegistryDataPacket(BiomeRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(ChatRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(TrimPatternRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(TrimMaterialRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(WolfVariantRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(PaintingVariantRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(DimensionRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(DamageTypeRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(BannerPatternRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(EnchantmentRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(JukeboxSongRegistry))
-//        connection.sendPacket(JavaRegistryDataPacket(InstrumentRegistry))
-//        connection.sendPacket(JavaUpdateTags())
-//        connection.sendPacket(JavaFinishConfigPacket())
-        connection.sendPacket(JavaClientConfigRegistryData(
-            id = BiomeRegistry.name(),
-            entries = BiomeRegistry.build().map { JavaClientConfigRegistryData.Entries() }
-        ))
-        connection.sendPacket(JavaRegistryDataPacket(ChatRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(TrimPatternRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(TrimMaterialRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(WolfVariantRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(PaintingVariantRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(DimensionRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(DamageTypeRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(BannerPatternRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(EnchantmentRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(JukeboxSongRegistry))
-        connection.sendPacket(JavaRegistryDataPacket(InstrumentRegistry))
+        connection.sendPacket(registryClientPacket(BiomeRegistry))
+        connection.sendPacket(registryClientPacket(ChatRegistry))
+        connection.sendPacket(registryClientPacket(TrimPatternRegistry))
+        connection.sendPacket(registryClientPacket(TrimMaterialRegistry))
+        connection.sendPacket(registryClientPacket(WolfVariantRegistry))
+        connection.sendPacket(registryClientPacket(PaintingVariantRegistry))
+        connection.sendPacket(registryClientPacket(DimensionRegistry))
+        connection.sendPacket(registryClientPacket(DamageTypeRegistry))
+        connection.sendPacket(registryClientPacket(BannerPatternRegistry))
+        connection.sendPacket(registryClientPacket(EnchantmentRegistry))
+        connection.sendPacket(registryClientPacket(JukeboxSongRegistry))
+        connection.sendPacket(registryClientPacket(InstrumentRegistry))
         connection.sendPacket(JavaUpdateTags())
         connection.sendPacket(JavaFinishConfigPacket())
     }
@@ -206,6 +191,11 @@ class LoginBundle: PacketBundle {
 //        }
 //    }
 }
+
+fun registryClientPacket(registry: RegistryCodec.Codec) = JavaClientConfigRegistryData(
+    id = registry.name(),
+    entries = registry.build().map { JavaClientConfigRegistryData.Entries(it.first, it.second) }.toTypedArray()
+)
 
 @OptIn(ExperimentalUuidApi::class)
 class LoginEvent(
