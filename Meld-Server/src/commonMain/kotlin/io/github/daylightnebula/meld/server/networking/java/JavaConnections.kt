@@ -17,13 +17,19 @@ class JavaConnection(
 ): IConnection<JavaPacket> {
     var state: JavaConnectionState = JavaConnectionState.HANDSHAKE
 
-    override fun sendPacket(packet: JavaPacket) {
+    override fun sendPacket(
+        packet: JavaPacket,
+        id: Int?
+    ) {
+        val id = id ?: packet.ID
+
         // create writer
-        val writer = ByteWriter(packet.ID, DataPacketMode.JAVA)
+        val writer = ByteWriter(id, DataPacketMode.JAVA)
 
         // encode packet
         val data = packet.encode()
         writer.writeByteArray(data)
+        println("Sending $id of length ${data.size}")
 
         // send byte array to client
         val bytes = writer.getData()

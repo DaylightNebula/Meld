@@ -176,7 +176,7 @@ class MeldProcessor(
                 val typeCollection = TypeCollection.ListTypeCollection(types)
                 val child = getKtType(codecs, typeCollection, type.type, idProp, stateProp, codecName, "type_" + typeName)
                     ?: throw java.lang.IllegalStateException("getKtType did not return a property for type array generator $key!")
-                val arrayType = ClassName("kotlin", "Array").parameterizedBy(child.type)
+                val arrayType = ClassName("kotlin.collections", "List").parameterizedBy(child.type)
                 typeBuilder.addSuperinterface(
                     ClassName("io.github.daylightnebula.meld.ksp.data", "Codec")
                         .parameterizedBy(arrayType)
@@ -187,7 +187,7 @@ class MeldProcessor(
                     FunSpec.builder("decode")
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter(ParameterSpec.builder("reader", IReader::class).build())
-                        .addCode("return (0 until VarIntCodec.decode(reader)).map { ${child.type}.decode(reader) }.toTypedArray()")
+                        .addCode("return (0 until VarIntCodec.decode(reader)).map { ${child.type}.decode(reader) }")
                         .returns(arrayType)
                         .build()
                 )
@@ -261,7 +261,7 @@ class MeldProcessor(
 
             PropertySpec.builder(
                 name = name,
-                type = ClassName("kotlin", "Array").parameterizedBy(internalType)
+                type = ClassName("kotlin.collections", "List").parameterizedBy(internalType)
             ).initializer(name).build()
         }
 
@@ -332,7 +332,7 @@ class MeldProcessor(
 
         is ProtocolType.Array -> {
             val child = encodeString(codecs, type.type, name) ?: return null
-            "$name.map { $name -> $child }.fold(byteArrayOf()) { acc, bytes -> acc + bytes }"
+            "VarIntCodec.encode($name.size) + $name.map { $name -> $child }.fold(byteArrayOf()) { acc, bytes -> acc + bytes }"
         }
 
         is ProtocolType.Option -> {
@@ -364,7 +364,7 @@ class MeldProcessor(
         }
 
         is ProtocolType.Array ->
-            "(0 until VarIntCodec.decode(reader)).map { ${decodeString(codecs, type.type, name)} }.toTypedArray()"
+            "(0 until VarIntCodec.decode(reader)).map { ${decodeString(codecs, type.type, name)} }"
 
         is ProtocolType.Buffer ->
             "reader.readMany(VarIntCodec.decode(reader))"

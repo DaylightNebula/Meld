@@ -99,8 +99,8 @@ val keepAliveThread = GlobalScope.launch {
                             JavaConnectionState.HANDSHAKE -> {}
                             JavaConnectionState.STATUS -> {}
                             JavaConnectionState.LOGIN -> {}
-                            JavaConnectionState.CONFIG -> it.sendPacket(JavaServerConfigKeepAlive(Random.nextLong()))
-                            JavaConnectionState.IN_GAME -> it.sendPacket(JavaServerPlayKeepAlive(Random.nextLong()))
+                            JavaConnectionState.CONFIG -> {} //it.sendPacket(JavaClientConfigKeepAlive(Random.nextLong()))
+                            JavaConnectionState.IN_GAME -> it.sendPacket(JavaClientPlayKeepAlive(Random.nextLong()))
                         }
                     }
                 }

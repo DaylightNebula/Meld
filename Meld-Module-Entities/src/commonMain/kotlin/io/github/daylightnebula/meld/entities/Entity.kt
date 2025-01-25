@@ -7,7 +7,6 @@ import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
 import io.github.daylightnebula.meld.entities.metadata.IEntityMetadataParent
 import io.github.daylightnebula.meld.entities.metadata.entityMetadata
-import io.github.daylightnebula.meld.entities.packets.*
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus

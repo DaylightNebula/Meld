@@ -57,7 +57,13 @@ class LoginBundle: PacketBundle {
 
         javaPacket(JavaServerConfigCustomPayload, this::onConfigMessage),
         javaPacket(JavaServerConfigFinishConfiguration, this::onFinishConfig),
-        javaPacket(PacketCommonSelectKnownPacks, this::onClientPacksLoaded)
+
+        javaPacket(
+            id = 0x07,
+            state = JavaConnectionState.CONFIG,
+            creator = PacketCommonSelectKnownPacks,
+            execute = this::onClientPacksLoaded
+        )
     )
 
     fun onConfigKeepAlive(connection: JavaConnection, packet: JavaServerConfigKeepAlive) {}
@@ -83,11 +89,12 @@ class LoginBundle: PacketBundle {
         tempUIDStorage[connection] = packet.playerUUID
 
         // respond
+        println("Sending login success")
         connection.sendPacket(
             JavaClientLoginSuccess(
                 uuid = tempUIDStorage[connection]!!,
                 username = packet.username,
-                properties = emptyArray()
+                properties = emptyList()
             )
         )
     }
@@ -99,15 +106,15 @@ class LoginBundle: PacketBundle {
 
     fun onClientInfo(connection: JavaConnection, packet: JavaServerConfigSettings) {
         connection.sendPacket(JavaClientConfigFeatureFlags(
-            features = arrayOf("minecraft:vanilla")
+            features = listOf("minecraft:vanilla")
         ))
-        connection.sendPacket(PacketCommonSelectKnownPacks(arrayOf(
+        connection.sendPacket(PacketCommonSelectKnownPacks(listOf(
             PacketCommonSelectKnownPacks.Packs(
                 namespace = "minecraft",
                 id = "core",
                 version = "1.21.4"
             )
-        )))
+        )), id = 0x0E)
     }
 
     fun onClientPacksLoaded(connection: JavaConnection, packet: PacketCommonSelectKnownPacks) {
@@ -129,10 +136,10 @@ class LoginBundle: PacketBundle {
                     val entry = e.jsonObject
                     TypeTags(
                         tagName = entry["tag_name"]!!.jsonObject["raw_string"]!!.jsonPrimitive.content,
-                        entries = entry["entries"]!!.jsonArray.map { it.jsonPrimitive.int }.toTypedArray()
+                        entries = entry["entries"]!!.jsonArray.map { it.jsonPrimitive.int }
                     )
-                }.toTypedArray())
-            }.toTypedArray()
+                })
+            }
         ))
         connection.sendPacket(JavaClientConfigFinishConfiguration())
     }
@@ -208,7 +215,7 @@ class LoginBundle: PacketBundle {
 
 fun registryClientPacket(registry: RegistryCodec.Codec) = JavaClientConfigRegistryData(
     id = registry.name(),
-    entries = registry.build().map { JavaClientConfigRegistryData.Entries(it.first, it.second) }.toTypedArray()
+    entries = registry.build().map { JavaClientConfigRegistryData.Entries(it.first, it.second) }
 )
 
 @OptIn(ExperimentalUuidApi::class)
