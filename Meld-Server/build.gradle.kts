@@ -25,7 +25,7 @@ kotlin {
             kotlin.srcDir(file("$buildDir/generated/ksp/metadata/commonMain/kotlin"))
 
             dependencies {
-                implementation(project(":Meld-KSP-Data"))
+                implementation(project(":Meld-Data"))
 
                 // kotlin
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")

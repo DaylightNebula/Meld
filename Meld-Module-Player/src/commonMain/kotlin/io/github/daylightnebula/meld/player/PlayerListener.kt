@@ -3,7 +3,7 @@ package io.github.daylightnebula.meld.player
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.entities.packets.JavaEntityStatusPacket
-import io.github.daylightnebula.meld.login.LoginEvent
+import io.github.daylightnebula.meld.server.modules.login.LoginEvent
 import io.github.daylightnebula.meld.player.extensions.hasPlayer
 import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.JavaDifficultyPacket

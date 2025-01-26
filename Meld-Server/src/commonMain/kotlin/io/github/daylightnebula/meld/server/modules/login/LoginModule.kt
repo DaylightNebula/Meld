@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.login
+package io.github.daylightnebula.meld.server.modules.login
 
 import io.github.daylightnebula.meld.server.PacketManager
 import io.github.daylightnebula.meld.server.modules.MeldModule

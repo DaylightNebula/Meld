@@ -28,9 +28,8 @@ kotlin {
 
     sourceSets["commonMain"].dependencies {
         implementation(project(":Meld-Server"))
-        implementation(project(":Meld-Module-Entities"))
-        implementation(project(":Meld-Module-Player"))
-        implementation(project(":Meld-Module-Login"))
+//        implementation(project(":Meld-Module-Entities"))
+//        implementation(project(":Meld-Module-Player"))
 //        implementation(project(":Meld-Module-Inventories"))
 //        implementation(project(":Meld-Module-World"))
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")

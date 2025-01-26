@@ -19,7 +19,6 @@ kotlin {
         implementation(kotlin("stdlib-jdk8"))
         implementation(project(":Meld-Server"))
         implementation(project(":Meld-Module-Entities"))
-        implementation(project(":Meld-Module-Login"))
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
         implementation("dev.romainguy:kotlin-math:1.6.0")
     }

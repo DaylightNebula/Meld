@@ -1,11 +1,10 @@
-package io.github.daylightnebula.meld.login
+package io.github.daylightnebula.meld.server.modules.login
 
 import io.github.daylightnebula.meld.server.*
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.*
-import io.github.daylightnebula.meld.server.registries.Registry
 import io.github.daylightnebula.meld.server.registries.RegistryCodec
 import io.github.daylightnebula.meld.server.registries.codec.*
 import kotlinx.serialization.encodeToString
