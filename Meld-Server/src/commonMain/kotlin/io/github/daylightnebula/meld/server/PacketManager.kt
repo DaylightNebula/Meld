@@ -1,8 +1,6 @@
 package io.github.daylightnebula.meld.server
 
-import io.github.daylightnebula.meld.server.networking.common.AbstractReader
-import io.github.daylightnebula.meld.server.networking.common.IConnection
-import io.github.daylightnebula.meld.server.networking.common.Packet
+import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -21,7 +19,7 @@ data class JavaPacketEntry<T: JavaPacket>(
     val creator: JavaPacket.Creator<T>,
     val execute: (JavaConnection, T) -> Unit
 ) {
-    fun buildAndExecute(connection: JavaConnection, reader: AbstractReader) {
+    fun buildAndExecute(connection: JavaConnection, reader: IReader) {
         val packet = creator.decode(reader)
         execute.invoke(connection, packet)
     }
@@ -30,7 +28,7 @@ data class JavaPacketEntry<T: JavaPacket>(
 // singleton to handle incoming packets
 object PacketManager {
     // handle incoming java packets
-    fun handleJavaPacket(connection: JavaConnection, packetID: Int, reader: AbstractReader) {
+    fun handleJavaPacket(connection: JavaConnection, packetID: Int, reader: IReader) {
         // attempt to find an initializer for the given packet id and the connections state
         val key = JavaPacketKey(packetID, connection.state)
         if (!JavaPacketRegistry.containsKey(key)) {
@@ -55,10 +53,6 @@ interface PacketBundle {
     fun registerJavaPackets(): Map<JavaPacketKey, JavaPacketEntry<*>>
 }
 
-// helper functions to make some packets as no encode or decode
-fun noEncode(): Unit = throw NotImplementedException("Function marked no encode!")
-fun noDecode(): Unit = throw NotImplementedException("Function marked no decode!")
-
 fun java(
     vararg handlers: Pair<JavaPacketKey, JavaPacketEntry<*>>
 ) = mapOf(*handlers)
@@ -82,7 +76,3 @@ fun <T: JavaPacket> javaPacket(
     val entry = JavaPacketEntry(key, creator, execute)
     return key to entry
 }
-
-fun javaGamePacket(
-    id: Int
-) = id to JavaConnectionState.IN_GAME

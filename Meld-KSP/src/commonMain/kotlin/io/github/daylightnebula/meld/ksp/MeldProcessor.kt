@@ -25,10 +25,6 @@ class MeldProcessor(
     }
 
     // todo download protocol.json
-    // todo implement codecs for all native types
-    // todo remove old AbstractReader and ByteWriter implementations
-    // todo add types and params to packets
-    // todo replace vec2f and vec3f with Float2 and Float3
 
     data class CodecEntry(val type: TypeName, val codec: ClassName, val manuallyCreated: Boolean)
 
