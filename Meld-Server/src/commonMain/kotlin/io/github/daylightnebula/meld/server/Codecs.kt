@@ -1,5 +1,8 @@
 package io.github.daylightnebula.meld.server
 
+import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
+import dev.romainguy.kotlin.math.Float4
 import io.github.daylightnebula.meld.ksp.data.Codec
 import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
@@ -32,6 +35,12 @@ object ByteCodec: Codec<Byte> {
     override fun decode(reader: IReader) = reader.read()
 }
 
+@RegisterCodec("i16", Short::class)
+object ShortCodec: Codec<Short> {
+    override fun encode(data: Short) = Buffer().writeShort(data.toInt()).readByteArray()
+    override fun decode(reader: IReader) = Buffer().write(reader.readMany(2)).readShort()
+}
+
 @RegisterCodec("i32", Int::class)
 object IntCodec: Codec<Int> {
     override fun decode(reader: IReader) = Buffer().write(reader.readMany(4)).readInt()
@@ -54,6 +63,18 @@ object UByteCodec: Codec<UByte> {
 object UShortCodec: Codec<UShort> {
     override fun decode(reader: IReader) = Buffer().write(reader.readMany(2)).readShort().toUShort()
     override fun encode(data: UShort) = Buffer().writeShort(data.toInt()).readByteArray()
+}
+
+@RegisterCodec("u32", UInt::class)
+object UIntCodec: Codec<UInt> {
+    override fun decode(reader: IReader) = Buffer().write(reader.readMany(4)).readInt().toUInt()
+    override fun encode(data: UInt) = Buffer().writeInt(data.toInt()).readByteArray()
+}
+
+@RegisterCodec("u64", ULong::class)
+object ULongCodec: Codec<ULong> {
+    override fun decode(reader: IReader) = Buffer().write(reader.readMany(8)).readLong().toULong()
+    override fun encode(data: ULong) = Buffer().writeLong(data.toLong()).readByteArray()
 }
 
 @RegisterCodec("f32", Float::class)
@@ -188,4 +209,40 @@ object IDSetCodec: Codec<IDSet> {
 object StdByteArrayCodec: Codec<ByteArray> {
     override fun decode(reader: IReader) = reader.readMany(VarIntCodec.decode(reader))
     override fun encode(data: ByteArray) = VarIntCodec.encode(data.size) + data
+}
+
+@RegisterCodec("vec2f", Float2::class)
+object Float2Codec: Codec<Float2> {
+    override fun decode(reader: IReader) = Float2(FloatCodec.decode(reader), FloatCodec.decode(reader))
+    override fun encode(data: Float2) = FloatCodec.encode(data.x) + FloatCodec.encode(data.y)
+}
+
+@RegisterCodec("vec2f64", Float2::class)
+object Float264Codec: Codec<Float2> {
+    override fun decode(reader: IReader) = Float2(DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat())
+    override fun encode(data: Float2) = DoubleCodec.encode(data.x.toDouble()) + DoubleCodec.encode(data.y.toDouble())
+}
+
+@RegisterCodec("vec3f", Float3::class)
+object Float3Codec: Codec<Float3> {
+    override fun decode(reader: IReader) = Float3(FloatCodec.decode(reader), FloatCodec.decode(reader), FloatCodec.decode(reader))
+    override fun encode(data: Float3) = FloatCodec.encode(data.x) + FloatCodec.encode(data.y) + FloatCodec.encode(data.z)
+}
+
+@RegisterCodec("vec3f64", Float3::class)
+object Float364Codec: Codec<Float3> {
+    override fun decode(reader: IReader) = Float3(DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat())
+    override fun encode(data: Float3) = DoubleCodec.encode(data.x.toDouble()) + DoubleCodec.encode(data.y.toDouble()) + DoubleCodec.encode(data.z.toDouble())
+}
+
+@RegisterCodec("vec4f", Float4::class)
+object Float4Codec: Codec<Float4> {
+    override fun decode(reader: IReader) = Float4(FloatCodec.decode(reader), FloatCodec.decode(reader), FloatCodec.decode(reader), FloatCodec.decode(reader))
+    override fun encode(data: Float4) = FloatCodec.encode(data.x) + FloatCodec.encode(data.y) + FloatCodec.encode(data.z) + FloatCodec.encode(data.w)
+}
+
+@RegisterCodec("vec4f64", Float4::class)
+object Float464Codec: Codec<Float4> {
+    override fun decode(reader: IReader) = Float4(DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat())
+    override fun encode(data: Float4) = DoubleCodec.encode(data.x.toDouble()) + DoubleCodec.encode(data.y.toDouble()) + DoubleCodec.encode(data.z.toDouble()) + DoubleCodec.encode(data.w.toDouble())
 }

@@ -7,9 +7,21 @@ import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
 import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
 import io.github.daylightnebula.meld.entities.metadata.IEntityMetadataParent
 import io.github.daylightnebula.meld.entities.metadata.entityMetadata
+import io.github.daylightnebula.meld.server.JavaClientPlayAnimation
+import io.github.daylightnebula.meld.server.JavaClientPlayEntityDestroy
+import io.github.daylightnebula.meld.server.JavaClientPlayEntityHeadRotation
+import io.github.daylightnebula.meld.server.JavaClientPlayEntityLook
+import io.github.daylightnebula.meld.server.JavaClientPlayEntityMetadata
+import io.github.daylightnebula.meld.server.JavaClientPlayEntityTeleport
+import io.github.daylightnebula.meld.server.JavaClientPlayEntityVelocity
+import io.github.daylightnebula.meld.server.JavaClientPlayRelEntityMove
+import io.github.daylightnebula.meld.server.JavaClientPlaySpawnEntity
+import io.github.daylightnebula.meld.server.JavaClientPlaySyncEntityPosition
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
+import io.github.daylightnebula.meld.server.extensions.toAngleByte
+import io.github.daylightnebula.meld.server.extensions.toVelocityStep
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
@@ -52,15 +64,24 @@ open class Entity(
             when(connection) {
                 is JavaConnection -> {
                     // send packet based on if change is greater than 8 blocks, teleport if greater than 8, otherwise just update position
-                    if (length(change) > 8) connection.sendPacket(JavaTeleportEntityPacket(
-                        id, newPosition, Float3(), rotation, true
-                    )) else connection.sendPacket(JavaUpdateEntityPositionPacket(
-                        id, Float3(
-                            ((newPosition.x * 32f) - (position.x * 32f)) * 128f,
-                            ((newPosition.y * 32f) - (position.y * 32f)) * 128f,
-                            ((newPosition.z * 32f) - (position.z * 32f)) * 128f,
-                        ), true
-                    ))
+                    if (length(change) > 8)
+                        connection.sendPacket(JavaClientPlayEntityTeleport(
+                            entityId = id,
+                            x = newPosition.x.toDouble(),
+                            y = newPosition.y.toDouble(),
+                            z = newPosition.z.toDouble(),
+                            yaw = rotation.y.toAngleByte(),
+                            pitch = rotation.x.toAngleByte(),
+                            onGround = true
+                        ))
+                    else
+                        connection.sendPacket(JavaClientPlayRelEntityMove(
+                            entityId = id,
+                            dX = (((newPosition.x * 32f) - (position.x * 32f)) * 128f).toInt().toShort(),
+                            dY = (((newPosition.y * 32f) - (position.y * 32f)) * 128f).toInt().toShort(),
+                            dZ = (((newPosition.z * 32f) - (position.z * 32f)) * 128f).toInt().toShort(),
+                            onGround = true
+                        ))
                 }
             }
         }
@@ -77,7 +98,7 @@ open class Entity(
         private set
     open fun setVelocity(velocity: Float3) {
         // broadcast changes
-        val javaPacket = JavaSetEntityVelocityPacket(id, velocity)
+        val javaPacket = JavaClientPlayEntityVelocity(id, velocity.x.toVelocityStep(), velocity.y.toVelocityStep(), velocity.z.toVelocityStep())
         watchers.forEach { connection ->
             when (connection) {
                 is JavaConnection -> {
@@ -99,8 +120,8 @@ open class Entity(
     open fun setRotation(rotation: Float2) {
         // broadcast changes
         val javaPackets = listOf(
-            JavaUpdateHeadYawPacket(id, rotation.x),
-            JavaUpdateEntityRotationPacket(id, rotation, true)
+            JavaClientPlayEntityHeadRotation(id, rotation.x.toAngleByte()),
+            JavaClientPlayEntityLook(id, rotation.y.toAngleByte(), rotation.x.toAngleByte(), true)
         )
         watchers.forEach { connection ->
             when(connection) {
@@ -139,7 +160,7 @@ open class Entity(
         watchers.remove(conn)
 
         // send despawn packet
-        val javaPacket = JavaRemoveEntitiesPacket(listOf(id))
+        val javaPacket = JavaClientPlayEntityDestroy(listOf(id))
         when(conn) {
             is JavaConnection -> conn.sendPacket(javaPacket)
         }
@@ -147,7 +168,24 @@ open class Entity(
 
     // overridable functions for spawn packets and a watcher filter
     open fun getSpawnJavaPackets(): List<JavaPacket> =
-        listOf(JavaSpawnEntityPacket(this), JavaEntityMetadataPacket(id, metadata))
+        listOf(
+            JavaClientPlaySpawnEntity(
+                entityId = id,
+                objectUUID = uid,
+                type = type.mcID,
+                x = position.x.toDouble(),
+                y = position.y.toDouble(),
+                z = position.z.toDouble(),
+                pitch = rotation.y.toAngleByte(),
+                yaw = rotation.x.toAngleByte(),
+                headPitch = rotation.y.toAngleByte(),
+                objectData = 0,
+                velocityX = 0,
+                velocityY = 0,
+                velocityZ = 0
+            ),
+//            JavaClientPlayEntityMetadata(id, metadata)
+        )
     open var watcherFilter: (connection: IConnection<*>) -> Boolean = { true }
 
     // handle animations
@@ -160,7 +198,7 @@ open class Entity(
         if (event.cancelled) return
 
         // broadcast animation to all players
-        val javaPacket = JavaEntityAnimationPacket(id, animation)
+        val javaPacket = JavaClientPlayAnimation(id, animation.ordinal.toUByte())
         getWatchers().forEach { watcher ->
             when(watcher) {
                 is JavaConnection -> watcher.sendPacket(javaPacket)
@@ -172,7 +210,7 @@ open class Entity(
     override fun replaceMetadataAtIndex(index: Int, obj: EntityMetadataObject<*>) {
         metadata.replaceMetadataAtIndex(index, obj)
         EventBus.callEvent(EntityMetadataUpdateEvent(this, metadata))
-        val javaPacket = JavaEntityMetadataPacket(id, metadata)
+        val javaPacket = TODO() //JavaClientPlayEntityMetadata(id, metadata)
         watchers.forEach {
             when (it) {
                 is JavaConnection -> it.sendPacket(javaPacket)

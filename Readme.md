@@ -18,10 +18,10 @@ know what you are doing:
 3. Light As A Feather + Speeeeeeeeed
 
 ## Platforms
-| Version | Support      |
-|---------|--------------|
-| Java    | Complete     |
-| Bedrock | In Progress  |
+| Version | Support     |
+|---------|-------------|
+| Java    | In Progress |
+| Bedrock | Todo        |
 
 ## Protocol
 To build all types needed for the protocol and the packets themselves, we use the JSON data from the 

@@ -29,8 +29,6 @@ class MeldProcessor(
     // todo remove old AbstractReader and ByteWriter implementations
     // todo add types and params to packets
     // todo replace vec2f and vec3f with Float2 and Float3
-    // todo use Lists instead of Arrays
-    // todo test with only Login module
 
     data class CodecEntry(val type: TypeName, val codec: ClassName, val manuallyCreated: Boolean)
 
@@ -87,6 +85,8 @@ class MeldProcessor(
         types: Map<String, ProtocolType>,
         codecs: MutableMap<String, CodecEntry>
     ): List<TypeSpec> = types.mapNotNull { (key, type) ->
+        if (codecs.contains(key)) return@mapNotNull null
+
         return@mapNotNull when(type) {
             is ProtocolType.Container -> {
                 // add id prop
