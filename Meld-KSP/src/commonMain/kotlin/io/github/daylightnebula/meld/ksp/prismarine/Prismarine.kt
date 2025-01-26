@@ -1,0 +1,35 @@
+package io.github.daylightnebula.meld.ksp.prismarine
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ProtocolFile(
+    val types: PrismarineTypeMap,
+    val handshaking: SCPacketContainer,
+    val status: SCPacketContainer,
+    val login: SCPacketContainer,
+    val configuration: SCPacketContainer,
+    val play: SCPacketContainer,
+)
+
+@Serializable
+data class SCPacketContainer(
+    val toClient: PacketTypes,
+    val toServer: PacketTypes
+)
+
+@Serializable
+data class PacketTypes(
+    val types: PrismarineTypeMap
+)
+
+@Serializable
+data class NamedType(
+    val name: String? = null,
+    val default: PrismarineType? = null,
+    val type: PrismarineType,
+    val anon: Boolean = false,
+)
+
+@Serializable
+class BitField(val name: String, val size: Int, val signed: Boolean)

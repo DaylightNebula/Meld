@@ -21,6 +21,8 @@ kotlin {
                 implementation("com.google.devtools.ksp:symbol-processing-api:2.1.0-1.0.29")
                 implementation("com.squareup:kotlinpoet-ksp:2.0.0")
                 implementation("com.squareup:kotlinpoet-ksp:2.0.0")
+                implementation("io.ktor:ktor-client-core:3.0.3")
+                implementation("io.ktor:ktor-client-cio:3.0.3")
             }
             kotlin.srcDir("src/main/kotlin")
             resources.srcDir("src/main/resources")

@@ -7,19 +7,30 @@ import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
-import com.sun.tools.javac.tree.TreeInfo.types
 import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
 import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
+import io.github.daylightnebula.meld.ksp.prismarine.PacketTypes
+import io.github.daylightnebula.meld.ksp.prismarine.PrismarineType
+import io.github.daylightnebula.meld.ksp.prismarine.ProtocolFile
+import io.github.daylightnebula.meld.ksp.prismarine.SCPacketContainer
+import io.ktor.client.HttpClient
+import io.ktor.client.request.prepareGet
+import io.ktor.client.request.url
+import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.io.File
 import kotlin.uuid.ExperimentalUuidApi
 
-class MeldProcessor(
-    val codeGenerator: CodeGenerator,
-    val logger: KSPLogger
-): SymbolProcessor {
+object MeldProcessor: SymbolProcessor {
+    const val TARGET_VERSION = "1.21.4"
 
+    lateinit var codeGenerator: CodeGenerator
+    lateinit var logger: KSPLogger
+    val codecs = mutableMapOf<String, CodecEntry>()
+
+    val client = HttpClient {}
     val json = Json {
         ignoreUnknownKeys = true
     }
@@ -30,7 +41,7 @@ class MeldProcessor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         // register native types
-        val nativeCodecs = resolver.getSymbolsWithAnnotation(RegisterCodec::class.qualifiedName!!).map {
+        codecs.putAll(resolver.getSymbolsWithAnnotation(RegisterCodec::class.qualifiedName!!).map {
             // get annotation
             val clazz = it as KSClassDeclaration
             val annotation = clazz.annotations
@@ -42,25 +53,32 @@ class MeldProcessor(
             val codec = it.toClassName()
 
             target to CodecEntry(type, codec, true)
-        }.toMap().toMutableMap()
+        }.toMap().toMutableMap())
 
         // build packet classes
         resolver.getSymbolsWithAnnotation(BuildJavaPackets::class.qualifiedName!!)
-            .forEach { if (it is KSClassDeclaration) buildPacketsClasses(it, nativeCodecs) }
+            .forEach { if (it is KSClassDeclaration) buildPacketsClasses(it) }
 
         return emptyList<KSAnnotated>()
     }
 
-    private fun buildPacketsClasses(file: KSClassDeclaration, codecs: MutableMap<String, CodecEntry>) {
+    private fun buildPacketsClasses(file: KSClassDeclaration) {
+        // download from https://github.com/PrismarineJS/minecraft-data/tree/master/data/pc
+        val response = runBlocking {
+            client.prepareGet { url("https://raw.githubusercontent.com/PrismarineJS/minecraft-data/refs/heads/master/data/pc/$TARGET_VERSION/protocol.json") }
+                .execute()
+                .bodyAsText()
+        }
+
         // get types
-        val protocol: ProtocolFile = json.decodeFromString(downloadProtocol())
+        val protocol: ProtocolFile = json.decodeFromString(response)
         val types =
-            genTypeContainers(protocol.types, codecs) +
-            genPacketContainer(protocol.handshaking, codecs, "Handshake") +
-            genPacketContainer(protocol.status, codecs, "Status") +
-            genPacketContainer(protocol.configuration, codecs, "Config") +
-            genPacketContainer(protocol.login, codecs, "Login") +
-            genPacketContainer(protocol.play, codecs, "Play")
+            genTypeContainers(protocol.types.types) +
+            genPacketContainer(protocol.handshaking, "Handshake") +
+            genPacketContainer(protocol.status, "Status") +
+            genPacketContainer(protocol.configuration, "Config") +
+            genPacketContainer(protocol.login, "Login") +
+            genPacketContainer(protocol.play, "Play")
 
         // build final output
         val collection = FileSpec.builder(file.packageName.asString(), "JavaData")
@@ -77,14 +95,11 @@ class MeldProcessor(
         collection.writeTo(outFile)
     }
 
-    private fun genTypeContainers(
-        types: Map<String, ProtocolType>,
-        codecs: MutableMap<String, CodecEntry>
-    ): List<TypeSpec> = types.mapNotNull { (key, type) ->
+    private fun genTypeContainers(types: Map<String, PrismarineType>): List<TypeSpec> = types.mapNotNull { (key, type) ->
         if (codecs.contains(key)) return@mapNotNull null
 
         return@mapNotNull when(type) {
-            is ProtocolType.Container -> {
+            is PrismarineType.Container -> {
                 // add id prop
                 val idProp = PropertySpec.builder("ID", Int::class)
                     .initializer("0x00")
@@ -103,7 +118,6 @@ class MeldProcessor(
                 val myClass = ClassName("io.github.daylightnebula.meld.server", className)
                 codecs[key] = CodecEntry(myClass, myClass, false)
                 genContainer(
-                    codecs = codecs,
                     value = type,
                     myClass = myClass,
                     idProp = idProp,
@@ -111,7 +125,7 @@ class MeldProcessor(
                 )
             }
 
-            is ProtocolType.Mapping -> {
+            is PrismarineType.Mapping -> {
                 if (type.type != "varint") TODO("Support mappings other than varint")
 
                 // create enum class
@@ -148,13 +162,12 @@ class MeldProcessor(
                 listOf(enum.build())
             }
 
-            is ProtocolType.Array -> {
+            is PrismarineType.Array -> {
                 val types = mutableListOf<TypeSpec>()
                 val typeName = snakeToCamelCase(key)
                 val codecName = ClassName("io.github.daylightnebula.meld.server", "${typeName}Codec")
 
                 val typeBuilder = TypeSpec.objectBuilder(codecName)
-//                    .addSuperinterface(ClassName("io.github.daylightnebula.meld.ksp.data", "Codec").parameterizedBy(className))
 
                 // add id prop
                 val idProp = PropertySpec.builder("ID", Int::class)
@@ -170,7 +183,7 @@ class MeldProcessor(
 
                 // get child types
                 val typeCollection = TypeCollection.ListTypeCollection(types)
-                val child = getKtType(codecs, typeCollection, type.type, idProp, stateProp, codecName, "type_" + typeName)
+                val child = getKtType(typeCollection, type.type, idProp, stateProp, codecName, "type_$typeName")
                     ?: throw java.lang.IllegalStateException("getKtType did not return a property for type array generator $key!")
                 val arrayType = ClassName("kotlin.collections", "List").parameterizedBy(child.type)
                 typeBuilder.addSuperinterface(
@@ -208,20 +221,18 @@ class MeldProcessor(
 
     private fun genPacketContainer(
         container: SCPacketContainer,
-        codecs: Map<String, CodecEntry>,
         name: String
     ): List<TypeSpec> = (
-            genPacketTypes(container.toServer, codecs, "Server${name}", name) +
-            genPacketTypes(container.toClient, codecs, "Client${name}", name)
+            genPacketTypes(container.toServer, "Server${name}", name) +
+            genPacketTypes(container.toClient, "Client${name}", name)
         ).flatten()
 
     private fun getPrimaryCodec(
-        codecs: Map<String, CodecEntry>,
-        inType: ProtocolType,
+        inType: PrismarineType,
     ): CodecEntry? = when(inType) {
-        is ProtocolType.Simple -> codecs[inType.text] //?: throw java.lang.IllegalStateException("Could not find simple codec for ${inType.text}")
-        is ProtocolType.Array -> getPrimaryCodec(codecs, inType.type)
-        is ProtocolType.Option -> getPrimaryCodec(codecs, inType.type)
+        is PrismarineType.Simple -> codecs[inType.text] //?: throw java.lang.IllegalStateException("Could not find simple codec for ${inType.text}")
+        is PrismarineType.Array -> getPrimaryCodec(inType.type)
+        is PrismarineType.Option -> getPrimaryCodec(inType.type)
 
 //        is ProtocolType.Mapping -> TODO("Primary Codec Mapping")
 //        is ProtocolType.BitFlags -> TODO("Primary Codec Bit Flags")
@@ -233,20 +244,18 @@ class MeldProcessor(
     }
 
     private fun getKtType(
-        codecs: Map<String, CodecEntry>,
         typeBuilder: TypeCollection,
-        inType: ProtocolType,
+        inType: PrismarineType,
         idProp: PropertySpec,
         stateProp: PropertySpec,
         packetClass: ClassName,
         name: String
     ): PropertySpec? = when(inType) {
-        is ProtocolType.Simple -> getPrimaryCodec(codecs, inType)
+        is PrismarineType.Simple -> getPrimaryCodec(inType)
             .let { codec -> PropertySpec.builder(name, codec?.type ?: return null).initializer(name).build() }
 
-        is ProtocolType.Array -> {
+        is PrismarineType.Array -> {
             val internalType = getKtType(
-                codecs = codecs,
                 typeBuilder = typeBuilder,
                 inType = inType.type,
                 idProp = idProp,
@@ -261,16 +270,16 @@ class MeldProcessor(
             ).initializer(name).build()
         }
 
-        is ProtocolType.Buffer -> PropertySpec.builder(name, ByteArray::class)
+        is PrismarineType.Buffer -> PropertySpec.builder(name, ByteArray::class)
             .initializer(name)
             .build()
 
-        is ProtocolType.RegistryEntryHolderSet -> PropertySpec.builder(
+        is PrismarineType.RegistryEntryHolderSet -> PropertySpec.builder(
             name = name,
             type = ClassName("io.github.daylightnebula.meld.server", "IDSet")
         ).initializer(name).build()
 
-        is ProtocolType.Container -> {
+        is PrismarineType.Container -> {
             val containerClass = ClassName(
                 when(typeBuilder) {
                     is TypeCollection.ListTypeCollection -> "io.github.daylightnebula.meld.server"
@@ -279,7 +288,6 @@ class MeldProcessor(
 
             // add container type
             typeBuilder.addAll(genContainer(
-                codecs = codecs,
                 value = inType,
                 myClass = containerClass,
                 idProp = idProp,
@@ -292,8 +300,7 @@ class MeldProcessor(
                 .build()
         }
 
-        is ProtocolType.Option -> getKtType(
-            codecs = codecs,
+        is PrismarineType.Option -> getKtType(
             typeBuilder = typeBuilder,
             inType = inType.type,
             idProp = idProp,
@@ -316,29 +323,28 @@ class MeldProcessor(
     }
 
     fun encodeString(
-        codecs: Map<String, CodecEntry>,
-        type: ProtocolType,
+        type: PrismarineType,
         name: String
     ): String? = when(type) {
-        is ProtocolType.Simple -> {
-            val codec = getPrimaryCodec(codecs, type) ?: return null
+        is PrismarineType.Simple -> {
+            val codec = getPrimaryCodec(type) ?: return null
             if (codec.manuallyCreated) "${codec.codec.simpleName}.encode($name)"
             else "$name.encode()"
         }
 
-        is ProtocolType.Array -> {
-            val child = encodeString(codecs, type.type, name) ?: return null
+        is PrismarineType.Array -> {
+            val child = encodeString(type.type, name) ?: return null
             "VarIntCodec.encode($name.size) + $name.map { $name -> $child }.fold(byteArrayOf()) { acc, bytes -> acc + bytes }"
         }
 
-        is ProtocolType.Option -> {
-            val child = encodeString(codecs, type.type, name) ?: return null
+        is PrismarineType.Option -> {
+            val child = encodeString(type.type, name) ?: return null
             "if ($name != null) { byteArrayOf(0x01) + ($child) } else { byteArrayOf(0x00) }"
         }
 
-        is ProtocolType.Container -> "$name.encode()"
-        is ProtocolType.Buffer -> name
-        is ProtocolType.RegistryEntryHolderSet -> "$name.encode()"
+        is PrismarineType.Container -> "$name.encode()"
+        is PrismarineType.Buffer -> name
+        is PrismarineType.RegistryEntryHolderSet -> "$name.encode()"
 
         //        is ProtocolType.Mapping -> TODO("KT Type Mapping")
         //        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
@@ -350,29 +356,28 @@ class MeldProcessor(
     }
 
     fun decodeString(
-        codecs: Map<String, CodecEntry>,
-        type: ProtocolType,
+        type: PrismarineType,
         name: String,
     ): String? = when(type) {
-        is ProtocolType.Simple -> {
-            val codec = getPrimaryCodec(codecs, type)?.codec ?: return null
+        is PrismarineType.Simple -> {
+            val codec = getPrimaryCodec(type)?.codec ?: return null
             "${codec.simpleName}.decode(reader)"
         }
 
-        is ProtocolType.Array ->
-            "(0 until VarIntCodec.decode(reader)).map { ${decodeString(codecs, type.type, name)} }"
+        is PrismarineType.Array ->
+            "(0 until VarIntCodec.decode(reader)).map { ${decodeString(type.type, name)} }"
 
-        is ProtocolType.Buffer ->
+        is PrismarineType.Buffer ->
             "reader.readMany(VarIntCodec.decode(reader))"
 
-        is ProtocolType.Container -> "${snakeToCamelCase(name)}.decode(reader)"
+        is PrismarineType.Container -> "${snakeToCamelCase(name)}.decode(reader)"
 
-        is ProtocolType.Option -> {
-            val child = decodeString(codecs, type.type, name)
+        is PrismarineType.Option -> {
+            val child = decodeString(type.type, name)
             "if (reader.read() > 0) $child else null"
         }
 
-        is ProtocolType.RegistryEntryHolderSet -> "IDSet.decode(reader)"
+        is PrismarineType.RegistryEntryHolderSet -> "IDSet.decode(reader)"
 
         //        is ProtocolType.Mapping -> TODO("KT Type Mapping")
         //        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
@@ -384,8 +389,7 @@ class MeldProcessor(
     }
 
     private fun genContainer(
-        codecs: Map<String, CodecEntry>,
-        value: ProtocolType.Container,
+        value: PrismarineType.Container,
         myClass: ClassName,
         idProp: PropertySpec,
         stateProp: PropertySpec
@@ -408,7 +412,6 @@ class MeldProcessor(
         val params = namedTypes.mapNotNull { type ->
             lowerCamelCase(type.name ?: "error") to (
                 getKtType(
-                    codecs = codecs,
                     typeBuilder = TypeCollection.InternalTypeCollection(builder),
                     inType = type.type,
                     idProp = idProp,
@@ -431,7 +434,6 @@ class MeldProcessor(
         val decodeReturnPre = namedTypes.mapNotNull { pair ->
             val pairName = lowerCamelCase(pair.name ?: return@mapNotNull null)
             decodeString(
-                codecs = codecs,
                 type = pair.type,
                 name = pairName
             )?.let { "\t${pairName} = $it" }
@@ -447,7 +449,6 @@ class MeldProcessor(
         // add encode function
         val encodeReturnPre = namedTypes.mapNotNull { pair ->
             encodeString(
-                codecs = codecs,
                 type = pair.type,
                 name = lowerCamelCase((pair.name ?: return@mapNotNull null).toString())
             )
@@ -480,11 +481,10 @@ class MeldProcessor(
 
     private fun genPacketTypes(
         types: PacketTypes,
-        codecs: Map<String, CodecEntry>,
         name: String,
         state: String
-    ) = types.types.mapNotNull { (key, value) ->
-        val container = value as? ProtocolType.Container ?: return@mapNotNull null
+    ) = types.types.types.mapNotNull { (key, value) ->
+        val container = value as? PrismarineType.Container ?: return@mapNotNull null
 
         // generate class name descriptor or skip
         val className =
@@ -494,9 +494,9 @@ class MeldProcessor(
 
         // add ID
         val init = (
-            (types.types["packet"]!! as ProtocolType.Container)
+            (types.types.types["packet"]!! as PrismarineType.Container)
                 .contained.first { it.name == "name" }
-                .type as ProtocolType.Mapping
+                .type as PrismarineType.Mapping
             ).mappings
             .firstNotNullOf { if (it.value == key.substring(7 until key.length)) it.key else null }
         val idProp = PropertySpec.builder("ID", Int::class)
@@ -518,19 +518,15 @@ class MeldProcessor(
             .build()
 
         // create container
-        genContainer(codecs, container, myClass, idProp, stateProp)
+        genContainer(container, myClass, idProp, stateProp)
     }
 
-    fun snakeToCamelCase(input: String) = input
-        .split("_")
-        .joinToString("") { it.capitalize() }
-
-    fun lowerCamelCase(input: String) = snakeToCamelCase(input).let { it[0].lowercase() + it.substring(1 until it.length) }
-
-    fun downloadProtocol() = protocolJson
-
+    @Suppress("unused")
     class Provider: SymbolProcessorProvider {
-        override fun create(environment: SymbolProcessorEnvironment) =
-            MeldProcessor(environment.codeGenerator, environment.logger)
+        override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+            codeGenerator = environment.codeGenerator
+            logger = environment.logger
+            return MeldProcessor
+        }
     }
 }
