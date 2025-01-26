@@ -9,6 +9,7 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.sun.tools.javac.tree.TreeInfo.symbol
+import io.github.daylightnebula.meld.ksp.data.BuildBiomeRegistry
 import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
 import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
@@ -58,9 +59,7 @@ object MeldProcessor: SymbolProcessor {
 
         // build packet classes
         runBasicAnnotation<BuildJavaPackets>(resolver) { file, _ -> MeldPackets.buildPacketsClasses(file) }
-//        resolver.getSymbolsWithAnnotation(BuildJavaPackets::class.qualifiedName!!)
-//            .forEach { if (it is KSClassDeclaration) MeldPackets.buildPacketsClasses(it) }
-//        resolver
+        runBasicAnnotation<BuildBiomeRegistry>(resolver) { file, _ -> MeldBiomes.build(file) }
 
         return emptyList<KSAnnotated>()
     }
