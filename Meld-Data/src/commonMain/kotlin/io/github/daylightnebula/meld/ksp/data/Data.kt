@@ -13,8 +13,7 @@ interface Codec<T> {
     fun decode(reader: IReader): T
 }
 
-annotation class BuildJavaPackets
-annotation class BuildBiomeRegistry
+annotation class BuildPrismarineData
 
 @Target(AnnotationTarget.CLASS)
 annotation class RegisterCodec(val target: String, val type: KClass<*>)

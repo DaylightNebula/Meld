@@ -21,10 +21,10 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 object MeldBiomes {
-    fun build(file: KSClassDeclaration) {
+    fun build(file: KSClassDeclaration, url: String) {
         // get all biomes
         val biomeContent = runBlocking {
-            client.prepareGet { url("${MeldProcessor.PRISMARINE_ROOT_URL}/${MeldProcessor.TARGET_VERSION}/biomes.json") }
+            client.prepareGet { url(url) }
                 .execute()
                 .bodyAsText()
         }

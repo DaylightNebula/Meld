@@ -6,28 +6,22 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
-import com.sun.tools.javac.tree.TreeInfo.symbol
-import io.github.daylightnebula.meld.ksp.data.BuildBiomeRegistry
-import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
-import io.github.daylightnebula.meld.ksp.data.IReader
+import io.github.daylightnebula.meld.ksp.data.BuildPrismarineData
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
-import io.github.daylightnebula.meld.ksp.prismarine.PacketTypes
-import io.github.daylightnebula.meld.ksp.prismarine.PrismarineType
-import io.github.daylightnebula.meld.ksp.prismarine.ProtocolFile
-import io.github.daylightnebula.meld.ksp.prismarine.SCPacketContainer
 import io.ktor.client.HttpClient
 import io.ktor.client.request.prepareGet
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import java.io.File
-import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 object MeldProcessor: SymbolProcessor {
-    const val PRISMARINE_ROOT_URL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/refs/heads/master/data/pc"
+    const val DATA_PATH_URL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/refs/heads/master/data/dataPaths.json"
+    const val PRISMARINE_ROOT_URL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/refs/heads/master/data/"
     const val TARGET_VERSION = "1.21.4"
 
     lateinit var codeGenerator: CodeGenerator
@@ -57,9 +51,26 @@ object MeldProcessor: SymbolProcessor {
             target to CodecEntry(type, codec, true)
         }.toMap().toMutableMap())
 
-        // build packet classes
-        runBasicAnnotation<BuildJavaPackets>(resolver) { file, _ -> MeldPackets.buildPacketsClasses(file) }
-        runBasicAnnotation<BuildBiomeRegistry>(resolver) { file, _ -> MeldBiomes.build(file) }
+        // build prismarine data
+        runBasicAnnotation<BuildPrismarineData>(resolver) { file, _ ->
+            // run all data paths
+            val dataPaths = json.decodeFromString<JsonObject>(runBlocking {
+                client.prepareGet { url(DATA_PATH_URL) }
+                    .execute()
+                    .bodyAsText()
+            })
+
+            // load all
+            dataPaths["pc"]!!.jsonObject[TARGET_VERSION]!!.jsonObject.forEach { (name, element) ->
+                val urlExt = element.jsonPrimitive.content
+                val url = "${PRISMARINE_ROOT_URL}/$urlExt/$name.json"
+                when (name) {
+                    "protocol" -> MeldPackets.buildPacketsClasses(file, url)
+                    "biomes" -> MeldBiomes.build(file, url)
+                    else -> logger.warn("No method to decode \"$name\"")
+                }
+            }
+        }
 
         return emptyList<KSAnnotated>()
     }

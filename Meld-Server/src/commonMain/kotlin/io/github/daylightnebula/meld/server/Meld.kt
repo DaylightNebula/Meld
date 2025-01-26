@@ -1,7 +1,6 @@
 package io.github.daylightnebula.meld.server
 
-import io.github.daylightnebula.meld.ksp.data.BuildBiomeRegistry
-import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
+import io.github.daylightnebula.meld.ksp.data.BuildPrismarineData
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayKeepAlive
 import io.github.daylightnebula.meld.server.modules.KeepAliveBundle
 import io.github.daylightnebula.meld.server.modules.MeldModule
@@ -21,8 +20,7 @@ import okio.Path.Companion.toPath
 import okio.SYSTEM
 import kotlin.random.Random
 
-@BuildJavaPackets
-@BuildBiomeRegistry
+@BuildPrismarineData
 object Meld {
     val connections = mutableListOf<IConnection<*>>()
 

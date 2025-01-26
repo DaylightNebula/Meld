@@ -33,10 +33,10 @@ import kotlin.collections.set
 import kotlin.uuid.ExperimentalUuidApi
 
 object MeldPackets {
-    internal fun buildPacketsClasses(file: KSClassDeclaration) {
+    internal fun buildPacketsClasses(file: KSClassDeclaration, url: String) {
         // download from https://github.com/PrismarineJS/minecraft-data/tree/master/data/pc
         val response = runBlocking {
-            client.prepareGet { url("$PRISMARINE_ROOT_URL/$TARGET_VERSION/protocol.json") }
+            client.prepareGet { url(url) }
                 .execute()
                 .bodyAsText()
         }
