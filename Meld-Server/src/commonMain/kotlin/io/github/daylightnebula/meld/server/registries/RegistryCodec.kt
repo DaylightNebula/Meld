@@ -1,16 +1,17 @@
 package io.github.daylightnebula.meld.server.registries
 
-import io.github.daylightnebula.meld.server.meldJson
+import io.github.daylightnebula.meld.server.Meld
+import io.github.daylightnebula.meld.server.Meld.json
 import kotlinx.serialization.json.*
 import net.benwoodworth.knbt.*
 
 object RegistryCodec {
-//    val codec: JsonObject = meldJson.decodeFromString(File("codec.json").readText())
+//    val codec: JsonObject = Meld.json.decodeFromString(File("codec.json").readText())
 
 
-//    val chatRegistry = meldNbt.encodeToNbtTag(ChatRegistry.default)
-//    val dimensionType = meldNbt.encodeToNbtTag(DimensionRegistry.default)
-//    val defaultBiome = meldNbt.encodeToNbtTag(BiomeRegistry.default)
+//    val chatRegistry = Meld.nbt.encodeToNbtTag(ChatRegistry.default)
+//    val dimensionType = Meld.nbt.encodeToNbtTag(DimensionRegistry.default)
+//    val defaultBiome = Meld.nbt.encodeToNbtTag(BiomeRegistry.default)
 //    val damageTypeJson = codec["value"]!!
 //        .jsonObject["minecraft:damage_type"]!!
 //        .jsonObject["value"]!!.jsonObject
@@ -50,7 +51,7 @@ object RegistryCodec {
     )
 
     fun interpretSnifferData(text: String): SnifferData {
-        val json = meldJson.decodeFromString<JsonObject>(text)
+        val json = Meld.json.decodeFromString<JsonObject>(text)
         val name = json["registry"]!!.jsonObject["raw_string"]!!.jsonPrimitive.content
         val entries = json["entries"]!!.jsonArray.map { entry ->
             val json = entry.jsonObject

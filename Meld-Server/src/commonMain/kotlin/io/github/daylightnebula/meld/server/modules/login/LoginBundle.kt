@@ -17,7 +17,7 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 private val tempUIDStorage = mutableMapOf<IConnection<*>, Uuid>()
-class LoginBundle: PacketBundle {
+object LoginBundle: PacketBundle {
     override fun registerJavaPackets() = javaPackets(
         javaPacket(
             creator = JavaServerHandshakeSetProtocol,
@@ -37,11 +37,6 @@ class LoginBundle: PacketBundle {
         javaPacket(
             creator = JavaServerLoginLoginStart,
             execute = this::onInitiateLogin
-        ),
-
-        javaPacket(
-            creator = JavaServerConfigKeepAlive,
-            execute = this::onConfigKeepAlive
         ),
 
         javaPacket(
@@ -65,8 +60,6 @@ class LoginBundle: PacketBundle {
         )
     )
 
-    fun onConfigKeepAlive(connection: JavaConnection, packet: JavaServerConfigKeepAlive) {}
-
     fun onHandshake(connection: JavaConnection, packet: JavaServerHandshakeSetProtocol) =
         when (packet.nextState) {
             1 -> connection.state = JavaConnectionState.STATUS
@@ -77,7 +70,7 @@ class LoginBundle: PacketBundle {
     fun onStatusStatus(connection: JavaConnection, packet: JavaServerStatusPingStart) =
         connection.sendPacket(
             JavaClientStatusServerInfo(
-                response = meldJson.encodeToString(JavaNetworkController.pingJson())
+                response = Meld.json.encodeToString(JavaNetworkController.pingJson())
             )
         )
 

@@ -16,7 +16,7 @@ object DimensionRegistry: RegistryCodec.Codec {
 //    val type: String = "minecraft:dimension_type",
 //    val value: List<DimensionRegistryEntry>
 //    companion object {
-//        val default = meldJson.decodeFromString<DimensionRegistry>("""
+//        val default = Meld.json.decodeFromString<DimensionRegistry>("""
 //            {
 //              "type": "minecraft:dimension_type",
 //              "value": [

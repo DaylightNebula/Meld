@@ -156,7 +156,7 @@ object VarLongCodec: Codec<Long> {
 @RegisterCodec("string", String::class)
 object StringCodec: Codec<String> {
     override fun encode(data: String) = VarIntCodec.encode(data.length) + data.toByteArray()
-    override fun decode(reader: IReader) = String(reader.readMany(VarIntCodec.decode(reader)))
+    override fun decode(reader: IReader) = reader.readMany(VarIntCodec.decode(reader)).decodeToString()
 }
 
 @OptIn(ExperimentalUuidApi::class)
@@ -174,7 +174,7 @@ object RestBufferCodec: Codec<ByteArray> {
 
 @RegisterCodec("anonymousNbt", NbtTag::class)
 object AnonymousNBT: Codec<NbtTag> {
-    override fun encode(data: NbtTag) = meldNbt.encodeToByteArray(data)
+    override fun encode(data: NbtTag) = Meld.nbt.encodeToByteArray(data)
     override fun decode(reader: IReader) = TODO()
 }
 

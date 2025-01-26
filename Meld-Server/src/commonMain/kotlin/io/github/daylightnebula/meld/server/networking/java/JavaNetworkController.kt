@@ -2,7 +2,7 @@ package io.github.daylightnebula.meld.server.networking.java
 
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.PacketManager
-import io.github.daylightnebula.meld.server.meldJson
+import io.github.daylightnebula.meld.server.VarIntCodec
 import io.github.daylightnebula.meld.server.networking.common.ByteArrayReader
 import io.github.daylightnebula.meld.server.networking.common.ChannelReader
 import io.github.daylightnebula.meld.server.networking.common.INetworkController
@@ -46,8 +46,8 @@ object JavaNetworkController: INetworkController {
 
                 // asynchronously read packet
                 runBlocking {
-                    val length = read.readVarInt()
-                    val packetID = read.readVarInt()
+                    val length = VarIntCodec.decode(read)
+                    val packetID = VarIntCodec.decode(read)
 
                     // try catch due to packet 122 in status state
                     val data = ByteArrayReader(read.readMany(length - 1))
@@ -61,29 +61,29 @@ object JavaNetworkController: INetworkController {
         }
     }
 
-    fun pingJson() = meldJson.decodeFromString<JsonObject>("""
+    fun pingJson() = Meld.json.decodeFromString<JsonObject>("""
         {
           "version": {
-              "name": "${Meld.javaVersion}",
-              "protocol": ${Meld.javaProtocol}
+              "name": "${Meld.config.javaVersion}",
+              "protocol": ${Meld.config.javaProtocol}
           },
           "players": {
-            "max": ${Meld.maxPlayers},
-            "online": ${Meld.players},
+            "max": ${Meld.config.maxPlayers},
+            "online": ${Meld.config.players},
             "sample": []
           },
           "description": {
-            "text": "${Meld.description}"
+            "text": "${Meld.config.description}"
           },
-          "favicon": "${Meld.favicon}",
-          "enforcesSecureChat": "${Meld.enforceSecureChat}"
+          "favicon": "${Meld.config.favicon}",
+          "enforcesSecureChat": "${Meld.config.enforceSecureChat}"
         }
     """.trimIndent())
 
     override fun start() {
         // start socket
         val selectorManager = SelectorManager()
-        serverSocket = runBlocking { aSocket(selectorManager).tcp().bind(port = Meld.javaPort) }
+        serverSocket = runBlocking { aSocket(selectorManager).tcp().bind(port = Meld.config.javaPort) }
 
         // start threads
         acceptor.start()

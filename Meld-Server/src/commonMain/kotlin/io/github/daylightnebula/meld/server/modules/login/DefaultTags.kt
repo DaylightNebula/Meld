@@ -1,10 +1,10 @@
 package io.github.daylightnebula.meld.server.modules.login
 
-import io.github.daylightnebula.meld.server.meldJson
+import io.github.daylightnebula.meld.server.Meld
 import kotlinx.serialization.json.JsonObject
 
 object DefaultTags {
-    val defaultTags: JsonObject = meldJson.decodeFromString("""
+    val defaultTags: JsonObject = Meld.json.decodeFromString("""
 {
     "tags": {
         "minecraft:banner_pattern": [

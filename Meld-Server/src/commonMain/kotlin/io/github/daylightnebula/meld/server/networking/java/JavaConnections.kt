@@ -1,7 +1,7 @@
 package io.github.daylightnebula.meld.server.networking.java
 
 import io.github.daylightnebula.meld.ksp.data.IReader
-import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
+import io.github.daylightnebula.meld.server.events.ConnectionAbortedEvent
 import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.networking.common.*
@@ -29,7 +29,6 @@ class JavaConnection(
         // encode packet
         val data = packet.encode()
         writer.writeByteArray(data)
-        println("Sending $id of length ${data.size}")
 
         // send byte array to client
         val bytes = writer.getData()

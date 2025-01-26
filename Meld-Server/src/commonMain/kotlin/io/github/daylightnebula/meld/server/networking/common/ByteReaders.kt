@@ -3,9 +3,8 @@ package io.github.daylightnebula.meld.server.networking.common
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.server.CONTINUE_BIT
+import io.github.daylightnebula.meld.server.Meld
 import io.github.daylightnebula.meld.server.SEGMENT_BITS
-import io.github.daylightnebula.meld.server.meldJson
-import io.github.daylightnebula.meld.server.meldNbt
 import io.github.daylightnebula.meld.server.utils.NotImplementedException
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
@@ -41,58 +40,6 @@ abstract class AbstractReader: IReader {
         }
         return value
     }
-
-    // read var long
-    open fun readVarLong(): Long {
-        var value: Long = 0
-        var position = 0
-        var currentByte: Byte
-        while (true) {
-            currentByte = read()
-            value = value or ((currentByte and SEGMENT_BITS.toByte()).toLong() shl position)
-            if (currentByte.toInt() and CONTINUE_BIT == 0) break
-            position += 7
-            if (position >= 64) throw IllegalStateException("VarLong is too big")
-        }
-        return value
-    }
-
-    fun readAngle() = readUByte().toInt().toFloat() / 256f * 360f
-
-    // simple primitive reads
-    fun readBoolean(): Boolean = read() > 0
-    fun readUByte(): UByte = read().toUByte()
-    fun readShort(): Short = Buffer().write(readMany(2)).readShort()
-    fun readUShort(): UShort = readShort().toUShort()
-    fun read3Int(): Int = read() + (read().toInt() shl 8) + (read().toInt() shl 16) // reknet sends 3 byte integers sometimes
-    fun readInt(): Int = Buffer().write(readMany(4)).readInt()
-    fun readFloat(): Float = Float.fromBits(readInt())
-    fun readDouble(): Double = Double.fromBits(readLong())
-    fun readLong() = Buffer().write(readMany(8)).readLong()
-    fun readFloat3() = Float3(readFloat(), readFloat(), readFloat())
-
-    fun readBlockPosition(): Float3 {
-        val value: Long = readLong()
-        val x = (value shr 38).toInt().toFloat()
-        val y = (value shl 52 shr 52).toInt().toFloat()
-        val z = (value shl 26 shr 38).toInt().toFloat()
-        return Float3(x, y, z)
-    }
-
-    // complex object reads
-    fun readByteArray() = readMany(remaining())
-    fun readString(): String = String(readMany(readVarInt()))
-    fun readShortString(): String = String(readMany(readUShort().toInt()))
-    fun readJsonObject(): JsonObject = meldJson.decodeFromString(readString())
-    fun readNBT(): NbtCompound = meldNbt.decodeFromByteArray(readByteArray())
-
-    @OptIn(ExperimentalUuidApi::class)
-    fun readUUID(): Uuid = Uuid.fromLongs(readLong(), readLong())
-    @OptIn(ExperimentalUuidApi::class)
-    fun readUuid() = readUUID()
-
-    fun <T> readOptional(read: () -> T?): T? = if (readBoolean()) read() else null
-    inline fun <reified T> readArray(read: () -> T): Array<T> = Array(readVarInt()) { read() }
 }
 
 class ChannelReader(val channel: ByteReadChannel): AbstractReader() {
