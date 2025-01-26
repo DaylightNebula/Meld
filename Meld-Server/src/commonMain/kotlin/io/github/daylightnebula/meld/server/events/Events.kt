@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.server.events
 
+import io.github.daylightnebula.meld.server.VarIntCodec
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

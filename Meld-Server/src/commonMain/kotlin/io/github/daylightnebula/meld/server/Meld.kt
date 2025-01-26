@@ -1,6 +1,7 @@
 package io.github.daylightnebula.meld.server
 
 import io.github.daylightnebula.meld.ksp.data.BuildJavaPackets
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayKeepAlive
 import io.github.daylightnebula.meld.server.modules.KeepAliveBundle
 import io.github.daylightnebula.meld.server.modules.MeldModule
 import io.github.daylightnebula.meld.server.modules.ModuleLoader

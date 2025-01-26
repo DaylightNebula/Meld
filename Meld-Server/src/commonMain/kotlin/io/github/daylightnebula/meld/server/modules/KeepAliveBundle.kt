@@ -1,8 +1,8 @@
 package io.github.daylightnebula.meld.server.modules
 
-import io.github.daylightnebula.meld.server.JavaServerConfigKeepAlive
-import io.github.daylightnebula.meld.server.JavaServerPlayKeepAlive
 import io.github.daylightnebula.meld.server.PacketBundle
+import io.github.daylightnebula.meld.server.generated.JavaServerConfigKeepAlive
+import io.github.daylightnebula.meld.server.generated.JavaServerPlayKeepAlive
 import io.github.daylightnebula.meld.server.javaPacket
 import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection

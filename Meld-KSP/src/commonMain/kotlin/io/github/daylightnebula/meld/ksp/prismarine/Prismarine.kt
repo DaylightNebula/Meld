@@ -1,5 +1,6 @@
 package io.github.daylightnebula.meld.ksp.prismarine
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -33,3 +34,16 @@ data class NamedType(
 
 @Serializable
 class BitField(val name: String, val size: Int, val signed: Boolean)
+
+@Serializable
+data class PrismarineBiome(
+    val id: Int,
+    val name: String,
+    val category: String,
+    val temperature: Float,
+    @SerialName("has_precipitation")
+    val hasPrecipitation: Boolean,
+    val dimension: String,
+    val displayName: String,
+    val color: Int
+)

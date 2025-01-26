@@ -14,6 +14,7 @@ interface Codec<T> {
 }
 
 annotation class BuildJavaPackets
+annotation class BuildBiomeRegistry
 
 @Target(AnnotationTarget.CLASS)
 annotation class RegisterCodec(val target: String, val type: KClass<*>)
