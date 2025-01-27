@@ -1,34 +1,16 @@
 package io.github.daylightnebula.meld.ksp
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
-import com.sun.tools.javac.tree.TreeInfo.types
-import io.github.daylightnebula.meld.ksp.MeldProcessor.client
 import io.github.daylightnebula.meld.ksp.MeldProcessor.json
 import io.github.daylightnebula.meld.ksp.prismarine.PrismarineBiome
-import io.ktor.client.request.prepareGet
-import io.ktor.client.request.url
-import io.ktor.client.statement.bodyAsText
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.Json
 import java.io.File
 
 object MeldBiomes {
-    fun build(file: KSClassDeclaration, url: String) {
+    fun build(file: KSClassDeclaration, text: String) {
         // get all biomes
-        val biomeContent = runBlocking {
-            client.prepareGet { url(url) }
-                .execute()
-                .bodyAsText()
-        }
-        val biomes = json.decodeFromString<List<PrismarineBiome>>(biomeContent)
+        val biomes = json.decodeFromString<List<PrismarineBiome>>(text)
 
         // build biome properties
         val properties = mapOf(

@@ -13,11 +13,15 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.prepareGet
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
+import jdk.internal.net.http.frame.Http2Frame.asString
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.io.File
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 object MeldProcessor: SymbolProcessor {
     const val DATA_PATH_URL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/refs/heads/master/data/dataPaths.json"
@@ -35,6 +39,7 @@ object MeldProcessor: SymbolProcessor {
 
     data class CodecEntry(val type: TypeName, val codec: ClassName, val manuallyCreated: Boolean)
 
+    @OptIn(ExperimentalUuidApi::class)
     override fun process(resolver: Resolver): List<KSAnnotated> {
         // register native types
         codecs.putAll(resolver.getSymbolsWithAnnotation(RegisterCodec::class.qualifiedName!!).map {
@@ -51,6 +56,26 @@ object MeldProcessor: SymbolProcessor {
             target to CodecEntry(type, codec, true)
         }.toMap().toMutableMap())
 
+        // attempt to create temp file to get build dir path
+        logger.warn("File ${resolver.getAllFiles().map { it.fileName }.toList()}")
+        val findFile = resolver.getAllFiles().firstOrNull { it.fileName == "TempFileToInferBuildDir.kt" }
+        var buildDir = if (findFile != null) {
+            val tokens = findFile.filePath.split("/")
+            File(tokens.subList(0, tokens.size - 3).joinToString("/"))
+        } else {
+            codeGenerator.createNewFile(
+                Dependencies(false),  // No dependencies; it’s a standalone file
+                packageName = "filefinder",
+                fileName = "TempFileToInferBuildDir"
+            )
+            codeGenerator.generatedFile.first()
+        }
+
+        // get build dir
+        if (buildDir.path.contains("build"))
+            while (buildDir.name != "build")
+                buildDir = buildDir.parentFile
+
         // build prismarine data
         runBasicAnnotation<BuildPrismarineData>(resolver) { file, _ ->
             // run all data paths
@@ -62,11 +87,31 @@ object MeldProcessor: SymbolProcessor {
 
             // load all
             dataPaths["pc"]!!.jsonObject[TARGET_VERSION]!!.jsonObject.forEach { (name, element) ->
+                // get file path and URL
                 val urlExt = element.jsonPrimitive.content
-                val url = "${PRISMARINE_ROOT_URL}/$urlExt/$name.json"
+                val filePath = "$urlExt/$name.json"
+                val url = "${PRISMARINE_ROOT_URL}/$filePath"
+
+                // attempt to get cache file
+                val cacheFile = File(buildDir, "mcCache/$filePath")
+
+                // download file if necessary
+                if (!cacheFile.exists()) {
+                    cacheFile.parentFile.mkdirs()
+                    cacheFile.writeText(runBlocking {
+                        client.prepareGet { url(url) }
+                            .execute()
+                            .bodyAsText()
+                    })
+                }
+
+                // load file text
+                val fileText = cacheFile.readText()
+
+                // run builder
                 when (name) {
-                    "protocol" -> MeldPackets.buildPacketsClasses(file, url)
-                    "biomes" -> MeldBiomes.build(file, url)
+                    "protocol" -> MeldPackets.buildPacketsClasses(file, fileText)
+                    "biomes" -> MeldBiomes.build(file, fileText)
                     else -> logger.warn("No method to decode \"$name\"")
                 }
             }

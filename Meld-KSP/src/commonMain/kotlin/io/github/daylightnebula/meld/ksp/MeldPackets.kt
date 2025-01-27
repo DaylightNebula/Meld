@@ -1,20 +1,9 @@
 package io.github.daylightnebula.meld.ksp
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.Import
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
 import io.github.daylightnebula.meld.ksp.MeldProcessor.CodecEntry
-import io.github.daylightnebula.meld.ksp.MeldProcessor.PRISMARINE_ROOT_URL
-import io.github.daylightnebula.meld.ksp.MeldProcessor.TARGET_VERSION
-import io.github.daylightnebula.meld.ksp.MeldProcessor.client
 import io.github.daylightnebula.meld.ksp.MeldProcessor.codecs
 import io.github.daylightnebula.meld.ksp.MeldProcessor.json
 import io.github.daylightnebula.meld.ksp.data.IReader
@@ -22,27 +11,13 @@ import io.github.daylightnebula.meld.ksp.prismarine.PacketTypes
 import io.github.daylightnebula.meld.ksp.prismarine.PrismarineType
 import io.github.daylightnebula.meld.ksp.prismarine.ProtocolFile
 import io.github.daylightnebula.meld.ksp.prismarine.SCPacketContainer
-import io.ktor.client.request.prepareGet
-import io.ktor.client.request.url
-import io.ktor.client.statement.bodyAsText
-import kotlinx.coroutines.runBlocking
 import java.io.File
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 import kotlin.uuid.ExperimentalUuidApi
 
 object MeldPackets {
-    internal fun buildPacketsClasses(file: KSClassDeclaration, url: String) {
-        // download from https://github.com/PrismarineJS/minecraft-data/tree/master/data/pc
-        val response = runBlocking {
-            client.prepareGet { url(url) }
-                .execute()
-                .bodyAsText()
-        }
-
+    internal fun buildPacketsClasses(file: KSClassDeclaration, text: String) {
         // get types
-        val protocol: ProtocolFile = json.decodeFromString(response)
+        val protocol: ProtocolFile = json.decodeFromString(text)
         val types =
             genTypeContainers(protocol.types.types) +
                     genPacketContainer(protocol.handshaking, "Handshake") +
