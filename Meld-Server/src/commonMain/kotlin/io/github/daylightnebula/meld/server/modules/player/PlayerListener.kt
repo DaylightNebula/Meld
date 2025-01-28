@@ -1,11 +1,11 @@
-package io.github.daylightnebula.meld.player
+package io.github.daylightnebula.meld.server.modules.player
 
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.entities.packets.JavaEntityStatusPacket
 import io.github.daylightnebula.meld.server.modules.login.LoginEvent
-import io.github.daylightnebula.meld.server.utils.hasPlayer
-import io.github.daylightnebula.meld.server.utils.player
+import io.github.daylightnebula.meld.player.extensions.hasPlayer
+import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.JavaDifficultyPacket
 import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
 import io.github.daylightnebula.meld.player.packets.JavaSetSpawnPositionPacket
@@ -17,6 +17,7 @@ import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.events.EventExecutor
 import io.github.daylightnebula.meld.server.events.EventListener
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
+import io.github.daylightnebula.meld.server.entities.Player
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

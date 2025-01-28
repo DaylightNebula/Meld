@@ -3,6 +3,7 @@ package io.github.daylightnebula.meld.ksp.generators
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import io.github.daylightnebula.meld.ksp.MeldProcessor
 import io.github.daylightnebula.meld.ksp.MeldProcessor.CodecEntry
 import io.github.daylightnebula.meld.ksp.MeldProcessor.codecs
 import io.github.daylightnebula.meld.ksp.MeldProcessor.json
@@ -179,12 +180,17 @@ object MeldPackets {
     private fun getPrimaryCodec(
         inType: PrismarineType,
     ): CodecEntry? = when(inType) {
-        is PrismarineType.Simple -> codecs[inType.text] //?: throw java.lang.IllegalStateException("Could not find simple codec for ${inType.text}")
+        is PrismarineType.Simple -> {
+            val codec = codecs[inType.text]
+            if (codec == null) {
+                MeldProcessor.logger.warn("No codec for ${inType.text}")
+                null
+            } else codec
+        } //?: throw java.lang.IllegalStateException("Could not find simple codec for ${inType.text}")
         is PrismarineType.Array -> getPrimaryCodec(inType.type)
         is PrismarineType.Option -> getPrimaryCodec(inType.type)
 
 //        is ProtocolType.Mapping -> TODO("Primary Codec Mapping")
-//        is ProtocolType.BitFlags -> TODO("Primary Codec Bit Flags")
 //        is ProtocolType.BitFields -> TODO("Primary Codec Bit Fields")
 //        is ProtocolType.CompareTo -> TODO("Primary Codec Compare To")
 //        is ProtocolType.Complex -> TODO("Primary Codec Complex")

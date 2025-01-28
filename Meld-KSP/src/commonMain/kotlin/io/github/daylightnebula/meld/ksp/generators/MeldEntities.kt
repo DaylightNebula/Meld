@@ -56,9 +56,9 @@ object MeldEntities {
         // generate companion for above data class
         val companion = TypeSpec.companionObjectBuilder()
             .addProperties(prismarine.map { entity ->
-                PropertySpec.builder(entity.name.uppercase(), ClassName("io.github.daylightnebula.meld.server.generated", "Entity"))
+                PropertySpec.builder(entity.name.uppercase(), ClassName("io.github.daylightnebula.meld.server.generated", "EntityType"))
                     .initializer("""
-                        Entity(
+                        EntityType(
                             id = ${entity.id},
                             internalId = ${entity.internalId},
                             name = "${entity.name}",
@@ -76,19 +76,15 @@ object MeldEntities {
                 PropertySpec.builder(
                     name = "all",
                     type = ClassName("kotlin.collections", "List")
-                        .parameterizedBy(ClassName("io.github.daylightnebula.meld.server.generated", "Entity"))
+                        .parameterizedBy(ClassName("io.github.daylightnebula.meld.server.generated", "EntityType"))
                 )
                     .initializer("listOf(${prismarine.joinToString(", ") { it.name.uppercase() }})")
                     .build()
             )
             .build()
 
-        // add each entity to data class companion builder
-
-        // add all list to data class companion builder
-
         // finalize data class creation
-        val entityType = TypeSpec.classBuilder("Entity")
+        val entityType = TypeSpec.classBuilder("EntityType")
             .addModifiers(KModifier.DATA)
             .addType(catEnum)
             .addType(subtypeEnum)
@@ -98,7 +94,7 @@ object MeldEntities {
             .build()
 
         // save file
-        val collection = FileSpec.builder(file.packageName.asString() + ".generated", "Entity")
+        val collection = FileSpec.builder(file.packageName.asString() + ".generated", "EntityType")
             .addType(entityType)
             .build()
         val numDrops = file.packageName.asString().count { it == '.' } + 2 // +2 to deal with types

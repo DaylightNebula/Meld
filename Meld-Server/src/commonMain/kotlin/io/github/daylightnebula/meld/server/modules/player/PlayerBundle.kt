@@ -1,9 +1,9 @@
-package io.github.daylightnebula.meld.player
+package io.github.daylightnebula.meld.server.modules.player
 
 import dev.romainguy.kotlin.math.Float3
 import io.github.daylightnebula.meld.entities.EntityAnimation
 import io.github.daylightnebula.meld.entities.metadata.metaPose
-import io.github.daylightnebula.meld.server.utils.player
+import io.github.daylightnebula.meld.player.extensions.player
 import io.github.daylightnebula.meld.player.packets.*
 import io.github.daylightnebula.meld.player.packets.join.JavaPluginMessagePacket
 import io.github.daylightnebula.meld.server.PacketBundle
@@ -13,6 +13,12 @@ import io.github.daylightnebula.meld.server.javaPacket
 import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPlayKeepAlivePacket
+import io.github.daylightnebula.meld.server.entities.Player
+import io.github.daylightnebula.meld.server.entities.PlayerBlockAction
+import io.github.daylightnebula.meld.server.entities.PlayerCommandAction
+import io.github.daylightnebula.meld.server.entities.PlayerInteractType
+import io.github.daylightnebula.meld.server.entities.PlayerMoveEvent
+import io.github.daylightnebula.meld.server.entities.PlayerRotateEvent
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import io.github.daylightnebula.meld.server.utils.Pose
 import kotlin.uuid.ExperimentalUuidApi

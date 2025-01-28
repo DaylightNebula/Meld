@@ -1,21 +1,19 @@
-package io.github.daylightnebula.meld.entities
+package io.github.daylightnebula.meld.server.entities
 
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.length
-import io.github.daylightnebula.meld.entities.metadata.EntityMetadata
-import io.github.daylightnebula.meld.entities.metadata.EntityMetadataObject
-import io.github.daylightnebula.meld.entities.metadata.IEntityMetadataParent
-import io.github.daylightnebula.meld.entities.metadata.entityMetadata
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.utils.toAngleByte
 import io.github.daylightnebula.meld.server.utils.toVelocityStep
+import io.github.daylightnebula.meld.server.generated.EntityType
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayAnimation
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityDestroy
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityHeadRotation
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityLook
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityMetadata
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityTeleport
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityVelocity
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayRelEntityMove
@@ -35,12 +33,12 @@ open class Entity(
     val uid: Uuid = Uuid.random(),
     val id: Int = EntityController.nextID(),
     val type: EntityType = EntityType.ARROW,
-    val metadata: EntityMetadata = entityMetadata(),
+    val metadata: EntityMetadata = EntityMetadata(),
     var dimensionID: String = "overworld",
     startPosition: Float3 = Float3(),
     startVelocity: Float3 = Float3(),
     startRotation: Float2 = Float2()
-): IEntityMetadataParent {
+) {
 
     init {
         val me = this
@@ -170,7 +168,7 @@ open class Entity(
             JavaClientPlaySpawnEntity(
                 entityId = id,
                 objectUUID = uid,
-                type = type.mcID,
+                type = type.id,
                 x = position.x.toDouble(),
                 y = position.y.toDouble(),
                 z = position.z.toDouble(),
@@ -182,7 +180,7 @@ open class Entity(
                 velocityY = 0,
                 velocityZ = 0
             ),
-//            JavaClientPlayEntityMetadata(id, metadata)
+            JavaClientPlayEntityMetadata(id, metadata)
         )
     open var watcherFilter: (connection: IConnection<*>) -> Boolean = { true }
 
@@ -202,22 +200,6 @@ open class Entity(
                 is JavaConnection -> watcher.sendPacket(javaPacket)
             }
         }
-    }
-
-    // when metadata is changed, call event and broadcast changes
-    override fun replaceMetadataAtIndex(index: Int, obj: EntityMetadataObject<*>) {
-        metadata.replaceMetadataAtIndex(index, obj)
-        EventBus.callEvent(EntityMetadataUpdateEvent(this, metadata))
-        val javaPacket = TODO() //JavaClientPlayEntityMetadata(id, metadata)
-        watchers.forEach {
-            when (it) {
-                is JavaConnection -> it.sendPacket(javaPacket)
-            }
-        }
-    }
-
-    override fun <T> getMetadataAtIndex(index: Int): EntityMetadataObject<T>? {
-        return metadata.getMetadataAtIndex(index)
     }
 
     // function to despawn an entity

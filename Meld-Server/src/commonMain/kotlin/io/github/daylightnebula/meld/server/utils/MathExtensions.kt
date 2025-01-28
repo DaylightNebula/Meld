@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.server.extensions
+package io.github.daylightnebula.meld.server.utils
 
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3

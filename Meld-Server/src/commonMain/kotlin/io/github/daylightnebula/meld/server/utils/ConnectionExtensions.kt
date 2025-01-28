@@ -1,7 +1,7 @@
-package io.github.daylightnebula.meld.player.extensions
+package io.github.daylightnebula.meld.server.utils
 
-import io.github.daylightnebula.meld.player.Player
 import io.github.daylightnebula.meld.server.networking.common.IConnection
+import io.github.daylightnebula.meld.server.entities.Player
 
 
 val connectionsToPlayers = hashMapOf<IConnection<*>, Player>()
