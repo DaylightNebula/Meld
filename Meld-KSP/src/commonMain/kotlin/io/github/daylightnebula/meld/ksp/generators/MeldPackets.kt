@@ -7,6 +7,7 @@ import io.github.daylightnebula.meld.ksp.MeldProcessor
 import io.github.daylightnebula.meld.ksp.MeldProcessor.CodecEntry
 import io.github.daylightnebula.meld.ksp.MeldProcessor.codecs
 import io.github.daylightnebula.meld.ksp.MeldProcessor.json
+import io.github.daylightnebula.meld.ksp.MeldProcessor.logger
 import io.github.daylightnebula.meld.ksp.TypeCollection
 import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.ksp.lowerCamelCase
@@ -15,6 +16,7 @@ import io.github.daylightnebula.meld.ksp.prismarine.PrismarineType
 import io.github.daylightnebula.meld.ksp.prismarine.ProtocolFile
 import io.github.daylightnebula.meld.ksp.prismarine.SCPacketContainer
 import io.github.daylightnebula.meld.ksp.snakeToCamelCase
+import io.ktor.http.ParametersBuilder
 import java.io.File
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -269,8 +271,6 @@ object MeldPackets {
                 .build()
         }
 
-//        is ProtocolType.Mapping -> TODO("KT Type Mapping")
-//        is ProtocolType.BitFlags -> TODO("KT Type Bit Flags")
 //        is ProtocolType.BitFields -> TODO("KT Type Bit Fields")
 //        is ProtocolType.CompareTo -> TODO("KT Type Compare To")
 //        is ProtocolType.Complex -> TODO("KT Type Complex")
@@ -383,8 +383,6 @@ object MeldPackets {
             .addParameters(params.values.map { prop ->
                 ParameterSpec.builder(prop.name, prop.type).build()
             })
-            .build()
-        builder.primaryConstructor(construct)
 
         // add create function
         val decodeReturnPre = namedTypes.mapNotNull { pair ->
@@ -430,8 +428,71 @@ object MeldPackets {
                 .build()
         )
 
+        // deal with switch elements
+        val switches = value.contained.filter { it.type is PrismarineType.Switch }
+        if (switches.isNotEmpty()) {
+            // create options interface
+            val inter = TypeSpec.interfaceBuilder("Option")
+
+            // add option property
+            val prop = PropertySpec.builder("option", ClassName("", "Option"))
+                .initializer("option")
+                .build()
+            builder.addProperty(prop)
+            construct.addParameter(ParameterSpec.builder("option", ClassName("", "Option")).build())
+
+            // create options
+            switches.forEach { namedType ->
+                val switch = namedType.type as PrismarineType.Switch
+
+                // add option
+                val option = TypeSpec.classBuilder(snakeToCamelCase(namedType.name ?: "empty"))
+                    .addModifiers(KModifier.DATA)
+                    .addSuperinterface(ClassName("", "Option"))
+
+                // create encode and decode functions for option
+
+                // create constructor
+                val construct = FunSpec.constructorBuilder()
+
+                // add internal types
+                switch.fields.types.forEach { (name, internalType) ->
+                    // get kt type
+                    val ktType = getKtType(
+                        typeBuilder = TypeCollection.InternalTypeCollection(builder),
+                        inType = internalType,
+                        idProp = idProp,
+                        stateProp = stateProp,
+                        packetClass = myClass,
+                        name = snakeToCamelCase(name.split(":", "").last().let { if (it.isEmpty()) "internal" else it })
+                    ) ?: return@forEach
+
+                    // add internal property
+                    option.addProperty(
+                        PropertySpec.builder(namedType.name ?: "internal", ktType.type)
+                            .initializer(namedType.name ?: "internal")
+                            .build()
+                    )
+
+                    // add to constructor
+                    construct.addParameter(
+                        ParameterSpec.builder(namedType.name ?: "internal", ktType.type)
+                            .build()
+                    )
+                }
+
+                // finalize
+                builder.addType(inter.build())
+                builder.addType(option.primaryConstructor(construct.build()).build())
+            }
+        }
+
         // save type
-        types.add(builder.build())
+        types.add(
+            builder
+                .primaryConstructor(construct.build())
+                .build()
+        )
         return types
     }
 

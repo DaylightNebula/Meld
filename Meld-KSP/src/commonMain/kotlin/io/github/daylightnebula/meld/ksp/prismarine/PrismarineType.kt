@@ -39,7 +39,7 @@ abstract class PrismarineType {
                     // do final subtype
                     when(subtype) {
                         "mapper", "mapping" -> Json.decodeFromJsonElement<Mapping>(element[1])
-                        "switch" -> Json.decodeFromJsonElement<CompareTo>(element[1])
+                        "switch" -> Json.decodeFromJsonElement<Switch>(element[1])
                         "container" -> Container(Json.decodeFromJsonElement<List<NamedType>>(element[1]))
                         "buffer" -> Json.decodeFromJsonElement<Buffer>(element[1])
                         "array" -> Json.decodeFromJsonElement<Array>(element[1])
@@ -79,7 +79,7 @@ abstract class PrismarineType {
     class Mapping(val type: String, val mappings: Map<String, String>): PrismarineType()
 
     @Serializable
-    class CompareTo(val compareTo: String, val fields: PrismarineTypeMap, val default: PrismarineType? = null): PrismarineType()
+    class Switch(val compareTo: String, val fields: PrismarineTypeMap, val default: PrismarineType? = null): PrismarineType()
 
     @Serializable
     class Container(val contained: List<NamedType>): PrismarineType()
