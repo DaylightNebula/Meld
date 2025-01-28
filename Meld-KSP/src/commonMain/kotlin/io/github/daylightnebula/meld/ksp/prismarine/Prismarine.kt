@@ -47,3 +47,16 @@ data class PrismarineBiome(
     val displayName: String,
     val color: Int
 )
+
+@Serializable
+data class PrismarineEntity(
+    val id: Int,
+    val internalId: Int,
+    val name: String,
+    val displayName: String,
+    val width: Float,
+    val height: Float,
+    val type: String,
+    val category: String,
+    val metadataKeys: List<String>
+)

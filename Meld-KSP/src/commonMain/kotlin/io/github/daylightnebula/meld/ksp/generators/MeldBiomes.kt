@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.ksp
+package io.github.daylightnebula.meld.ksp.generators
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
@@ -32,26 +32,30 @@ object MeldBiomes {
             .build()
 
         // compile all biomes
-        val allBiomes = biomes.joinToString(",\n") { biome ->
-            """
-                Biome(
-                    id = ${biome.id},
-                    name = "${biome.name}",
-                    category = "${biome.category}",
-                    temperature = ${biome.temperature}f,
-                    hasPrecipitation = ${biome.hasPrecipitation},
-                    dimension = "${biome.dimension}",
-                    displayName = "${biome.displayName}",
-                    color = ${biome.color}
-                )
-            """.trimIndent()
+        val biomeProps = biomes.map { biome ->
+            PropertySpec.builder(biome.name.uppercase(), ClassName("io.github.daylightnebula.meld.server.generated", "Biome"))
+                .initializer("""
+                    Biome(
+                        id = ${biome.id},
+                        name = "${biome.name}",
+                        category = "${biome.category}",
+                        temperature = ${biome.temperature}f,
+                        hasPrecipitation = ${biome.hasPrecipitation},
+                        dimension = "${biome.dimension}",
+                        displayName = "${biome.displayName}",
+                        color = ${biome.color}
+                    )
+                """.trimIndent())
+                .build()
         }
+        val allBiomes = biomes.joinToString(",") { biome -> biome.name.uppercase() }
 
         // build companion object
         val companion = TypeSpec.companionObjectBuilder()
+            .addProperties(biomeProps)
             .addProperty(
                 PropertySpec.builder(
-                    name = "biomes",
+                    name = "all",
                     type = ClassName("kotlin.collections", "List")
                         .parameterizedBy(ClassName("io.github.daylightnebula.meld.server.generated", "Biome"))
                 )

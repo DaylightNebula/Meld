@@ -9,11 +9,13 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.toClassName
 import io.github.daylightnebula.meld.ksp.data.BuildPrismarineData
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
+import io.github.daylightnebula.meld.ksp.generators.MeldBiomes
+import io.github.daylightnebula.meld.ksp.generators.MeldEntities
+import io.github.daylightnebula.meld.ksp.generators.MeldPackets
 import io.ktor.client.HttpClient
 import io.ktor.client.request.prepareGet
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
-import jdk.internal.net.http.frame.Http2Frame.asString
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -21,7 +23,6 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 object MeldProcessor: SymbolProcessor {
     const val DATA_PATH_URL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/refs/heads/master/data/dataPaths.json"
@@ -57,7 +58,6 @@ object MeldProcessor: SymbolProcessor {
         }.toMap().toMutableMap())
 
         // attempt to create temp file to get build dir path
-        logger.warn("File ${resolver.getAllFiles().map { it.fileName }.toList()}")
         val findFile = resolver.getAllFiles().firstOrNull { it.fileName == "TempFileToInferBuildDir.kt" }
         var buildDir = if (findFile != null) {
             val tokens = findFile.filePath.split("/")
@@ -112,6 +112,7 @@ object MeldProcessor: SymbolProcessor {
                 when (name) {
                     "protocol" -> MeldPackets.buildPacketsClasses(file, fileText)
                     "biomes" -> MeldBiomes.build(file, fileText)
+                    "entities" -> MeldEntities.buildEntitiesFile(file, fileText)
                     else -> logger.warn("No method to decode \"$name\"")
                 }
             }

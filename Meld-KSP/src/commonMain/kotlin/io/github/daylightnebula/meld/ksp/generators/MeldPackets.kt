@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.ksp
+package io.github.daylightnebula.meld.ksp.generators
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
@@ -6,11 +6,14 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import io.github.daylightnebula.meld.ksp.MeldProcessor.CodecEntry
 import io.github.daylightnebula.meld.ksp.MeldProcessor.codecs
 import io.github.daylightnebula.meld.ksp.MeldProcessor.json
+import io.github.daylightnebula.meld.ksp.TypeCollection
 import io.github.daylightnebula.meld.ksp.data.IReader
+import io.github.daylightnebula.meld.ksp.lowerCamelCase
 import io.github.daylightnebula.meld.ksp.prismarine.PacketTypes
 import io.github.daylightnebula.meld.ksp.prismarine.PrismarineType
 import io.github.daylightnebula.meld.ksp.prismarine.ProtocolFile
 import io.github.daylightnebula.meld.ksp.prismarine.SCPacketContainer
+import io.github.daylightnebula.meld.ksp.snakeToCamelCase
 import java.io.File
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -230,7 +233,8 @@ object MeldPackets {
                 when(typeBuilder) {
                     is TypeCollection.ListTypeCollection -> "io.github.daylightnebula.meld.server.generated"
                     else -> ""
-                }, snakeToCamelCase(name))
+                }, snakeToCamelCase(name)
+            )
 
             // add container type
             typeBuilder.addAll(genContainer(
