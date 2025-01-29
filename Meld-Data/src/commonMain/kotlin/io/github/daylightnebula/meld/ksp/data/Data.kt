@@ -17,3 +17,6 @@ annotation class BuildPrismarineData
 
 @Target(AnnotationTarget.CLASS)
 annotation class RegisterCodec(val target: String, val type: KClass<*>)
+
+@Target(AnnotationTarget.CLASS)
+annotation class RegisterPacket(val overridingName: String)

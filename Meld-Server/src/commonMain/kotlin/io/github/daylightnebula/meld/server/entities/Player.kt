@@ -6,12 +6,12 @@ import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.generated.EntityType
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityMetadata
-import io.github.daylightnebula.meld.server.generated.JavaClientPlayPlayerInfo
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayPosition
 import io.github.daylightnebula.meld.server.generated.JavaClientPlaySpawnEntity
 import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
+import io.github.daylightnebula.meld.server.networking.java.packets.JavaClientPlayPlayerInfo
 import io.github.daylightnebula.meld.server.utils.BitFlagSet
 import io.github.daylightnebula.meld.server.utils.Pose
 import io.github.daylightnebula.meld.server.utils.TeleportCounter

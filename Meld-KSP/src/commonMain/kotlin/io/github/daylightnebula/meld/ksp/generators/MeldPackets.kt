@@ -441,6 +441,7 @@ object MeldPackets {
         state: String
     ) = types.types.types.mapNotNull { (key, value) ->
         val container = value as? PrismarineType.Container ?: return@mapNotNull null
+        if (MeldProcessor.manuallyCreatedPackets.contains(key)) return@mapNotNull null
 
         // generate class name descriptor or skip
         val className =

@@ -9,6 +9,7 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.toClassName
 import io.github.daylightnebula.meld.ksp.data.BuildPrismarineData
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
+import io.github.daylightnebula.meld.ksp.data.RegisterPacket
 import io.github.daylightnebula.meld.ksp.generators.MeldBiomes
 import io.github.daylightnebula.meld.ksp.generators.MeldEntities
 import io.github.daylightnebula.meld.ksp.generators.MeldPackets
@@ -32,6 +33,7 @@ object MeldProcessor: SymbolProcessor {
     lateinit var codeGenerator: CodeGenerator
     lateinit var logger: KSPLogger
     val codecs = mutableMapOf<String, CodecEntry>()
+    val manuallyCreatedPackets = mutableListOf<String>()
 
     val client = HttpClient {}
     val json = Json {
@@ -56,6 +58,17 @@ object MeldProcessor: SymbolProcessor {
 
             target to CodecEntry(type, codec, true)
         }.toMap().toMutableMap())
+
+        // register manually created packest
+        manuallyCreatedPackets.addAll(resolver.getSymbolsWithAnnotation(RegisterPacket::class.qualifiedName!!).map {
+            // get annotation
+            val clazz = it as KSClassDeclaration
+            val annotation = clazz.annotations
+                .filter { it.shortName == resolver.getKSNameFromString("RegisterPacket") }
+                .first()
+            val arguments = annotation.arguments.associate { (it.name?.asString() ?: "") to it }
+            arguments["overridingName"]!!.value as String
+        })
 
         // attempt to create temp file to get build dir path
         val findFile = resolver.getAllFiles().firstOrNull { it.fileName == "TempFileToInferBuildDir.kt" }

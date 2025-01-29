@@ -7,9 +7,10 @@ import io.github.daylightnebula.meld.server.UByteCodec
 
 class EntityMetadata {
 
-    @RegisterCodec("entityMetadata", EntityMetadata::class)
-    object EntityMetadataCodec: Codec<EntityMetadata> {
-        override fun decode(reader: IReader) = TODO("Not yet implemented")
-        override fun encode(data: EntityMetadata) = UByteCodec.encode(UByte.MAX_VALUE)
-    }
+}
+
+@RegisterCodec("entityMetadata", EntityMetadata::class)
+object EntityMetadataCodec: Codec<EntityMetadata> {
+    override fun decode(reader: IReader) = TODO("Not yet implemented")
+    override fun encode(data: EntityMetadata) = UByteCodec.encode(UByte.MAX_VALUE)
 }
