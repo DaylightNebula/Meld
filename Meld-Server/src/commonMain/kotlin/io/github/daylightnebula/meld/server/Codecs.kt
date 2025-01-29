@@ -267,3 +267,50 @@ object Float464Codec: Codec<Float4> {
     override fun decode(reader: IReader) = Float4(DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat())
     override fun encode(data: Float4) = DoubleCodec.encode(data.x.toDouble()) + DoubleCodec.encode(data.y.toDouble()) + DoubleCodec.encode(data.z.toDouble()) + DoubleCodec.encode(data.w.toDouble())
 }
+
+data class SpawnInfo(
+    val dimension: Int,
+    val name: String,
+    val hashedSeed: Long,
+    val gameMode: UByte,
+    val previousGameMode: Byte,
+    val isDebug: Boolean,
+    val isFlat: Boolean,
+    val death: Pair<String, Float3>?,
+    val portalCooldown: Int,
+    val seaLevel: Int
+)
+
+@RegisterCodec("SpawnInfo", SpawnInfo::class)
+object SpawnInfoCodec: Codec<SpawnInfo> {
+    override fun encode(data: SpawnInfo) =
+        VarIntCodec.encode(data.dimension) +
+        StringCodec.encode(data.name) +
+        LongCodec.encode(data.hashedSeed) +
+        UByteCodec.encode(data.gameMode) +
+        ByteCodec.encode(data.previousGameMode) +
+        BoolCodec.encode(data.isDebug) +
+        BoolCodec.encode(data.isFlat) +
+        (data.death?.let { byteArrayOf(0x01) + StringCodec.encode(it.first) + PositionCodec.encode(it.second) } ?: byteArrayOf(0x00)) +
+        VarIntCodec.encode(data.portalCooldown) +
+        VarIntCodec.encode(data.seaLevel)
+
+    override fun decode(reader: IReader) = SpawnInfo(
+        dimension = VarIntCodec.decode(reader),
+        name = StringCodec.decode(reader),
+        hashedSeed = LongCodec.decode(reader),
+        gameMode = UByteCodec.decode(reader),
+        previousGameMode = ByteCodec.decode(reader),
+        isDebug = BoolCodec.decode(reader),
+        isFlat = BoolCodec.decode(reader),
+        death = if (reader.read() > 0) StringCodec.decode(reader) to PositionCodec.decode(reader) else null,
+        portalCooldown = VarIntCodec.decode(reader),
+        seaLevel = VarIntCodec.decode(reader)
+    )
+}
+
+@RegisterCodec("PositionUpdateRelatives", Int::class)
+object PositionUpdateRelatives: Codec<Int> {
+    override fun encode(data: Int) = Buffer().writeInt(data).readByteArray()
+    override fun decode(reader: IReader) = Buffer().write(reader.readMany(4)).readInt()
+}

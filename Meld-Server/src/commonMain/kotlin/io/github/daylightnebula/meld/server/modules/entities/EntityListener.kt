@@ -1,12 +1,16 @@
-package io.github.daylightnebula.meld.server.entities
+package io.github.daylightnebula.meld.server.modules.entities
 
+import io.github.daylightnebula.meld.server.entities.EntityDespawnEvent
+import io.github.daylightnebula.meld.server.entities.EntitySpawnEvent
+import io.github.daylightnebula.meld.server.entities.Updatable
+import io.github.daylightnebula.meld.server.entities.updatables
 import io.github.daylightnebula.meld.server.events.EventExecutor
 import io.github.daylightnebula.meld.server.events.EventListener
 
 class EntityListener: EventListener {
     override val executors: List<EventExecutor<*, *>> = listOf(
-        EventExecutor(EntitySpawnEvent, this::onEntitySpawn),
-        EventExecutor(EntityDespawnEvent, this::onEntityDespawn)
+        EventExecutor(EntitySpawnEvent.Companion, this::onEntitySpawn),
+        EventExecutor(EntityDespawnEvent.Companion, this::onEntityDespawn)
     )
 
     fun onEntitySpawn(event: EntitySpawnEvent) {

@@ -10,8 +10,8 @@ import io.github.daylightnebula.meld.server.javaPacket
 import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.generated.*
+import io.github.daylightnebula.meld.server.networking.java.packets.JavaServerPlayUseEntity
 import io.github.daylightnebula.meld.server.utils.BlockFace
-import io.github.daylightnebula.meld.server.utils.Pose
 import io.github.daylightnebula.meld.server.utils.player
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -28,7 +28,7 @@ class PlayerBundle: PacketBundle {
             javaPacket(JavaServerPlayEntityAction, this::onEntityAction),
             javaPacket(JavaServerPlayArmAnimation, this::onSwingArm),
             javaPacket(JavaServerPlayBlockDig, this::onBlockAction),
-            javaPacket(JavaServerPlay, this::onEntityInteraction),
+            javaPacket(JavaServerPlayUseEntity, this::onEntityInteraction),
             javaPacket(JavaServerPlayTickEnd, this::onClientTick)
         )
 
@@ -138,12 +138,11 @@ class PlayerBundle: PacketBundle {
     fun onEntityInteraction(connection: JavaConnection, packet: JavaServerPlayUseEntity) =
         EventBus.callEvent(PlayerEntityInteractEvent(
             player = connection.player,
-            type = when(packet.mouse) {
-
-            },
-            entityID = packet.target,
-            sneaking = packet.sneaking,
-            targetPosition = packet.
+            type = packet.type,
+            entityID = packet.entityId,
+            sneaking = packet.sneakPressed,
+            targetPosition = packet.targetPosition,
+            hand = packet.hand
         ))
 }
 
@@ -188,7 +187,7 @@ data class PlayerAbilitiesReceivedEvent(val player: Player, val abilities: Byte)
 }
 
 @OptIn(ExperimentalUuidApi::class)
-data class PlayerEntityInteractEvent(val player: Player, val type: PlayerInteractType, val entityID: Int, val sneaking: Boolean, val targetPosition: Float3?): Event {
+data class PlayerEntityInteractEvent(val player: Player, val type: PlayerInteractType, val entityID: Int, val sneaking: Boolean, val hand: Int?, val targetPosition: Float3?): Event {
     companion object: Event.Data<PlayerEntityInteractEvent> {
         override val ID: Uuid = Uuid.random()
         override val executors: MutableList<(PlayerEntityInteractEvent) -> Unit> = mutableListOf()

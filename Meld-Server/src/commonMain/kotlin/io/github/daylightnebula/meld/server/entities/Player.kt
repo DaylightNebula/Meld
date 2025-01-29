@@ -21,7 +21,7 @@ import kotlin.uuid.Uuid
 class Player(
     val connection: IConnection<*>,
     uid: Uuid,
-    id: Int = EntityController.nextID(),
+    id: Int = EntityIDs.nextID(),
     entityType: EntityType = EntityType.PLAYER,
     metadata: EntityMetadata = EntityMetadata(),
     dimensionID: String = "overworld",
@@ -67,7 +67,7 @@ class Player(
                 TeleportCounter.nextID(),
                 position.x.toDouble(), position.y.toDouble(), position.z.toDouble(),
                 0.0, 0.0, 0.0,
-                rotation.y, rotation.x
+                rotation.y, rotation.x, 0
             ))
         }
     }

@@ -2,22 +2,26 @@ package io.github.daylightnebula.meld.server.modules.player
 
 import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
-import io.github.daylightnebula.meld.entities.packets.JavaEntityStatusPacket
+import io.github.daylightnebula.meld.server.Meld
+import io.github.daylightnebula.meld.server.SpawnInfo
 import io.github.daylightnebula.meld.server.modules.login.LoginEvent
-import io.github.daylightnebula.meld.player.extensions.hasPlayer
-import io.github.daylightnebula.meld.player.extensions.player
-import io.github.daylightnebula.meld.player.packets.JavaDifficultyPacket
-import io.github.daylightnebula.meld.player.packets.JavaSetPlayerPositionPacket
-import io.github.daylightnebula.meld.player.packets.JavaSetSpawnPositionPacket
-import io.github.daylightnebula.meld.player.packets.join.JavaJoinPacket
-import io.github.daylightnebula.meld.player.packets.login.JavaAbilitiesPacket
-import io.github.daylightnebula.meld.server.ConnectionAbortedEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
 import io.github.daylightnebula.meld.server.events.EventExecutor
 import io.github.daylightnebula.meld.server.events.EventListener
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.entities.Player
+import io.github.daylightnebula.meld.server.events.ConnectionAbortedEvent
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayAbilities
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayDifficulty
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityStatus
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayLogin
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayPosition
+import io.github.daylightnebula.meld.server.generated.JavaClientPlaySpawnPosition
+import io.github.daylightnebula.meld.server.utils.TeleportCounter
+import io.github.daylightnebula.meld.server.utils.hasPlayer
+import io.github.daylightnebula.meld.server.utils.player
+import kotlin.random.Random
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -48,15 +52,64 @@ class PlayerListener: EventListener {
             is JavaConnection -> {
                 val connection = event.connection as JavaConnection
 
+                println("Sending spawn packets!")
+
                 // send join packets
-                connection.sendPacket(JavaJoinPacket(player))
-                connection.sendPacket(JavaAbilitiesPacket())
-                connection.sendPacket(JavaEntityStatusPacket(player.id, 24))
-                connection.sendPacket(JavaDifficultyPacket())
+                connection.sendPacket(JavaClientPlayLogin(
+                    entityId = player.id,
+                    isHardcore = false,
+                    worldNames = listOf("overworld"),
+                    maxPlayers = Meld.config.maxPlayers,
+                    viewDistance = Meld.config.viewDistance,
+                    simulationDistance = Meld.config.simDistance,
+                    reducedDebugInfo = false,
+                    enableRespawnScreen = true, // todo what if this is false
+                    doLimitedCrafting = false,
+                    worldState = SpawnInfo(
+                        dimension = 0,
+                        name = "minecraft:overworld",
+                        hashedSeed = Random.nextLong(),
+                        gameMode = player.gameMode.ordinal.toUByte(),
+                        previousGameMode = -1,
+                        isDebug = false,
+                        isFlat = false,
+                        death = null,
+                        portalCooldown = 0,
+                        seaLevel = 40
+                    ),
+                    enforcesSecureChat = false
+                ))
+                connection.sendPacket(JavaClientPlayAbilities(
+                    flags = 0,
+                    flyingSpeed = 0f,
+                    walkingSpeed = 0f
+                ))
+                connection.sendPacket(JavaClientPlayEntityStatus(
+                    entityId = player.id,
+                    entityStatus = 24
+                ))
+                connection.sendPacket(JavaClientPlayDifficulty(
+                    difficulty = 0u,
+                    difficultyLocked = true
+                ))
 
                 // send positions
-                connection.sendPacket(JavaSetSpawnPositionPacket(Float3(0f, 60f, 0f), 0f))
-                connection.sendPacket(JavaSetPlayerPositionPacket(Float3(0f, 60f, 0f), Float3(), Float2(0f, 0f)))
+                connection.sendPacket(JavaClientPlaySpawnPosition(
+                    location = player.position,
+                    angle = 0f
+                ))
+                connection.sendPacket(JavaClientPlayPosition(
+                    teleportId = TeleportCounter.nextID(),
+                    x = player.position.x.toDouble(),
+                    y = player.position.y.toDouble(),
+                    z = player.position.z.toDouble(),
+                    dx = 0.0,
+                    dy = 0.0,
+                    dz = 0.0,
+                    yaw = player.rotation.y,
+                    pitch = player.rotation.x,
+                    flags = 0
+                ))
             }
 
             // bedrock connections

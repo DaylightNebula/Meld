@@ -9,7 +9,7 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 abstract class LivingEntity(
     uid: Uuid = Uuid.random(),
-    id: Int = EntityController.nextID(),
+    id: Int = EntityIDs.nextID(),
     type: EntityType = EntityType.ARMOR_STAND,
     metadata: EntityMetadata = EntityMetadata(),
     dimension: String = "overworld",

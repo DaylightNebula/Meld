@@ -31,7 +31,7 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class, DelicateCoroutinesApi::class)
 open class Entity(
     val uid: Uuid = Uuid.random(),
-    val id: Int = EntityController.nextID(),
+    val id: Int = EntityIDs.nextID(),
     val type: EntityType = EntityType.ARROW,
     val metadata: EntityMetadata = EntityMetadata(),
     var dimensionID: String = "overworld",
