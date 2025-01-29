@@ -230,6 +230,26 @@ object Float3Codec: Codec<Float3> {
     override fun encode(data: Float3) = FloatCodec.encode(data.x) + FloatCodec.encode(data.y) + FloatCodec.encode(data.z)
 }
 
+@RegisterCodec("position", Float3::class)
+object PositionCodec: Codec<Float3> {
+    override fun decode(reader: IReader): Float3 {
+        val long = LongCodec.decode(reader)
+        return Float3(
+            x = (long shr 38).toFloat(),
+            y = (long shl 52 shr 52).toFloat(),
+            z = (long shl 26 shr 38).toFloat()
+        )
+    }
+
+    override fun encode(data: Float3): ByteArray {
+        return LongCodec.encode(
+            ((data.x.toLong() and 0x3FFFFFF) shl 38) or
+                ((data.z.toLong() and 0x3FFFFFF) shl 12) or
+                (data.y.toLong() and 0xFFF)
+        )
+    }
+}
+
 @RegisterCodec("vec3f64", Float3::class)
 object Float364Codec: Codec<Float3> {
     override fun decode(reader: IReader) = Float3(DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat(), DoubleCodec.decode(reader).toFloat())

@@ -12,8 +12,6 @@ import io.github.daylightnebula.meld.server.networking.common.IConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.networking.java.JavaPacket
 import io.github.daylightnebula.meld.server.networking.java.packets.JavaClientPlayPlayerInfo
-import io.github.daylightnebula.meld.server.utils.BitFlagSet
-import io.github.daylightnebula.meld.server.utils.Pose
 import io.github.daylightnebula.meld.server.utils.TeleportCounter
 import io.github.daylightnebula.meld.server.utils.toAngleByte
 import kotlin.uuid.ExperimentalUuidApi
@@ -79,8 +77,13 @@ class Player(
         if (type == EntityType.PLAYER)
             listOf(
                 JavaClientPlayPlayerInfo(
-                    action = BitFlagSet(flags = BooleanArray(8).apply { set(0, true) }),
-                    data = listOf(JavaClientPlayPlayerInfo.Data(uid))
+                    data = listOf(JavaClientPlayPlayerInfo.Data(
+                        uuid = uid,
+                        actions = listOf(JavaClientPlayPlayerInfo.AddPlayerAction(
+                            name = "DaylightNebula",
+                            properties = listOf()
+                        ))
+                    ))
                 ),
                 JavaClientPlaySpawnEntity(
                     entityId = id,
@@ -97,7 +100,10 @@ class Player(
                     velocityY = 0,
                     velocityZ = 0
                 ),
-                JavaClientPlayEntityMetadata(id, metadata)
+                JavaClientPlayEntityMetadata(
+                    entityId = id,
+                    metadata = metadata
+                )
             )
         else super.getSpawnJavaPackets()
 }
@@ -127,6 +133,6 @@ data class PlayerRotateEvent(val player: Player, val oldRotation: Float2, val ro
 enum class PlayerChatMode { ENABLED, COMMANDS_ONLY, HIDDEN }
 enum class PlayerMainHand { LEFT, RIGHT }
 enum class PlayerHand { MAIN, OFF }
-enum class PlayerCommandAction { START_SNEAKING, STOP_SNEAKING, LEAVE_BED, START_SPRINTING, STOP_SPRINTING, START_JUMP_HORSE, STOP_JUMP_HORSE, OPEN_HORSE_INVENTORY, START_FLYING_ELYTRA }
+enum class PlayerAction { START_SNEAKING, STOP_SNEAKING, LEAVE_BED, START_SPRINTING, STOP_SPRINTING, START_JUMP_HORSE, STOP_JUMP_HORSE, OPEN_VEHICLE_INVENTORY, START_FLYING_ELYTRA }
 enum class PlayerBlockAction { START_DIGGING, CANCELLED_DIGGING, FINISHED_DIGGING, DROP_ITEM_STACK, DROP_ITEM, SHOOT_ARROW_FINISH_EATING, SWAP_ITEM_IN_HAND }
 enum class PlayerInteractType { INTERACT, ATTACK, INTERACT_AT }
