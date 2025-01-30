@@ -8,6 +8,7 @@ import io.github.daylightnebula.meld.ksp.data.IReader
 import io.github.daylightnebula.meld.ksp.data.RegisterCodec
 import io.github.daylightnebula.meld.server.VarIntCodec
 import io.github.daylightnebula.meld.server.entities.EntityMetadata
+import io.github.daylightnebula.meld.server.utils.Slot
 import io.ktor.utils.io.core.String
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.io.readDouble

@@ -1,10 +1,13 @@
-package io.github.daylightnebula.meld.inventories
+package io.github.daylightnebula.meld.server.modules.inventories
 
-import io.github.daylightnebula.meld.inventories.handlers.handler
-import io.github.daylightnebula.meld.inventories.utils.inventory
-import io.github.daylightnebula.meld.player.*
+import io.github.daylightnebula.meld.server.entities.Player
+import io.github.daylightnebula.meld.server.entities.PlayerBlockAction
 import io.github.daylightnebula.meld.server.events.*
+import io.github.daylightnebula.meld.server.modules.player.PlayerBlockActionEvent
+import io.github.daylightnebula.meld.server.modules.player.PlayerEntityInteractEvent
 import io.github.daylightnebula.meld.server.utils.ItemContainer
+import io.github.daylightnebula.meld.server.utils.Slot
+import io.github.daylightnebula.meld.server.utils.inventory
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -26,26 +29,26 @@ class InventoryListener: EventListener {
         EventBus.callEvent(dropEvent)
 
         // if cancelled, add item back and stop here
-        if (!dropEvent.allowRemove) inventory.setItem(inventory.selectedSlot + 36, dropEvent.item)
+//        if (!dropEvent.allowRemove) inventory.setItem(inventory.selectedSlot + 36, dropEvent.item)
         // otherwise remove item
-        else inventory.setItem(inventory.selectedSlot + 36, null)
+//        else inventory.setItem(inventory.selectedSlot + 36, null)
     }
 
     fun onBlockAction(event: PlayerBlockActionEvent) {
         val inventory = event.player.inventory
         inventory.getItem(inventory.selectedSlot + 36)
-            ?.handler?.onBlockAction(event.action, event.face, event.blockPosition)
+//            ?.handler?.onBlockAction(event.action, event.face, event.blockPosition)
     }
 
     fun onInteract(event: PlayerEntityInteractEvent) {
         val inventory = event.player.inventory
         inventory.getItem(inventory.selectedSlot + 36)
-            ?.handler?.onEntityInteract(event.type, event.entityID, event.sneaking, event.targetPosition)
+//            ?.handler?.onEntityInteract(event.type, event.entityID, event.sneaking, event.targetPosition)
     }
 }
 
 @OptIn(ExperimentalUuidApi::class)
-data class PlayerDropRequestEvent(val player: Player, val item: ItemContainer?, var allowRemove: Boolean = false): Event {
+data class PlayerDropRequestEvent(val player: Player, val item: Slot, var allowRemove: Boolean = false): Event {
     companion object: Event.Data<PlayerDropRequestEvent> {
         override val ID: Uuid = Uuid.random()
         override val executors: MutableList<(PlayerDropRequestEvent) -> Unit> = mutableListOf()

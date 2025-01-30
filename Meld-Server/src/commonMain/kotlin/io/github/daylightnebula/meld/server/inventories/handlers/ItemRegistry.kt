@@ -1,5 +1,6 @@
-package io.github.daylightnebula.meld.inventories.handlers
+package io.github.daylightnebula.meld.server.inventories.handlers
 
+import io.github.daylightnebula.meld.server.Meld.nbt
 import io.github.daylightnebula.meld.server.utils.ItemContainer
 import net.benwoodworth.knbt.`MIGRATION Acknowledge that NbtCompound now has a stricter get`
 import net.benwoodworth.knbt.NbtInt
@@ -17,7 +18,7 @@ object ItemRegistry {
 }
 
 data class ItemHandlerRef(val id: Int, val customModelID: Int?)
-@OptIn(`MIGRATION Acknowledge that NbtCompound now has a stricter get`::class)
-val ItemContainer.handler: ItemHandler?
-    get() = ItemRegistry.getItemHandler(id, (nbt?.get("CustomModelData") as NbtInt).value)
+//@OptIn(`MIGRATION Acknowledge that NbtCompound now has a stricter get`::class)
+//val ItemContainer.handler: ItemHandler?
+//    get() = ItemRegistry.getItemHandler(id, (nbt?.get("CustomModelData") as NbtInt).value)
 //    get() = ItemRegistry.getItemHandler(id, nbt?.getInt("CustomModelData"))

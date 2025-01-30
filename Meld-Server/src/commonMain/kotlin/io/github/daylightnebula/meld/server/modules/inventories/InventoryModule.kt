@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.inventories
+package io.github.daylightnebula.meld.server.modules.inventories
 
 import io.github.daylightnebula.meld.server.PacketManager
 import io.github.daylightnebula.meld.server.events.EventBus

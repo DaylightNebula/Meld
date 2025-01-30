@@ -116,7 +116,6 @@ object MeldPackets {
                 val types = mutableListOf<TypeSpec>()
                 val typeName = snakeToCamelCase(key)
                 val codecName = ClassName("io.github.daylightnebula.meld.server.generated", "${typeName}Codec")
-
                 val typeBuilder = TypeSpec.objectBuilder(codecName)
 
                 // add id prop
@@ -140,21 +139,26 @@ object MeldPackets {
                     ClassName("io.github.daylightnebula.meld.ksp.data", "Codec")
                         .parameterizedBy(arrayType)
                 )
+                val codec = getPrimaryCodec(type.type)
 
                 // add functions
+                val childDecode = if (codec != null && codec.manuallyCreated) "${codec.codec.packageName}.${codec.codec.simpleName}.decode(reader)"
+                    else "${child.type}.decode(reader)"
                 typeBuilder.addFunction(
                     FunSpec.builder("decode")
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter(ParameterSpec.builder("reader", IReader::class).build())
-                        .addCode("return (0 until io.github.daylightnebula.meld.server.VarIntCodec.decode(reader)).map { ${child.type}.decode(reader) }")
+                        .addCode("return (0 until io.github.daylightnebula.meld.server.VarIntCodec.decode(reader)).map { $childDecode }")
                         .returns(arrayType)
                         .build()
                 )
+                val childEncode = if (codec != null && codec.manuallyCreated) "${codec.codec.packageName}.${codec.codec.simpleName}.encode(`data`)"
+                    else "`data`.encode()"
                 typeBuilder.addFunction(
                     FunSpec.builder("encode")
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter(ParameterSpec.builder("data", arrayType).build())
-                        .addCode("return io.github.daylightnebula.meld.server.VarIntCodec.encode(`data`.size) + `data`.map { `data` -> `data`.encode() }.fold(byteArrayOf()) { acc, bytes -> acc + bytes }")
+                        .addCode("return io.github.daylightnebula.meld.server.VarIntCodec.encode(`data`.size) + `data`.map { `data` -> $childEncode }.fold(byteArrayOf()) { acc, bytes -> acc + bytes }")
                         .returns(ByteArray::class)
                         .build()
                 )
@@ -163,6 +167,12 @@ object MeldPackets {
                 types.add(typeBuilder.build())
                 codecs[key] = CodecEntry(arrayType, codecName, true)
                 types
+            }
+
+            is PrismarineType.Simple -> {
+                val prevCodec = codecs[type.text]
+                if (prevCodec != null) codecs[key] = prevCodec
+                null
             }
 
             else -> null

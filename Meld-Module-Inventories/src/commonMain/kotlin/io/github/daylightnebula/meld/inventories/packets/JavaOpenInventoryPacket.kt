@@ -1,6 +1,6 @@
 package io.github.daylightnebula.meld.inventories.packets
 
-import io.github.daylightnebula.meld.inventories.utils.InventoryType
+import io.github.daylightnebula.meld.server.utils.InventoryType
 import io.github.daylightnebula.meld.server.networking.common.AbstractReader
 import io.github.daylightnebula.meld.server.networking.common.ByteWriter
 import io.github.daylightnebula.meld.server.networking.java.JavaConnectionState

@@ -1,4 +1,4 @@
-package io.github.daylightnebula.meld.inventories.utils
+package io.github.daylightnebula.meld.server.utils
 
 enum class InventoryType(val id: Int, val count: Int) {
     GENERIC_9x1(0, 45),

@@ -1,7 +1,7 @@
-package io.github.daylightnebula.meld.inventories.utils
+package io.github.daylightnebula.meld.server.utils
 
-import io.github.daylightnebula.meld.inventories.inventories.PlayerInventory
-import io.github.daylightnebula.meld.player.Player
+import io.github.daylightnebula.meld.server.entities.Player
+import io.github.daylightnebula.meld.server.inventories.PlayerInventory
 
 // storage for all active player inventories
 val playerInventories = hashMapOf<Player, PlayerInventory>()

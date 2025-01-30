@@ -1,20 +1,21 @@
-package io.github.daylightnebula.meld.inventories.inventories
+package io.github.daylightnebula.meld.server.inventories
 
-import io.github.daylightnebula.meld.inventories.inventories.InventoryChangeEvent
-import io.github.daylightnebula.meld.inventories.utils.InventoryType
-import io.github.daylightnebula.meld.inventories.utils.inventory
-import io.github.daylightnebula.meld.inventories.packets.JavaCloseInventoryPacket
-import io.github.daylightnebula.meld.inventories.packets.JavaOpenInventoryPacket
-import io.github.daylightnebula.meld.inventories.packets.JavaSetInventoryContentPacket
-import io.github.daylightnebula.meld.inventories.packets.JavaSetItemPacket
-import io.github.daylightnebula.meld.player.Player
+import io.github.daylightnebula.meld.server.entities.Player
+import io.github.daylightnebula.meld.server.utils.InventoryType
+import io.github.daylightnebula.meld.server.utils.inventory
 import io.github.daylightnebula.meld.server.events.CancellableEvent
 import io.github.daylightnebula.meld.server.events.Event
 import io.github.daylightnebula.meld.server.events.EventBus
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayCloseWindow
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayOpenWindow
+import io.github.daylightnebula.meld.server.generated.JavaClientPlaySetSlot
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayWindowItems
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.utils.ItemContainer
+import io.github.daylightnebula.meld.server.utils.Slot
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import net.benwoodworth.knbt.NbtString
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -22,7 +23,7 @@ class Inventory(
     val type: InventoryType,
     val title: String
 ): BaseInventory {
-    override val slots: Array<ItemContainer?> = arrayOfNulls(type.count)
+    override val slots: MutableList<Slot> = MutableList(type.count) { Slot.Empty() }
 
     // list of all watching the inventory
     private val watchers = mutableListOf<Player>()
@@ -36,8 +37,8 @@ class Inventory(
         // send open packets
         val connection = player.connection
         val javaPackets = arrayOf(
-            JavaOpenInventoryPacket(1, type, JsonObject(mapOf("text" to JsonPrimitive(title)))),
-            JavaSetInventoryContentPacket(1u, 0, slots, null),
+            JavaClientPlayOpenWindow(1, type.ordinal, NbtString(title)),
+            JavaClientPlayWindowItems(1, 0, slots, Slot.Empty())
         )
         when(connection) {
             is JavaConnection -> for (packet in javaPackets) connection.sendPacket(packet)
@@ -58,7 +59,7 @@ class Inventory(
 
         // send close packets
         val connection = player.connection
-        val javaPacket = JavaCloseInventoryPacket(1u)
+        val javaPacket = JavaClientPlayCloseWindow(1)
         when (connection) {
             is JavaConnection -> connection.sendPacket(javaPacket)
 //          BEDROCK  is BedrockConnection -> NeedsBedrock()
@@ -81,13 +82,16 @@ class Inventory(
         if (event.cancelled) open(player)
     }
 
-    override fun onInventoryChange(changedSlot: Int, changedItemContainer: ItemContainer?, filled: Boolean) {
+    override fun onInventoryChange(changedSlot: Int, changedItemContainer: Slot, filled: Boolean) {
         super.onInventoryChange(changedSlot, changedItemContainer, filled)
 
         // tell all watchers about the change
+//        val javaPacket =
+//            if (filled) JavaSetInventoryContentPacket(1u, 0, slots, null)
+//            else JavaSetItemPacket(1, 0, changedSlot.toShort(), changedItemContainer)
         val javaPacket =
-            if (filled) JavaSetInventoryContentPacket(1u, 0, slots, null)
-            else JavaSetItemPacket(1, 0, changedSlot.toShort(), changedItemContainer)
+            if (filled) JavaClientPlayWindowItems(1, 0, slots, Slot.Empty())
+            else JavaClientPlaySetSlot(1, 0, changedSlot.toShort(), changedItemContainer)
         watchers.forEach {
             when (val connection = it.connection) {
                 is JavaConnection -> connection.sendPacket(javaPacket)

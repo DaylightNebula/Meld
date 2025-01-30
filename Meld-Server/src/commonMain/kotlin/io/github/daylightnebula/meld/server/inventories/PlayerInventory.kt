@@ -1,14 +1,14 @@
-package io.github.daylightnebula.meld.inventories.inventories
+package io.github.daylightnebula.meld.server.inventories
 
-import io.github.daylightnebula.meld.inventories.EquipmentSlot
-import io.github.daylightnebula.meld.player.Player
-import io.github.daylightnebula.meld.server.utils.ItemContainer
+import io.github.daylightnebula.meld.server.entities.Player
+import io.github.daylightnebula.meld.server.modules.inventories.EquipmentSlot
+import io.github.daylightnebula.meld.server.utils.Slot
 
 class PlayerInventory(
     override val entity: Player,
-    override val slots: Array<ItemContainer?> = arrayOfNulls(46)
+    override val slots: MutableList<Slot> = MutableList(46) { Slot.Empty() }
 ): EntityInventory {
-    override val id: UByte = 0u
+    override val id: Int = 0
     var openInventory: Inventory? = null
     var selectedSlot: Int = 0 // offset 36
         set(value) {
