@@ -39,6 +39,11 @@ class Player(
     var joinSent = false
         internal set
 
+    // the last input flags sent my the client to this server
+    enum class PlayerInput { FORWARD, BACKWARD, LEFT, RIGHT, JUMP, SNEAK, SPRINT }
+    var lastInputFlags = listOf<PlayerInput>()
+        internal set
+
     // todo handle sneaking
 //    fun setSneaking(sneaking: Boolean) {
 //        if ((isSneaking() && !sneaking) || (!isSneaking() && sneaking))

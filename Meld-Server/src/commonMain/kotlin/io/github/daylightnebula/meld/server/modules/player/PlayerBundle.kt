@@ -11,6 +11,7 @@ import io.github.daylightnebula.meld.server.javaPackets
 import io.github.daylightnebula.meld.server.networking.java.JavaConnection
 import io.github.daylightnebula.meld.server.generated.*
 import io.github.daylightnebula.meld.server.networking.java.packets.JavaServerPlayUseEntity
+import io.github.daylightnebula.meld.server.utils.BitFlagCodec
 import io.github.daylightnebula.meld.server.utils.BlockFace
 import io.github.daylightnebula.meld.server.utils.player
 import kotlin.uuid.ExperimentalUuidApi
@@ -29,8 +30,16 @@ class PlayerBundle: PacketBundle {
             javaPacket(JavaServerPlayArmAnimation, this::onSwingArm),
             javaPacket(JavaServerPlayBlockDig, this::onBlockAction),
             javaPacket(JavaServerPlayUseEntity, this::onEntityInteraction),
-            javaPacket(JavaServerPlayTickEnd, this::onClientTick)
+            javaPacket(JavaServerPlayTickEnd, this::onClientTick),
+            javaPacket(JavaServerPlayPlayerInput, this::onPlayerInput)
         )
+
+    // When a player updates there primary inputs, record them to the player entity
+    fun onPlayerInput(connection: JavaConnection, packet: JavaServerPlayPlayerInput) {
+        val flags = mutableListOf<Player.PlayerInput>()
+        packet.inputs.flags.forEachIndexed { idx, flag -> if (flag) flags.add(Player.PlayerInput.entries[idx]) }
+        connection.player.lastInputFlags = flags
+    }
 
     fun onReceivePlayerPosition(connection: JavaConnection, packet: JavaServerPlayPosition) {
         // get player and broadcast event
@@ -44,6 +53,7 @@ class PlayerBundle: PacketBundle {
         else player.setPosition(position)
     }
 
+    @Suppress("unused")
     fun onClientTick(connection: JavaConnection, tick: JavaServerPlayTickEnd) {}
 
     fun onReceivePlayerPositionAndRotation(connection: JavaConnection, packet: JavaServerPlayPositionLook) {
@@ -132,6 +142,7 @@ class PlayerBundle: PacketBundle {
             )
         )
 
+    @Suppress("unused")
     fun onSwingArm(connection: JavaConnection, packet: JavaServerPlayArmAnimation) =
         connection.player.playAnimation(EntityAnimation.SWING_ARM)
 
