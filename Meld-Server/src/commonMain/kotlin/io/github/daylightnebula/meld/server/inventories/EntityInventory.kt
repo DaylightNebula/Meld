@@ -43,6 +43,7 @@ interface EntityInventory: BaseInventory {
     fun broadcastEquipmentChange(slot: EquipmentSlot) {
         // get item and build packets
         val item = getItem(getIndexForEquipmentSlot(slot))
+        TODO()
 //      TODO  val javaPacket = JavaClientPlayEntityEquipment(entity.id, slot, item)
 //
 //        // broadcast packets
