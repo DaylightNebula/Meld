@@ -14,10 +14,23 @@ import io.github.daylightnebula.meld.server.entities.Player
 import io.github.daylightnebula.meld.server.events.ConnectionAbortedEvent
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayAbilities
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayDifficulty
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityMetadata
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityStatus
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityUpdateAttributes
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayHeldItemSlot
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayLogin
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayPosition
+import io.github.daylightnebula.meld.server.generated.JavaClientPlaySetSlot
+import io.github.daylightnebula.meld.server.generated.JavaClientPlaySetTickingState
+import io.github.daylightnebula.meld.server.generated.JavaClientPlaySetTitleTime
+import io.github.daylightnebula.meld.server.generated.JavaClientPlaySimulationDistance
 import io.github.daylightnebula.meld.server.generated.JavaClientPlaySpawnPosition
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayStepTick
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayUpdateTime
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayUpdateViewDistance
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayWindowItems
+import io.github.daylightnebula.meld.server.generated.TypeSlot
+import io.github.daylightnebula.meld.server.networking.java.packets.JavaClientPlayPlayerInfo
 import io.github.daylightnebula.meld.server.utils.TeleportCounter
 import io.github.daylightnebula.meld.server.utils.hasPlayer
 import io.github.daylightnebula.meld.server.utils.player
@@ -42,7 +55,7 @@ class PlayerListener: EventListener {
     @OptIn(ExperimentalUuidApi::class)
     fun onLoginEvent(event: LoginEvent) {
         // create player and broadcast pre join
-        val player = Player(event.connection, event.uid)
+        val player = Player(event.connection, event.uid, position = Float3(0f, 40f, 0f))
         event.connection.player = player
         EventBus.callEvent(PreJoinEvent(player))
 
@@ -50,9 +63,7 @@ class PlayerListener: EventListener {
         when (event.connection) {
             // java connections
             is JavaConnection -> {
-                val connection = event.connection as JavaConnection
-
-                println("Sending spawn packets!")
+                val connection = event.connection
 
                 // send join packets
                 connection.sendPacket(JavaClientPlayLogin(
@@ -79,11 +90,16 @@ class PlayerListener: EventListener {
                     ),
                     enforcesSecureChat = false
                 ))
+                connection.sendPacket(JavaClientPlayDifficulty(
+                    difficulty = 0u,
+                    difficultyLocked = true
+                ))
                 connection.sendPacket(JavaClientPlayAbilities(
                     flags = 0,
-                    flyingSpeed = 0f,
-                    walkingSpeed = 0f
+                    flyingSpeed = 0.05f,
+                    walkingSpeed = 0.1f
                 ))
+                connection.sendPacket(JavaClientPlayHeldItemSlot(0))
                 connection.sendPacket(JavaClientPlayEntityStatus(
                     entityId = player.id,
                     entityStatus = 24
@@ -91,6 +107,15 @@ class PlayerListener: EventListener {
                 connection.sendPacket(JavaClientPlayDifficulty(
                     difficulty = 0u,
                     difficultyLocked = true
+                ))
+                connection.sendPacket(JavaClientPlaySetTickingState(20f, false))
+                connection.sendPacket(JavaClientPlayStepTick(0))
+                connection.sendPacket(JavaClientPlayUpdateViewDistance(Meld.config.viewDistance))
+                connection.sendPacket(JavaClientPlaySimulationDistance(Meld.config.simDistance))
+                connection.sendPacket(JavaClientPlayUpdateTime(
+                    age = 1057,
+                    time = 471128696,
+                    tickDayTime = false
                 ))
 
                 // send positions
@@ -109,6 +134,15 @@ class PlayerListener: EventListener {
                     yaw = player.rotation.y,
                     pitch = player.rotation.x,
                     flags = 0
+                ))
+                connection.sendPacket(JavaClientPlayPlayerInfo(
+                    data = listOf(JavaClientPlayPlayerInfo.Data(
+                        uuid = player.uid,
+                        actions = listOf(JavaClientPlayPlayerInfo.AddPlayerAction(
+                            name = "DaylightNebula",
+                            properties = listOf()
+                        ))
+                    ))
                 ))
             }
 

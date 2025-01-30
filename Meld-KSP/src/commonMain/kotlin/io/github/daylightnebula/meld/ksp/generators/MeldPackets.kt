@@ -299,7 +299,7 @@ object MeldPackets {
         }
 
         is PrismarineType.Container -> "$name.encode()"
-        is PrismarineType.Buffer -> name
+        is PrismarineType.Buffer -> "io.github.daylightnebula.meld.server.VarIntCodec.encode($name.size) + $name"
         is PrismarineType.RegistryEntryHolderSet -> "$name.encode()"
 
         //        is ProtocolType.Mapping -> TODO("KT Type Mapping")

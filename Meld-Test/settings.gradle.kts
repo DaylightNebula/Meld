@@ -9,6 +9,3 @@ project(":Meld-Server").projectDir = file("../Meld-Server")
 
 //include(":Meld-Module-Inventories")
 //project(":Meld-Module-Inventories").projectDir = file("../Meld-Module-Inventories")
-//
-//include(":Meld-Module-World")
-//project(":Meld-Module-World").projectDir = file("../Meld-Module-World")
