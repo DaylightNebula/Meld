@@ -17,7 +17,9 @@ import io.github.daylightnebula.meld.server.generated.JavaClientPlayDifficulty
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityMetadata
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityStatus
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayEntityUpdateAttributes
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayGameStateChange
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayHeldItemSlot
+import io.github.daylightnebula.meld.server.generated.JavaClientPlayInitializeWorldBorder
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayLogin
 import io.github.daylightnebula.meld.server.generated.JavaClientPlayPosition
 import io.github.daylightnebula.meld.server.generated.JavaClientPlaySetSlot
@@ -117,6 +119,17 @@ class PlayerListener: EventListener {
                     time = 471128696,
                     tickDayTime = false
                 ))
+                connection.sendPacket(JavaClientPlayInitializeWorldBorder(
+                    x = 0.0,
+                    z = 0.0,
+                    oldDiameter = 59999968.0,
+                    newDiameter = 59999968.0,
+                    speed = 1,
+                    portalTeleportBoundary = 0,
+                    warningBlocks = 0,
+                    warningTime = 0
+                ))
+                connection.sendPacket(JavaClientPlayGameStateChange(13u, 0f))
 
                 // send positions
                 connection.sendPacket(JavaClientPlaySpawnPosition(
