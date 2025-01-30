@@ -31,8 +31,12 @@ class PlayerBundle: PacketBundle {
             javaPacket(JavaServerPlayBlockDig, this::onBlockAction),
             javaPacket(JavaServerPlayUseEntity, this::onEntityInteraction),
             javaPacket(JavaServerPlayTickEnd, this::onClientTick),
-            javaPacket(JavaServerPlayPlayerInput, this::onPlayerInput)
+            javaPacket(JavaServerPlayPlayerInput, this::onPlayerInput),
+            javaPacket(JavaServerPlayPlayerLoaded, this::onPlayerLoaded)
         )
+
+    @Suppress("unused")
+    fun onPlayerLoaded(connection: JavaConnection, packet: JavaServerPlayPlayerLoaded) {}
 
     // When a player updates there primary inputs, record them to the player entity
     fun onPlayerInput(connection: JavaConnection, packet: JavaServerPlayPlayerInput) {
